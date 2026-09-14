@@ -1,33 +1,48 @@
 # ProofPulse
 
-An explainable onchain signal investigator built for the Nansen Meridian Buildathon.
+**See who moved, why it matters, and what would break the thesis.**
 
-ProofPulse helps traders understand whether a token move is driven by credible
-onchain activity, short-lived hype, or coordinated wallets. It combines Nansen
-Smart Money flows, wallet relationships, token activity, and AI-generated
-explanations in one visual workflow.
+ProofPulse is an explainable onchain signal investigator for the Nansen Meridian
+Buildathon. It turns Nansen token flows, wallet relationships, and trader
+performance into an evidence-first investigation instead of an opaque buy/sell
+call.
 
-## Status
+## Current phase
 
-Project setup in progress.
+Specification first. Product implementation does not begin until the P0 product,
+interface, data, security, and acceptance rules are documented and reviewed.
 
-## Planned MVP
+## Product documentation
 
-- Token and chain search
-- Smart Money, whale, and fresh-wallet signal comparison
-- Explainable signal-quality score
-- Wallet relationship graph
-- Evidence-backed AI summary and invalidation conditions
+The complete specification is indexed in [`docs/README.md`](docs/README.md):
 
-## Built with
+- product brief, boundaries, and success criteria;
+- non-negotiable product and interface rules;
+- route map and screen contracts;
+- Nansen data contracts and transparent scoring;
+- technical architecture and security model;
+- test plan, delivery schedule, and submission checklist; and
+- decision log with unresolved competition questions.
+
+## Intended stack
 
 - Nansen API
-- Next.js and TypeScript
+- Next.js, React, and TypeScript
 - Tailwind CSS
 - React Flow and Recharts
+- a server-side LLM adapter for evidence-grounded summaries
+
+The stack is a target, not yet an implementation. Exact versions will be pinned
+when scaffolding begins.
 
 ## Security
 
-Nansen API keys must remain server-side and must never be committed to this
-repository.
+Nansen API keys and model-provider credentials remain server-side. They must
+never be exposed through `NEXT_PUBLIC_*`, client bundles, logs, screenshots, or
+commits.
 
+## References
+
+- [Nansen Meridian Buildathon announcement](https://x.com/nansen_ai/status/2099438188934897747)
+- [Nansen API endpoint overview](https://docs.nansen.ai/about/endpoints-overview)
+- [Interface-learning reference: arc-payment](https://github.com/mrchaosdev/arc-payment)

@@ -1,0 +1,61 @@
+/** Actions (DESIGN-RULES 9). One primary button per decision region. */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding-inline: var(--space-5);
+  border-radius: var(--radius-control);
+  font-weight: var(--weight-semibold);
+  font-size: var(--type-body-size);
+  text-decoration: none;
+  transition:
+    background-color var(--motion-standard) var(--easing-standard),
+    color var(--motion-standard) var(--easing-standard);
+}
+
+.button[data-variant="primary"] {
+  background-color: var(--primary);
+  color: var(--on-primary);
+}
+
+.button[data-variant="primary"]:hover {
+  background-color: var(--primary-hover);
+}
+
+.button[data-variant="secondary"] {
+  background-color: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--outline);
+}
+
+.button[data-variant="secondary"]:hover {
+  background-color: var(--surface-strong);
+}
+
+.button[data-variant="quiet"] {
+  color: var(--primary);
+  padding-inline: var(--space-2);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--radius-control);
+  color: var(--ink-muted);
+}
+
+.copy-button:hover {
+  background-color: var(--surface-strong);
+  color: var(--ink);
+}

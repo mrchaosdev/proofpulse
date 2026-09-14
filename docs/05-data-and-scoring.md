@@ -21,23 +21,35 @@ forbidden.
 
 ## Core endpoint budget
 
-Credit costs below are planning values from the Nansen documentation and must be
-checked again when implementation starts.
+Paths and credit costs were verified against the live API on `2026-09-15`
+(decision D-017). All requests are `POST` and authenticate with an `apikey`
+header against `https://api.nansen.ai`.
 
-| Dataset | Nansen capability | P0 use | Pro / Free credits per call |
+| Dataset | Verified path | P0 use | Credits per call |
 | --- | --- | --- | ---: |
-| Token universe/context | `tgm/token-screener` | identify market/liquidity context | `1 / 10` |
-| Cohort flows | `tgm/flow-intelligence` | primary directional evidence | `1 / 10` |
-| Buyers | `tgm/who-bought-sold` with `BUY` | actor concentration | `1 / 10` |
-| Sellers | `tgm/who-bought-sold` with `SELL` | actor concentration | `1 / 10` |
-| Related wallets | `profiler/address/related-wallets` | on-demand relationship evidence | `1 / 10` |
-| Wallet performance | `profiler/address/pnl-summary` | optional actor context | `1 / 10` |
-| Smart Money market scan | `smart-money/netflow` | P1 discovery, not core investigation | `5 / 50` |
-| Address labels | `profiler/address/labels` | excluded from automatic MVP flow | high cost |
+| Token universe/context | `/api/v1/token-screener` | identify market/liquidity context | `1` |
+| Cohort flows | `/api/v1/tgm/flow-intelligence` | primary directional evidence | `1` |
+| Buyers | `/api/v1/tgm/who-bought-sold` with `BUY` | actor concentration | `1` |
+| Sellers | `/api/v1/tgm/who-bought-sold` with `SELL` | actor concentration | `1` |
+| Related wallets | `/api/v1/profiler/address/related-wallets` | on-demand relationship evidence | `1` |
+| Smart Money market scan | `smart-money/netflow` | P1 discovery, not core investigation | unverified |
+| Address labels | `profiler/address/labels` | excluded from automatic MVP flow | unverified |
 
-Normal P0 investigation target: four calls before optional expansion. The system
-may use a different token-information endpoint if live testing shows it is more
-reliable than Token Screener for exact-address context; record that as a decision.
+Token Screener is the one core endpoint **not** under the `tgm/` prefix.
+
+Cost is `1` credit per call on both the Free and Pro plans; the earlier
+`1 / 10` planning figure was wrong. The binding constraint is the balance, not
+the per-call price:
+
+- Free: `100` one-time credits, then a daily top-up back to `10` if the balance
+  falls below `10`.
+- Pro: `2,000` on subscription, topped back up to `2,000` monthly.
+
+A core investigation therefore costs `4` credits, which is roughly `2` complete
+investigations per day on a depleted Free balance. Caching and on-demand wallet
+expansion are not optimizations; without them the product cannot be demonstrated.
+
+Normal P0 investigation target: four calls before optional expansion.
 
 ## Supported scope
 
@@ -54,8 +66,67 @@ Primary timeframes:
 - `1d`
 - `7d`
 
-An endpoint may support a different set. The adapter must expose support metadata
-and refuse invalid combinations rather than approximating them silently.
+The endpoints do not share one timeframe vocabulary, so the adapter translates a
+domain timeframe per endpoint rather than passing it through:
+
+| Domain | Flow Intelligence | Token Screener | Who Bought/Sold |
+| --- | --- | --- | --- |
+| `1h` | `1h` | `1h` | `from`/`to` window |
+| `6h` | `6h` | `6h` | `from`/`to` window |
+| `1d` | `1d` | `24h` | `from`/`to` window |
+| `7d` | `7d` | `7d` | `from`/`to` window |
+
+Flow Intelligence accepts `5m, 1h, 6h, 12h, 1d, 7d`. Token Screener accepts
+`5m, 10m, 1h, 6h, 24h, 7d, 30d`. Who Bought/Sold has no timeframe parameter at
+all and takes an explicit ISO 8601 `date.from`/`date.to` window, which the
+adapter derives from the selected timeframe and a single injected clock read.
+
+Sending `1d` to Token Screener returns `422 invalid_field_value`. The adapter
+must refuse or translate an invalid combination rather than approximating it
+silently.
+
+## Verified upstream quirks
+
+Observed on `2026-09-15` against LINK on Ethereum. Each is pinned by a contract
+test in `tests/contract/nansen-schemas.test.ts`.
+
+### Wallet counts that are never populated
+
+Flow Intelligence returns this in `warnings`:
+
+> `exchange_wallet_count` is always 0 (not tracked), even when exchange net flow
+> is non-zero.
+>
+> `fresh_wallets_wallet_count` is always 0 (not tracked), even when fresh-wallet
+> net flow is non-zero.
+
+These two fields arrive as `0` but mean *not tracked*. The normalizer maps them
+to `null`. Carrying them through as `0` would convert missing data to zero,
+which rule 1.4 forbids, and would silently deflate the Confidence participant
+breadth component. A `0` from any other cohort is a genuine observation and is
+preserved.
+
+### No token name
+
+Token Screener returns `token_symbol` and no token name field. A resolved token
+therefore has a symbol and no display name. The name stays `null`; it is not
+back-filled from the symbol.
+
+### No net field for actors
+
+Who Bought/Sold returns `bought_volume_usd` and `sold_volume_usd` but no net
+value. Net is derived as `bought - sold` and recorded as a derivation. A record
+with neither side present yields `null`, not `0`.
+
+### Empty labels
+
+`address_label` arrives as `""` for an unlabelled address. An empty label is an
+absent label and normalizes to `null`.
+
+### Observed latency
+
+`461-806ms` per call, four calls in parallel. This is comfortably inside the
+five-second partial-result budget; latency is not the constraint, credits are.
 
 ## Normalized contracts
 

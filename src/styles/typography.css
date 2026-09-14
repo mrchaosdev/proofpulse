@@ -1,0 +1,76 @@
+/**
+ * Global text roles (DESIGN-RULES 4).
+ *
+ * Sentence case throughout. All-uppercase text is prohibited except for
+ * unavoidable protocol or token symbols.
+ */
+
+body {
+  font-family: var(--font-primary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-height);
+  font-weight: var(--weight-regular);
+  color: var(--ink-soft);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--ink);
+  font-weight: var(--weight-semibold);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--type-page-size);
+  line-height: var(--type-page-height);
+}
+
+h2 {
+  font-size: var(--type-section-size);
+  line-height: var(--type-section-height);
+}
+
+h3 {
+  font-size: var(--type-card-size);
+  line-height: var(--type-card-height);
+}
+
+p {
+  max-width: var(--prose-max-width);
+}
+
+a {
+  color: var(--primary);
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+.text-display {
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-height);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.text-meta {
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  color: var(--ink-muted);
+}
+
+/* Mono is reserved for raw identifiers: addresses, evidence IDs, hashes. */
+.identifier {
+  font-family: var(--font-identifier);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+}

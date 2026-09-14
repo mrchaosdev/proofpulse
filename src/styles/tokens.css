@@ -1,0 +1,181 @@
+/**
+ * Design tokens: colour, type, spacing, radius, elevation, and motion.
+ * Normative source: docs/DESIGN-RULES.md sections 3, 4, 5, and 11.
+ *
+ * Raw colour literals appear here and nowhere else in the application
+ * (DESIGN-RULES 3, colour law 7). Tokens carry semantic roles; they never
+ * encode feature business state (CODEBASE-RULES 10).
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Colour — light theme, the product default. */
+  --canvas: #f7f8fc;
+  --canvas-tint: #eef1ff;
+  --surface: #ffffff;
+  --surface-strong: #e9edf7;
+  --ink: #15192b;
+  --ink-soft: #454b62;
+  --ink-muted: #646c82;
+  --primary: #5547d7;
+  --primary-hover: #4436bf;
+  --primary-soft: #e6e2ff;
+  --on-primary: #ffffff;
+  --cyan: #0b7895;
+  --cyan-soft: #ddf5fa;
+  --positive: #087a59;
+  --positive-soft: #ddf4ea;
+  --negative: #c23e55;
+  --negative-soft: #fce4e8;
+  --warning: #8a5a00;
+  --warning-soft: #fff0c7;
+  --outline: #d8ddea;
+  --focus: #2e6bff;
+
+  /* Type families. Mono is reserved for raw identifiers. */
+  --font-primary: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-identifier: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+
+  /* Type scale — desktop. Mobile overrides follow. */
+  --type-display-size: 56px;
+  --type-display-height: 60px;
+  --type-page-size: 36px;
+  --type-page-height: 42px;
+  --type-section-size: 24px;
+  --type-section-height: 31px;
+  --type-card-size: 17px;
+  --type-card-height: 24px;
+  --type-body-size: 15px;
+  --type-body-height: 24px;
+  --type-meta-size: 12px;
+  --type-meta-height: 18px;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Spacing — 4px base unit. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-18: 72px;
+
+  /* Shape. */
+  --radius-card: 18px;
+  --radius-control: 10px;
+  --radius-pill: 999px;
+
+  /* Elevation — restrained; depth comes from spacing and tonal layers. */
+  --elevation-card: 0 12px 32px rgba(28, 35, 64, 0.08);
+  --elevation-raised: 0 18px 48px rgba(28, 35, 64, 0.12);
+
+  /* Layout. */
+  --content-max-width: 1360px;
+  --prose-max-width: 68ch;
+  --command-bar-height: 64px;
+  --page-gutter: 32px;
+
+  /* Motion — clarifies state change only. */
+  --motion-fast: 140ms;
+  --motion-standard: 180ms;
+  --motion-slow: 220ms;
+  --motion-lens-draw: 420ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0.1, 1);
+}
+
+/* Dark is an optional companion. It changes appearance, never semantics. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --canvas: #101321;
+    --canvas-tint: #181d36;
+    --surface: #191d2c;
+    --surface-strong: #242a3e;
+    --ink: #f5f6fb;
+    --ink-soft: #c6cbd9;
+    --ink-muted: #99a1b5;
+    --primary: #a89cff;
+    --primary-hover: #bbb3ff;
+    --primary-soft: #302b59;
+    --on-primary: #101321;
+    --cyan: #66d2e8;
+    --cyan-soft: #173b46;
+    --positive: #58d3a8;
+    --positive-soft: #173c31;
+    --negative: #ff7b8e;
+    --negative-soft: #49232d;
+    --warning: #f3c660;
+    --warning-soft: #443616;
+    --outline: #33394d;
+    --focus: #7ea4ff;
+
+    --elevation-card: 0 12px 32px rgba(0, 0, 0, 0.36);
+    --elevation-raised: 0 18px 48px rgba(0, 0, 0, 0.46);
+  }
+}
+
+/* An explicit choice wins over the system setting in both directions. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --canvas: #101321;
+  --canvas-tint: #181d36;
+  --surface: #191d2c;
+  --surface-strong: #242a3e;
+  --ink: #f5f6fb;
+  --ink-soft: #c6cbd9;
+  --ink-muted: #99a1b5;
+  --primary: #a89cff;
+  --primary-hover: #bbb3ff;
+  --primary-soft: #302b59;
+  --on-primary: #101321;
+  --cyan: #66d2e8;
+  --cyan-soft: #173b46;
+  --positive: #58d3a8;
+  --positive-soft: #173c31;
+  --negative: #ff7b8e;
+  --negative-soft: #49232d;
+  --warning: #f3c660;
+  --warning-soft: #443616;
+  --outline: #33394d;
+  --focus: #7ea4ff;
+
+  --elevation-card: 0 12px 32px rgba(0, 0, 0, 0.36);
+  --elevation-raised: 0 18px 48px rgba(0, 0, 0, 0.46);
+}
+
+@media (max-width: 1199px) {
+  :root {
+    --page-gutter: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --page-gutter: 16px;
+
+    --type-display-size: 38px;
+    --type-display-height: 42px;
+    --type-page-size: 30px;
+    --type-page-height: 36px;
+    --type-section-size: 22px;
+    --type-section-height: 29px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-standard: 0ms;
+    --motion-slow: 0ms;
+    --motion-lens-draw: 0ms;
+  }
+}

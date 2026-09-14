@@ -1,0 +1,35 @@
+name: Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      # Clean install from the lockfile so CI matches a fresh clone.
+      - run: npm ci
+
+      - run: npm run format-check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run check-classes
+      - run: npm run check-secrets
+      - run: npm run test
+      - run: npm run test-contract
+      - run: npm run test-integration
+      - run: npm run build
+
+      # Browser journeys run against the deterministic fixture, so they spend
+      # no Nansen credits.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test-e2e

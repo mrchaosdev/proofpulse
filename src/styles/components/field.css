@@ -1,0 +1,77 @@
+/** Form controls. Errors connect to fields with aria-describedby. */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field-label {
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+}
+
+.field-input,
+.field-select {
+  min-height: 44px;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-control);
+  background-color: var(--surface);
+  color: var(--ink);
+  width: 100%;
+}
+
+.field-input[data-state="invalid"] {
+  border-color: var(--negative);
+}
+
+.field-hint {
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  color: var(--ink-muted);
+}
+
+.field-error {
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  color: var(--negative);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: end;
+}
+
+@media (max-width: 767px) {
+  .field-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.choice-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.choice {
+  min-height: 44px;
+  padding-inline: var(--space-4);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface);
+  color: var(--ink-soft);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.choice[aria-current="true"] {
+  background-color: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--ink);
+  font-weight: var(--weight-semibold);
+}

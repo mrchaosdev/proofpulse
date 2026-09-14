@@ -1,0 +1,20 @@
+/**
+ * Fixed import order prevents cascade accidents (DESIGN-RULES 8):
+ * tokens, reset, typography, layout, components, features.
+ */
+
+@import "./tokens.css";
+@import "./reset.css";
+@import "./typography.css";
+@import "./layout.css";
+@import "./utilities.css";
+
+@import "./components/button.css";
+@import "./components/field.css";
+@import "./components/card.css";
+@import "./components/status.css";
+
+@import "./features/landing.css";
+@import "./features/investigation.css";
+@import "./features/signal-lens.css";
+@import "./features/evidence.css";

@@ -1,0 +1,123 @@
+{
+  "capturedAt": "2026-09-14T17:37:51.731Z",
+  "endpoint": "/api/v1/tgm/who-bought-sold",
+  "apiVersion": "/api/v1",
+  "schemaVersion": "nansen-2026-09-15",
+  "scope": {
+    "chain": "ethereum",
+    "tokenAddress": "0x514910771af9ca656af840dff83e8264ecf986ca",
+    "tokenSymbol": "LINK",
+    "timeframe": "1d"
+  },
+  "observedLatencyMs": 608,
+  "bodySha256": "41f2d33be1bceba853f84934ee51d9952ca6cd8bc733182818a12818e7ac39bf",
+  "body": {
+    "data": [
+      {
+        "address": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+        "address_label": "Token Millionaire",
+        "bought_token_volume": 135041.0228332561,
+        "sold_token_volume": 169809.90118727792,
+        "token_trade_volume": 34768.878354021814,
+        "bought_volume_usd": 1546587.4333657403,
+        "sold_volume_usd": 1923606.3010267043,
+        "trade_volume_usd": 377018.8676609639
+      },
+      {
+        "address": "0xb496c9866b6d0b9e8c63ff6c072270cf5f9b4230",
+        "address_label": "High Balance",
+        "bought_token_volume": 0,
+        "sold_token_volume": 20537.209859843642,
+        "token_trade_volume": 20537.209859843642,
+        "bought_volume_usd": 0,
+        "sold_volume_usd": 233924.639289182,
+        "trade_volume_usd": 233924.639289182
+      },
+      {
+        "address": "0x44c3a96181af9e295ce8e188fa8fcdd72d1eb668",
+        "address_label": "Token Millionaire",
+        "bought_token_volume": 0,
+        "sold_token_volume": 15315.414373392878,
+        "token_trade_volume": 15315.414373392878,
+        "bought_volume_usd": 0,
+        "sold_volume_usd": 174525.9673619461,
+        "trade_volume_usd": 174525.9673619461
+      },
+      {
+        "address": "0xddc796a66e8b83d0bccd97df33a6ccfba8fd60ea",
+        "address_label": "Token Millionaire",
+        "bought_token_volume": 0,
+        "sold_token_volume": 14631.237731581305,
+        "token_trade_volume": 14631.237731581305,
+        "bought_volume_usd": 0,
+        "sold_volume_usd": 165918.19946176145,
+        "trade_volume_usd": 165918.19946176145
+      },
+      {
+        "address": "0x2e69797d37e888d62974a1ffa20816a5f55f898d",
+        "address_label": "Token Millionaire",
+        "bought_token_volume": 1466.6107472550657,
+        "sold_token_volume": 14593.490802544717,
+        "token_trade_volume": 13126.88005528965,
+        "bought_volume_usd": 16718.803267428808,
+        "sold_volume_usd": 163286.59373352877,
+        "trade_volume_usd": 146567.79046609998
+      },
+      {
+        "address": "0x66b1c68066a6efc53b4f2c72a7a300976cae47bf",
+        "address_label": "",
+        "bought_token_volume": 0,
+        "sold_token_volume": 4179.08474577332,
+        "token_trade_volume": 4179.08474577332,
+        "bought_volume_usd": 0,
+        "sold_volume_usd": 47442.84952067437,
+        "trade_volume_usd": 47442.84952067437
+      },
+      {
+        "address": "0x572665a755bfaf661fdd76358a88a574dcc70f10",
+        "address_label": "",
+        "bought_token_volume": 0,
+        "sold_token_volume": 2487.7925439110027,
+        "token_trade_volume": 2487.7925439110027,
+        "bought_volume_usd": 0,
+        "sold_volume_usd": 28522.733220708033,
+        "trade_volume_usd": 28522.733220708033
+      },
+      {
+        "address": "0xd538d306126f29b4cac6e832c67625bf4ab4a80a",
+        "address_label": "",
+        "bought_token_volume": 0,
+        "sold_token_volume": 2133,
+        "token_trade_volume": 2133,
+        "bought_volume_usd": 0,
+        "sold_volume_usd": 24067.955655965,
+        "trade_volume_usd": 24067.955655965
+      },
+      {
+        "address": "0x49d08e817dd92076e6dec0cd9ca79163dbaeba46",
+        "address_label": "",
+        "bought_token_volume": 0,
+        "sold_token_volume": 2000,
+        "token_trade_volume": 2000,
+        "bought_volume_usd": 0,
+        "sold_volume_usd": 22757.0471078396,
+        "trade_volume_usd": 22757.0471078396
+      },
+      {
+        "address": "0xe8736af1926e9d8f5a6602fbbb0893b26436d710",
+        "address_label": "Token Millionaire",
+        "bought_token_volume": 1250.0554007906892,
+        "sold_token_volume": 3123.8713485063295,
+        "token_trade_volume": 1873.8159477156403,
+        "bought_volume_usd": 14246.773487921166,
+        "sold_volume_usd": 35362.51582537373,
+        "trade_volume_usd": 21115.742337452568
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "per_page": 10,
+      "is_last_page": false
+    }
+  }
+}

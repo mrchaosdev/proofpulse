@@ -1,0 +1,83 @@
+/**
+ * Application shell and shared grid rules (DESIGN-RULES 6).
+ *
+ * No persistent desktop sidebar exists in P0. Navigation is a compact top
+ * command bar.
+ */
+
+body {
+  background-color: var(--canvas);
+  min-height: 100vh;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+}
+
+.page-region {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  padding-block: var(--space-12);
+}
+
+.command-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-6);
+  min-height: var(--command-bar-height);
+  padding-block: var(--space-2);
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+.command-bar-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  list-style: none;
+  margin-inline-start: auto;
+}
+
+/* Below the wrapping point the links start a new row instead of being pushed
+   past the viewport edge. */
+@media (max-width: 480px) {
+  .command-bar-links {
+    margin-inline-start: 0;
+    width: 100%;
+  }
+}
+
+.brand-mark {
+  font-weight: var(--weight-bold);
+  color: var(--ink);
+  font-size: var(--type-card-size);
+  text-decoration: none;
+}
+
+.site-footer {
+  border-block-start: 1px solid var(--outline);
+}
+
+.footer-inner {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  padding-block: var(--space-8);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  justify-content: space-between;
+}

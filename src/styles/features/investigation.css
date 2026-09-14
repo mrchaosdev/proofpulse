@@ -1,0 +1,270 @@
+/** Investigation workspace composition (DESIGN-RULES 6). */
+
+.scope-ribbon {
+  background-color: var(--surface);
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.scope-identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.scope-token {
+  font-size: var(--type-section-size);
+  line-height: var(--type-section-height);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+}
+
+.scope-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  color: var(--ink-muted);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+}
+
+.investigation-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+.grid-lens {
+  grid-column: span 4;
+}
+
+.grid-overview {
+  grid-column: span 8;
+}
+
+.grid-flows {
+  grid-column: span 7;
+}
+
+.grid-brief {
+  grid-column: span 5;
+}
+
+.grid-full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 1199px) {
+  .grid-lens,
+  .grid-overview,
+  .grid-flows,
+  .grid-brief {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 767px) {
+  .investigation-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .grid-lens,
+  .grid-overview,
+  .grid-flows,
+  .grid-brief {
+    grid-column: 1 / -1;
+  }
+}
+
+.status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.status-strip-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-control);
+  background-color: var(--canvas-tint);
+  min-width: 160px;
+  flex: 1 1 160px;
+}
+
+.status-strip-name {
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+}
+
+.status-strip-detail {
+  color: var(--ink-muted);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+}
+
+/* Zero-centred flow bars. Values are signed and labelled in text. */
+.flow-row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 120px;
+  gap: var(--space-3);
+  align-items: center;
+  padding-block: var(--space-2);
+}
+
+.flow-name {
+  color: var(--ink);
+}
+
+.flow-track {
+  position: relative;
+  height: 20px;
+  background-color: var(--canvas-tint);
+  border-radius: var(--radius-control);
+}
+
+.flow-baseline {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  width: 2px;
+  background-color: var(--ink-muted);
+}
+
+.flow-bar {
+  position: absolute;
+  inset-block: 4px;
+  border-radius: 3px;
+}
+
+.flow-bar[data-sign="positive"] {
+  background-color: var(--positive);
+}
+
+.flow-bar[data-sign="negative"] {
+  background-color: var(--negative);
+}
+
+.flow-value {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.flow-value[data-sign="positive"] {
+  color: var(--positive);
+}
+
+.flow-value[data-sign="negative"] {
+  color: var(--negative);
+}
+
+.flow-missing {
+  color: var(--ink-muted);
+  font-size: var(--type-meta-size);
+}
+
+@media (max-width: 767px) {
+  .flow-row {
+    grid-template-columns: minmax(0, 1fr) 110px;
+  }
+
+  .flow-track {
+    grid-column: 1 / -1;
+  }
+}
+
+.actor-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.actor-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  padding-block: var(--space-2);
+  align-items: baseline;
+  border-block-end: 1px solid var(--outline);
+}
+
+.actor-address {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.actor-label {
+  color: var(--ink-muted);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+}
+
+.actor-value {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.actor-value[data-sign="positive"] {
+  color: var(--positive);
+}
+
+.actor-value[data-sign="negative"] {
+  color: var(--negative);
+}
+
+.component-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.component-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.component-name {
+  color: var(--ink);
+}
+
+.component-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  font-weight: var(--weight-medium);
+}
+
+.component-detail {
+  grid-column: 1 / -1;
+  color: var(--ink-muted);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  overflow-wrap: anywhere;
+}
+
+/*
+ * The copy summary contains full addresses. It wraps rather than forcing the
+ * page to scroll horizontally at narrow widths (DESIGN-RULES 6).
+ */
+.summary-block {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background-color: var(--canvas-tint);
+  border-radius: var(--radius-control);
+  padding: var(--space-4);
+  color: var(--ink-soft);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+}

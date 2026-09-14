@@ -1,0 +1,69 @@
+/**
+ * Status presentation. Every status carries text as well as colour
+ * (DESIGN-RULES colour law 4).
+ */
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  font-weight: var(--weight-medium);
+  background-color: var(--surface-strong);
+  color: var(--ink-soft);
+}
+
+.status-pill[data-state="ready"] {
+  background-color: var(--positive-soft);
+  color: var(--positive);
+}
+
+.status-pill[data-state="error"] {
+  background-color: var(--negative-soft);
+  color: var(--negative);
+}
+
+.status-pill[data-state="stale"],
+.status-pill[data-state="empty"],
+.status-pill[data-state="partial"] {
+  background-color: var(--warning-soft);
+  color: var(--warning);
+}
+
+.status-pill[data-state="fixture"] {
+  background-color: var(--cyan-soft);
+  color: var(--cyan);
+}
+
+.banner {
+  border-radius: var(--radius-control);
+  padding: var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: baseline;
+}
+
+.banner[data-state="fixture"] {
+  background-color: var(--cyan-soft);
+  color: var(--cyan);
+}
+
+.banner[data-state="partial"] {
+  background-color: var(--warning-soft);
+  color: var(--warning);
+}
+
+.banner-title {
+  font-weight: var(--weight-semibold);
+}
+
+.skeleton {
+  background-color: var(--surface-strong);
+  border-radius: var(--radius-control);
+  height: 1em;
+}

@@ -23,3 +23,14 @@ Thumbs.db
 coverage/
 dist/
 
+
+# TypeScript and Next.js generated files
+*.tsbuildinfo
+next-env.d.ts
+
+# Playwright
+playwright-report/
+test-results/
+
+# Local API spike output; may contain unsanitized upstream responses
+spike-output/

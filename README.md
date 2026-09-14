@@ -9,8 +9,29 @@ call.
 
 ## Current phase
 
-Specification first. Product implementation does not begin until the P0 product,
-interface, data, security, and acceptance rules are documented and reviewed.
+The vertical slice works end to end. A landing page, an investigation workspace,
+and a methodology page are backed by verified Nansen adapters, a deterministic
+scoring core at formula version `score-v0.1`, and a timestamped demo fixture.
+
+```bash
+npm install
+npm run dev          # http://localhost:3000
+npm run quality      # format, lint, types, class names, secrets, unit, contract, integration, build
+npm run test-e2e     # browser journeys against the fixture (needs: npx playwright install chromium)
+```
+
+No credential is needed to try it. Without `NANSEN_API_KEY` the workspace runs
+in fixture mode and says so on every screen. Open the demo directly at
+`/investigate/ethereum/0x514910771af9ca656af840dff83e8264ecf986ca?timeframe=1d&mode=fixture`.
+
+Live mode needs a Nansen key in `.env.local`; see `.env.example`. One
+investigation costs four credits.
+
+### Not built yet
+
+- On-demand related-wallet expansion, so Coordination Risk stays preliminary.
+- The model-assisted brief. Scores and the evidence ledger work without it.
+- Comparison, shareable snapshots, and local history (all P1).
 
 ## Product documentation
 

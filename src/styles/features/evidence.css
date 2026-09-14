@@ -1,0 +1,76 @@
+/** Evidence ledger: the audit surface. */
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.evidence-table {
+  min-width: 720px;
+  font-size: var(--type-body-size);
+}
+
+.evidence-table th,
+.evidence-table td {
+  text-align: start;
+  padding-block: var(--space-2);
+  padding-inline-end: var(--space-4);
+  border-block-end: 1px solid var(--outline);
+  vertical-align: top;
+}
+
+.evidence-table th {
+  color: var(--ink-muted);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  font-weight: var(--weight-medium);
+}
+
+.evidence-id {
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.evidence-statement {
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.evidence-polarity {
+  white-space: nowrap;
+}
+
+.evidence-polarity[data-polarity="supports_accumulation"] {
+  color: var(--positive);
+}
+
+.evidence-polarity[data-polarity="supports_distribution"] {
+  color: var(--negative);
+}
+
+.evidence-polarity[data-polarity="neutral"] {
+  color: var(--ink-muted);
+}
+
+.evidence-derivation {
+  color: var(--ink-muted);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  overflow-wrap: anywhere;
+}
+
+.data-table {
+  font-size: var(--type-body-size);
+}
+
+.data-table th,
+.data-table td {
+  text-align: start;
+  padding-block: var(--space-2);
+  padding-inline-end: var(--space-4);
+  border-block-end: 1px solid var(--outline);
+}
+
+.data-table td[data-numeric="true"] {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}

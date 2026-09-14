@@ -26,7 +26,7 @@ The browser never communicates with Nansen or the model provider directly.
 | Concern | Choice | Reason |
 | --- | --- | --- |
 | Web application | Next.js App Router + React + TypeScript | one deployable unit and strong server/client boundary |
-| Styling | Tailwind CSS + semantic CSS tokens | fast layout with a governed visual system |
+| Styling | authored global CSS + semantic tokens | clean semantic classes and a strictly governed visual system |
 | Runtime validation | Zod | external responses and model output are untrusted |
 | Server cache | provider-neutral adapter; memory locally, Redis in deployment | credit control without coupling domain code |
 | Client request state | TanStack Query | cancellation, explicit retries, and partial UI state |
@@ -56,14 +56,25 @@ src/
     investigation/       # normalized types and orchestration contracts
     scoring/             # pure formulas and explanation metadata
     brief/               # brief schema and deterministic fallback
+  integrations/
+    nansen/              # HTTP client, endpoint schemas, normalizers
+    model/               # replaceable brief-provider adapter
   server/
-    nansen/              # HTTP client, endpoint adapters, response schemas
-    model/               # prompt builder, provider adapter, output validator
+    investigations/      # use-case orchestration
     cache/               # cache interface and implementations
-    fixtures/            # sanitized fixture loader
+    fixtures/            # sanitized production-demo fixture loader and data
     observability/       # structured events and redaction
+    rate-limit/           # abuse and credit-consumption control
+    security/             # server request guards and redaction
+  config/                # validated environment and application configuration
   styles/
+    components/           # generic component styles
+    features/             # product-specific composition styles
     tokens.css
+    reset.css
+    typography.css
+    layout.css
+    utilities.css
 tests/
   unit/
   contract/
@@ -75,9 +86,14 @@ Rules:
 
 - UI components do not import raw Nansen response types.
 - Scoring functions are pure and cannot call network, cache, clock, or model.
-- Model code cannot calculate scores.
-- Nansen adapters cannot contain UI labels.
+- Model integration code cannot calculate scores.
+- Nansen integration adapters cannot contain UI labels.
 - Every clock read is injected or captured once per investigation for testability.
+- Every authored class token follows
+  [DESIGN-RULES.md](DESIGN-RULES.md#7-class-name-law).
+- File placement and dependency direction follow
+  [CODEBASE-RULES.md](CODEBASE-RULES.md).
+- Tailwind, CSS Modules, and runtime CSS-in-JS are not used.
 
 ## Server API
 

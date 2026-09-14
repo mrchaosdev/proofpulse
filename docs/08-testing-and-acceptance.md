@@ -88,6 +88,9 @@ Committed fixtures must satisfy the fixture policy in
 | U-08 | Fixture mode remains persistently labeled | browser navigation test |
 | U-09 | Full addresses can be copied | clipboard test |
 | U-10 | All icon-only controls have accessible names | automated accessibility scan |
+| U-11 | Every authored class matches the class-name law | source validation script |
+| U-12 | No Tailwind, CSS Module, or dynamic class construction exists | dependency and source scan |
+| U-13 | Final interface is visually distinct from `arc-payment` | documented screenshot review |
 
 ### Security and reliability
 
@@ -194,3 +197,6 @@ A P0 item is done when:
 
 The MVP is accepted when every P0 row passes, production deployment matches the
 recorded commit, and the demo fallback succeeds offline.
+
+Code organization must additionally pass the clean-source gate in
+[CODEBASE-RULES.md](CODEBASE-RULES.md#16-clean-source-acceptance-gate).

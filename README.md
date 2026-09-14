@@ -17,7 +17,7 @@ interface, data, security, and acceptance rules are documented and reviewed.
 The complete specification is indexed in [`docs/README.md`](docs/README.md):
 
 - product brief, boundaries, and success criteria;
-- non-negotiable product and interface rules;
+- non-negotiable product, design, and codebase rules;
 - route map and screen contracts;
 - Nansen data contracts and transparent scoring;
 - technical architecture and security model;
@@ -28,7 +28,7 @@ The complete specification is indexed in [`docs/README.md`](docs/README.md):
 
 - Nansen API
 - Next.js, React, and TypeScript
-- Tailwind CSS
+- authored semantic CSS with enforced class-name rules
 - React Flow and Recharts
 - a server-side LLM adapter for evidence-grounded summaries
 
@@ -45,4 +45,6 @@ commits.
 
 - [Nansen Meridian Buildathon announcement](https://x.com/nansen_ai/status/2099438188934897747)
 - [Nansen API endpoint overview](https://docs.nansen.ai/about/endpoints-overview)
-- [Interface-learning reference: arc-payment](https://github.com/mrchaosdev/arc-payment)
+- [Normative design rules](docs/DESIGN-RULES.md)
+- [Normative codebase rules](docs/CODEBASE-RULES.md)
+- [Process-learning reference: arc-payment](https://github.com/mrchaosdev/arc-payment)

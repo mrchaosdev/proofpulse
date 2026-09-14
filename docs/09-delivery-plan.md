@@ -81,7 +81,8 @@ Deliverable: complete core investigation payload with per-source status.
 - Build cohort flow comparison and accessible data table.
 - Implement all loading, empty, partial, stale, and error states.
 
-Deliverable: desktop core journey meeting interface rules.
+Deliverable: desktop core journey meeting the normative design and class-name
+rules.
 
 ### Sep 20 — supported scope and responsive pass
 

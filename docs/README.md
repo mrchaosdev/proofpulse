@@ -15,7 +15,8 @@ that works only on the author's machine.
 | --- | --- | --- |
 | [01 — Product brief](01-product-brief.md) | Who is this for, what problem is solved, and what is in the MVP? | P0 |
 | [02 — Product rules](02-product-rules.md) | What must the product always and never do? | P0 |
-| [03 — Interface rules](03-interface-rules.md) | How must every screen look and behave? | P0 |
+| [Design rules](DESIGN-RULES.md) | What visual language, class naming, interaction, and originality rules apply? | P0 |
+| [Codebase rules](CODEBASE-RULES.md) | Where does every file belong and which dependency/naming rules apply? | P0 |
 | [04 — Information architecture](04-information-architecture.md) | What routes, states, and screen regions exist? | P0 |
 | [05 — Data and scoring](05-data-and-scoring.md) | Which Nansen evidence is used and how are scores derived? | P0 |
 | [06 — Technical architecture](06-technical-architecture.md) | How is the product divided, deployed, cached, and observed? | P0 |
@@ -81,9 +82,11 @@ to affected documents before code is changed.
 - [Buildathon announcement](https://x.com/nansen_ai/status/2099438188934897747)
 - [Nansen API documentation](https://docs.nansen.ai/)
 - [Nansen API credits](https://docs.nansen.ai/getting-started/credits)
-- [arc-payment design reference](https://github.com/mrchaosdev/arc-payment)
+- [arc-payment process reference](https://github.com/mrchaosdev/arc-payment)
 
-The `arc-payment` repository is consulted only for interface craft: visual
-hierarchy, flat terminal surfaces, semantic typography, bounded motion, state
-clarity, and accessibility. ProofPulse does not reuse its payment logic,
-wallet flows, chain configuration, or business rules.
+The `arc-payment` repository is consulted only for process-level discipline:
+documenting decisions, complete asynchronous states, accessibility, performance
+budgets, and separating reusable primitives from business logic. ProofPulse must
+not reuse or resemble its visual language, payment logic, wallet flows, chain
+configuration, content, route composition, or branding. The enforced difference
+is specified in [DESIGN-RULES.md](DESIGN-RULES.md#1-originality-boundary).

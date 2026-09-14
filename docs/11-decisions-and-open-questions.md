@@ -54,10 +54,33 @@
 
 - Date: `2026-09-14`
 - Status: accepted
-- Decision: adopt flat terminal discipline, semantic typography, explicit states,
-  bounded motion, and accessibility. Do not copy payment logic, routes, branding,
-  network configuration, or content.
+- Decision: learn process discipline only: documented design decisions, complete
+  states, accessibility, bounded performance, and clean component boundaries.
+  ProofPulse must use a different light-first editorial research canvas, rounded
+  spatial surfaces, indigo/cyan palette, top navigation, signal-lens signature,
+  typography, content structure, and motion language. Do not copy or resemble
+  payment logic, routes, branding, network configuration, content, or visuals.
 - Source: [arc-payment](https://github.com/mrchaosdev/arc-payment)
+
+### D-010 — Semantic CSS and strict class-name grammar
+
+- Date: `2026-09-14`
+- Status: accepted
+- Decision: authored HTML class tokens match
+  `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`. Class tokens containing `:`, `_`, `__`, or
+  `--` are forbidden. Tailwind utilities, CSS Modules, CSS-in-JS, and dynamic
+  class construction are excluded.
+- Reason: keep markup readable, enforce one naming grammar, and make class
+  quality mechanically testable.
+
+### D-011 — Clean folder ownership
+
+- Date: `2026-09-14`
+- Status: accepted
+- Decision: executable product code lives under `src`, tests under `tests`,
+  scripts under `scripts`, static assets under `public`, and documentation under
+  `docs`. Root source files and miscellaneous dumping folders are forbidden.
+- Reason: every file must have one obvious owner and dependency direction.
 
 ### D-008 — Initial chain scope
 

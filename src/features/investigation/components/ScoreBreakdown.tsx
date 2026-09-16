@@ -25,9 +25,7 @@ export function ScoreBreakdown({
               {component.value.toFixed(1)}
               {component.maximum === undefined ? "" : ` / ${component.maximum}`}
             </span>
-            <span className="component-detail identifier">
-              {component.detail}
-            </span>
+            <span className="component-detail">{component.detail}</span>
           </li>
         ))}
       </ul>

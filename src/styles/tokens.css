@@ -1,37 +1,55 @@
 /**
- * Design tokens: colour, type, spacing, radius, elevation, and motion.
- * Normative source: docs/DESIGN-RULES.md sections 3, 4, 5, and 11.
- *
- * Raw colour literals appear here and nowhere else in the application
- * (DESIGN-RULES 3, colour law 7). Tokens carry semantic roles; they never
- * encode feature business state (CODEBASE-RULES 10).
+ * Global design tokens. Light is the product default; dark is an explicit
+ * companion or follows the operating system when the user selects System.
+ * Raw colour literals live here and nowhere else in application CSS.
  */
 
 :root {
   color-scheme: light;
 
-  /* Colour — light theme, the product default. */
-  --canvas: #f7f8fc;
-  --canvas-tint: #eef1ff;
-  --surface: #ffffff;
-  --surface-strong: #e9edf7;
-  --ink: #15192b;
-  --ink-soft: #454b62;
-  --ink-muted: #646c82;
-  --primary: #5547d7;
-  --primary-hover: #4436bf;
-  --primary-soft: #e6e2ff;
-  --on-primary: #ffffff;
-  --cyan: #0b7895;
-  --cyan-soft: #ddf5fa;
-  --positive: #087a59;
-  --positive-soft: #ddf4ea;
-  --negative: #c23e55;
-  --negative-soft: #fce4e8;
-  --warning: #8a5a00;
-  --warning-soft: #fff0c7;
-  --outline: #d8ddea;
-  --focus: #2e6bff;
+  /* Light theme — Happy Hues palette supplied by the product owner. */
+  --canvas: #faeee7;
+  --canvas-tint: #ffc6c7;
+  --surface: #fffffe;
+  --surface-strong: #f2ded8;
+  --surface-soft: #fff8f4;
+  --surface-lift: #fffffe;
+  --surface-frost: rgba(255, 255, 254, 0.82);
+  --ink: #33272a;
+  --ink-soft: #594a4e;
+  --ink-muted: #6f5e63;
+  --primary: #ff8ba7;
+  --primary-hover: #f47798;
+  --primary-text: #8f3452;
+  --primary-soft: #ffe0e7;
+  --on-primary: #33272a;
+  --cyan: #267247;
+  --cyan-soft: #c3f0ca;
+  --positive: #267247;
+  --positive-soft: #c3f0ca;
+  --negative: #9d344d;
+  --negative-soft: #ffc6c7;
+  --warning: #765600;
+  --warning-soft: #fff0bd;
+  --outline: #dec7c2;
+  --outline-strong: #b99e9a;
+  --focus: #8f3452;
+
+  /* Illustration palette. */
+  --illustration-stroke: #33272a;
+  --illustration-main: #fffffe;
+  --illustration-highlight: #ff8ba7;
+  --illustration-secondary: #ffc6c7;
+  --illustration-tertiary: #c3f0ca;
+
+  /* Atmospheric fields and interactive light. */
+  --field-primary: rgba(255, 139, 167, 0.24);
+  --field-cyan: rgba(195, 240, 202, 0.56);
+  --canvas-veil: rgba(250, 238, 231, 0.86);
+  --spotlight-primary: rgba(255, 139, 167, 0.24);
+  --spotlight-cyan: rgba(195, 240, 202, 0.64);
+  --gradient-accent: #ff8ba7;
+  --gradient-cyan: #66a978;
 
   /* Type families. Mono is reserved for raw identifiers. */
   --font-primary: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -72,14 +90,23 @@
   --radius-control: 10px;
   --radius-pill: 999px;
 
-  /* Elevation — restrained; depth comes from spacing and tonal layers. */
-  --elevation-card: 0 12px 32px rgba(28, 35, 64, 0.08);
-  --elevation-raised: 0 18px 48px rgba(28, 35, 64, 0.12);
+  /* Elevation and focus. */
+  --elevation-card: 0 14px 34px rgba(51, 39, 42, 0.1);
+  --elevation-raised: 0 24px 58px rgba(51, 39, 42, 0.14);
+  --glow-primary: 0 0 0 1px rgba(255, 139, 167, 0.38);
+  --glow-cyan: 0 0 14px rgba(38, 114, 71, 0.28);
+  --control-shadow: 0 1px 3px rgba(51, 39, 42, 0.14);
 
   /* Layout. */
   --content-max-width: 1360px;
   --prose-max-width: 68ch;
   --command-bar-height: 64px;
+  /*
+   * The measured height of the sticky bar, which anything scrolled to must
+   * clear. The bar takes one row from 1024px and two below it, so the value
+   * is not derivable from --command-bar-height alone.
+   */
+  --sticky-offset: 69px;
   --page-gutter: 32px;
 
   /* Motion — clarifies state change only. */
@@ -90,71 +117,129 @@
   --easing-standard: cubic-bezier(0.2, 0, 0.1, 1);
 }
 
-/* Dark is an optional companion. It changes appearance, never semantics. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-
-    --canvas: #101321;
-    --canvas-tint: #181d36;
-    --surface: #191d2c;
-    --surface-strong: #242a3e;
-    --ink: #f5f6fb;
-    --ink-soft: #c6cbd9;
-    --ink-muted: #99a1b5;
-    --primary: #a89cff;
-    --primary-hover: #bbb3ff;
-    --primary-soft: #302b59;
-    --on-primary: #101321;
-    --cyan: #66d2e8;
-    --cyan-soft: #173b46;
-    --positive: #58d3a8;
-    --positive-soft: #173c31;
-    --negative: #ff7b8e;
-    --negative-soft: #49232d;
-    --warning: #f3c660;
-    --warning-soft: #443616;
-    --outline: #33394d;
-    --focus: #7ea4ff;
-
-    --elevation-card: 0 12px 32px rgba(0, 0, 0, 0.36);
-    --elevation-raised: 0 18px 48px rgba(0, 0, 0, 0.46);
-  }
-}
-
-/* An explicit choice wins over the system setting in both directions. */
+/* Dark changes appearance only; all semantic roles remain identical. */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --canvas: #101321;
-  --canvas-tint: #181d36;
-  --surface: #191d2c;
-  --surface-strong: #242a3e;
-  --ink: #f5f6fb;
-  --ink-soft: #c6cbd9;
-  --ink-muted: #99a1b5;
-  --primary: #a89cff;
-  --primary-hover: #bbb3ff;
-  --primary-soft: #302b59;
-  --on-primary: #101321;
-  --cyan: #66d2e8;
-  --cyan-soft: #173b46;
-  --positive: #58d3a8;
-  --positive-soft: #173c31;
-  --negative: #ff7b8e;
-  --negative-soft: #49232d;
-  --warning: #f3c660;
-  --warning-soft: #443616;
-  --outline: #33394d;
-  --focus: #7ea4ff;
+  --canvas: #0f0e17;
+  --canvas-tint: #17161f;
+  --surface: #17161f;
+  --surface-strong: #201e2b;
+  --surface-soft: #12111c;
+  --surface-lift: #222035;
+  --surface-frost: rgba(23, 22, 31, 0.72);
+  --ink: #fffffe;
+  --ink-soft: #b8b7cb;
+  --ink-muted: #9291a8;
+  --primary: #8a3fe8;
+  --primary-hover: #994ff3;
+  --primary-text: #b07cf6;
+  --primary-soft: #241a3d;
+  --on-primary: #fffffe;
+  --cyan: #4fc4cf;
+  --cyan-soft: #12313a;
+  --positive: #3ddc97;
+  --positive-soft: #10301f;
+  --negative: #ff5c7c;
+  --negative-soft: #3a1420;
+  --warning: #fbdd74;
+  --warning-soft: #332b14;
+  --outline: #2a2838;
+  --outline-strong: #45405c;
+  --focus: #4fc4cf;
 
-  --elevation-card: 0 12px 32px rgba(0, 0, 0, 0.36);
-  --elevation-raised: 0 18px 48px rgba(0, 0, 0, 0.46);
+  --illustration-stroke: #fffffe;
+  --illustration-main: #17161f;
+  --illustration-highlight: #8a3fe8;
+  --illustration-secondary: #4fc4cf;
+  --illustration-tertiary: #3ddc97;
+
+  --field-primary: rgba(138, 63, 232, 0.22);
+  --field-cyan: rgba(79, 196, 207, 0.12);
+  --canvas-veil: rgba(15, 14, 23, 0.82);
+  --spotlight-primary: rgba(138, 63, 232, 0.34);
+  --spotlight-cyan: rgba(79, 196, 207, 0.2);
+  --gradient-accent: #c6a5ff;
+  --gradient-cyan: #78e2e7;
+
+  --elevation-card:
+    0 1px 0 rgba(255, 255, 254, 0.05) inset, 0 18px 48px rgba(0, 0, 0, 0.42);
+  --elevation-raised:
+    0 1px 0 rgba(255, 255, 254, 0.06) inset, 0 24px 60px rgba(0, 0, 0, 0.6);
+  --glow-primary: 0 0 0 1px rgba(138, 63, 232, 0.35);
+  --glow-cyan: 0 0 16px rgba(79, 196, 207, 0.7);
+  --control-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    color-scheme: dark;
+
+    --canvas: #0f0e17;
+    --canvas-tint: #17161f;
+    --surface: #17161f;
+    --surface-strong: #201e2b;
+    --surface-soft: #12111c;
+    --surface-lift: #222035;
+    --surface-frost: rgba(23, 22, 31, 0.72);
+    --ink: #fffffe;
+    --ink-soft: #b8b7cb;
+    --ink-muted: #9291a8;
+    --primary: #8a3fe8;
+    --primary-hover: #994ff3;
+    --primary-text: #b07cf6;
+    --primary-soft: #241a3d;
+    --on-primary: #fffffe;
+    --cyan: #4fc4cf;
+    --cyan-soft: #12313a;
+    --positive: #3ddc97;
+    --positive-soft: #10301f;
+    --negative: #ff5c7c;
+    --negative-soft: #3a1420;
+    --warning: #fbdd74;
+    --warning-soft: #332b14;
+    --outline: #2a2838;
+    --outline-strong: #45405c;
+    --focus: #4fc4cf;
+
+    --illustration-stroke: #fffffe;
+    --illustration-main: #17161f;
+    --illustration-highlight: #8a3fe8;
+    --illustration-secondary: #4fc4cf;
+    --illustration-tertiary: #3ddc97;
+
+    --field-primary: rgba(138, 63, 232, 0.22);
+    --field-cyan: rgba(79, 196, 207, 0.12);
+    --canvas-veil: rgba(15, 14, 23, 0.82);
+    --spotlight-primary: rgba(138, 63, 232, 0.34);
+    --spotlight-cyan: rgba(79, 196, 207, 0.2);
+    --gradient-accent: #c6a5ff;
+    --gradient-cyan: #78e2e7;
+
+    --elevation-card:
+      0 1px 0 rgba(255, 255, 254, 0.05) inset, 0 18px 48px rgba(0, 0, 0, 0.42);
+    --elevation-raised:
+      0 1px 0 rgba(255, 255, 254, 0.06) inset, 0 24px 60px rgba(0, 0, 0, 0.6);
+    --glow-primary: 0 0 0 1px rgba(138, 63, 232, 0.35);
+    --glow-cyan: 0 0 16px rgba(79, 196, 207, 0.7);
+    --control-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
+  }
 }
 
 @media (max-width: 1199px) {
   :root {
     --page-gutter: 24px;
+  }
+}
+
+/*
+ * Measured, not guessed: the bar takes two rows up to 780px and one from
+ * 784px. The threshold comes from how wide the links are, so a test asserts
+ * this token still matches the rendered bar.
+ */
+@media (max-width: 783px) {
+  :root {
+    --sticky-offset: 121px;
   }
 }
 

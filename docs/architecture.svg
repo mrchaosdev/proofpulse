@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 600" width="920" height="600" role="img" aria-labelledby="title desc" font-family="Manrope, Segoe UI, system-ui, sans-serif">
+  <title id="title">ProofPulse architecture</title>
+  <desc id="desc">The browser talks only to the Next.js server. The investigation service draws evidence from either the Nansen adapters, which call the Nansen API through a cache and rate limiter, or the fixture loader, which replays captured responses. Both produce the same normalized domain types, which pure functions turn into three scores and an evidence ledger. The brief is validated against that evidence before display and falls back to a deterministic brief. No credential leaves the server.</desc>
+
+  <rect width="920" height="600" fill="#FAEEE7"/>
+
+  <!-- Outside the server -->
+  <rect x="30" y="56" width="190" height="60" rx="16" fill="#FFFFFE" stroke="#DEC7C2"/>
+  <text x="125" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#33272A">Browser</text>
+  <text x="125" y="101" text-anchor="middle" font-size="10" fill="#6F5E63">No provider credential</text>
+
+  <rect x="30" y="208" width="190" height="96" rx="16" fill="#FFFFFE" stroke="#9D344D"/>
+  <text x="125" y="238" text-anchor="middle" font-size="14" font-weight="700" fill="#9D344D">Nansen API</text>
+  <text x="125" y="260" text-anchor="middle" font-size="10" fill="#6F5E63">4 calls per investigation</text>
+  <text x="125" y="276" text-anchor="middle" font-size="10" fill="#6F5E63">1 credit each</text>
+  <text x="125" y="294" text-anchor="middle" font-size="10" fill="#6F5E63">Ethereum, Solana, Base</text>
+
+  <!-- Server boundary -->
+  <rect x="244" y="24" width="650" height="472" rx="20" fill="#FFF8F4" stroke="#8F3452" stroke-dasharray="6 5"/>
+  <text x="264" y="44" font-size="10.5" font-weight="700" fill="#8F3452">SERVER BOUNDARY — credentials never cross this line</text>
+
+  <rect x="268" y="56" width="602" height="60" rx="14" fill="#FFFFFE" stroke="#DEC7C2"/>
+  <text x="569" y="80" text-anchor="middle" font-size="13" font-weight="600" fill="#33272A">Routes and pages</text>
+  <text x="569" y="100" text-anchor="middle" font-size="10.5" fill="#6F5E63">Validate method, body size, schema and address, then rate limit — before any paid call</text>
+
+  <rect x="268" y="132" width="602" height="60" rx="14" fill="#FFFFFE" stroke="#DEC7C2"/>
+  <text x="569" y="156" text-anchor="middle" font-size="13" font-weight="600" fill="#33272A">Investigation service</text>
+  <text x="569" y="176" text-anchor="middle" font-size="10.5" fill="#6F5E63">Four settled parallel fetches, one clock read per run. One failure never discards the rest.</text>
+
+  <!-- Two interchangeable evidence sources -->
+  <rect x="268" y="208" width="290" height="96" rx="14" fill="#FFFFFE" stroke="#DEC7C2"/>
+  <text x="413" y="234" text-anchor="middle" font-size="12.5" font-weight="600" fill="#33272A">Nansen adapters — live</text>
+  <text x="413" y="256" text-anchor="middle" font-size="10.5" fill="#6F5E63">Cache and rate limit, then Zod</text>
+  <text x="413" y="271" text-anchor="middle" font-size="10.5" fill="#6F5E63">schema, then normalizer</text>
+  <text x="413" y="291" text-anchor="middle" font-size="10.5" fill="#594A4E">Missing stays missing</text>
+
+  <rect x="580" y="208" width="290" height="96" rx="14" fill="#FFFFFE" stroke="#267247"/>
+  <text x="725" y="234" text-anchor="middle" font-size="12.5" font-weight="600" fill="#267247">Fixture loader — demo</text>
+  <text x="725" y="256" text-anchor="middle" font-size="10.5" fill="#6F5E63">Replays captured responses through</text>
+  <text x="725" y="271" text-anchor="middle" font-size="10.5" fill="#6F5E63">the same schemas and normalizers</text>
+  <text x="725" y="291" text-anchor="middle" font-size="10.5" fill="#594A4E">Labelled, confidence capped</text>
+
+  <!-- Domain -->
+  <rect x="268" y="320" width="602" height="88" rx="14" fill="#FFFFFE" stroke="#267247"/>
+  <text x="569" y="346" text-anchor="middle" font-size="13" font-weight="600" fill="#267247">Domain — pure functions, score-v0.1</text>
+  <text x="569" y="368" text-anchor="middle" font-size="10.5" fill="#594A4E">Direction, Confidence and Coordination Risk stay separate, each with its component breakdown</text>
+  <text x="569" y="388" text-anchor="middle" font-size="10.5" fill="#6F5E63">Evidence ledger. No network, cache, clock or model reaches this layer.</text>
+
+  <!-- Brief -->
+  <rect x="268" y="424" width="602" height="58" rx="14" fill="#FFFFFE" stroke="#DEC7C2"/>
+  <text x="569" y="447" text-anchor="middle" font-size="13" font-weight="600" fill="#33272A">Brief validation</text>
+  <text x="569" y="467" text-anchor="middle" font-size="10.5" fill="#6F5E63">Evidence IDs, numbers and language checked. Any failure falls back to the deterministic brief.</text>
+
+  <!-- Optional provider -->
+  <rect x="268" y="524" width="602" height="52" rx="14" fill="#FFFFFE" stroke="#DEC7C2"/>
+  <text x="569" y="546" text-anchor="middle" font-size="12.5" font-weight="600" fill="#6F5E63">Model provider — optional</text>
+  <text x="569" y="565" text-anchor="middle" font-size="10" fill="#6F5E63">Receives evidence as data, never as instructions. Failure never blocks scoring.</text>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#594A4E"/>
+    </marker>
+  </defs>
+
+  <g stroke="#594A4E" stroke-width="1.6" fill="none" marker-end="url(#arrow)">
+    <path d="M 222 86 L 262 86"/>
+    <path d="M 569 116 L 569 128"/>
+    <path d="M 413 192 L 413 204"/>
+    <path d="M 725 192 L 725 204"/>
+    <path d="M 266 252 L 224 252"/>
+    <path d="M 413 304 L 413 316"/>
+    <path d="M 725 304 L 725 316"/>
+    <path d="M 569 408 L 569 420"/>
+    <path d="M 569 482 L 569 520"/>
+  </g>
+
+  <text x="228" y="78" font-size="9.5" fill="#6F5E63">HTTPS</text>
+  <text x="230" y="244" font-size="9.5" fill="#6F5E63">server only</text>
+  <text x="420" y="315" font-size="9.5" font-weight="600" fill="#267247">normalized</text>
+  <text x="732" y="315" font-size="9.5" font-weight="600" fill="#267247">normalized</text>
+</svg>

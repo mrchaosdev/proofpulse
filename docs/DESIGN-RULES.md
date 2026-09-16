@@ -1,6 +1,6 @@
 # ProofPulse design rules
 
-Version: `1.0`  
+Version: `2.2`
 Status: `normative`  
 Applies to: every public route, application route, component, visualization,
 loading state, fixture, screenshot, and demo artifact.
@@ -22,32 +22,62 @@ The reference project may teach process-level skills only:
 - derive visuals from real values; and
 - keep reusable primitives separate from product behavior.
 
+### Current direction
+
+Version 2.2 restores light as the default but keeps the stronger hierarchy,
+layered surfaces and research-instrument layout developed in version 2.0. The
+palette is the product owner's warm Happy Hues selection; dark remains an
+optional companion.
+
+The originality boundary did **not** relax. `arc-payment` remains a transaction
+terminal with flat dark ground, square surfaces, a warm orange accent and
+terminal motifs. ProofPulse is a warm editorial research workspace with rounded
+surfaces, a rose action colour, a circular signal lens and a top command bar.
+
 ProofPulse must not reuse the reference project's visual identity:
 
 - no terminal aesthetic;
-- no dark-first interface;
 - no square or cut-corner panels;
 - no hairline-rule-dominated composition;
-- no orange/pink action palette;
-- no uppercase monospace navigation system;
+- no orange action colour or single-accent terminal palette;
+- no monospace outside raw identifiers, and no uppercase navigation;
 - no scanlines, dot matrix, technical grid, pulse sphere, or fluid cursor;
-- no persistent dashboard sidebar; and
+- no persistent dashboard sidebar;
+- no component taken from the ChaoUi library, in source or in appearance; and
 - no copied component proportions, route composition, copy, logo, or animation.
+
+The `arc-payment` codebase is never imported. React Bits may supply a vetted
+interaction primitive when it is adapted into this repository under these
+conditions:
+
+- copy only the smallest component needed; do not install a theme or component
+  suite;
+- replace its visual identity with ProofPulse tokens and semantic class names;
+- remove perpetual or nonessential animation;
+- retain keyboard, reduced-motion and no-JavaScript fallbacks;
+- record the source and license in `THIRD_PARTY_NOTICES.md`; and
+- keep Tailwind, dynamic class construction and vendor business logic out of
+  the product.
+
+The current approved primitive is a locally adapted React Bits Spotlight Card.
+It reports pointer coordinates only; its colour, radius, surface and motion are
+owned by the ProofPulse stylesheets.
 
 ### Required visual difference
 
 | Dimension | Reference characteristic | ProofPulse rule |
 | --- | --- | --- |
-| Mental model | transaction terminal | editorial research canvas |
-| Default theme | dark | light |
+| Mental model | transaction terminal | editorial research instrument |
+| Ground | flat, near-black, unlit | warm cream with rose and green light fields |
 | Main navigation | dashboard/sidebar | compact top command bar |
-| Surfaces | square and flat | softly rounded and layered |
-| Depth | borders and rules | spacing, tonal layers, restrained shadow |
-| Typography | uppercase mono metadata | sentence-case sans; mono only for raw identifiers |
-| Action color | warm orange/pink | deep indigo |
-| Data accent | LED/terminal signals | inked charts with cyan support |
-| Background | technical grid/dots | quiet radial color field with large empty areas |
-| Signature form | cut plate | circular lens and curved flow ribbon |
+| Surfaces | square and flat | white, softly rounded and layered |
+| Depth | hairline rules | tonal layers, spacing and soft shadow |
+| Typography | mono on every address, hash and amount | sentence-case sans everywhere; mono only for raw identifiers |
+| Action colour | orange | rose with dark plum text |
+| Data accent | LED/terminal signals | rose, green and explicit status series |
+| Background motif | dot matrix and pulse sphere | radial colour field only; no dots, grid or sphere |
+| Cursor | landing-only fluid cursor | the system cursor, untouched |
+| Signature form | cut plate | circular signal lens and curved flow ribbon |
 
 If a screenshot can plausibly be mistaken for `arc-payment` with different text,
 the design fails this rule.
@@ -70,61 +100,62 @@ must not simulate urgency, market excitement, or a game.
 
 ## 3. Color system
 
+The light theme uses the supplied Happy Hues palette exactly for its named
+brand and illustration roles. Dark is retained as a semantic companion, not as
+the default.
+
 ### Light theme — default
 
 | Semantic role | Value | Rule |
 | --- | --- | --- |
-| Canvas | `#F7F8FC` | page background |
-| Canvas tint | `#EEF1FF` | quiet hero/lens field |
-| Surface | `#FFFFFF` | primary content cards |
-| Surface strong | `#E9EDF7` | selected rows and grouped controls |
-| Ink | `#15192B` | primary text |
-| Ink soft | `#454B62` | body and supporting text |
-| Ink muted | `#646C82` | metadata; must retain AA contrast |
-| Primary | `#5547D7` | primary action and selected state |
-| Primary hover | `#4436BF` | hovered primary action |
-| Primary soft | `#E6E2FF` | selected backgrounds, never body text |
-| On primary | `#FFFFFF` | text/icons on primary fill |
-| Cyan | `#0B7895` | secondary analytical series and information |
-| Cyan soft | `#DDF5FA` | informational background |
-| Positive | `#087A59` | positive observed values only |
-| Positive soft | `#DDF4EA` | positive background |
-| Negative | `#C23E55` | negative observed values and errors |
-| Negative soft | `#FCE4E8` | negative background |
-| Warning | `#8A5A00` | stale, partial, caution |
-| Warning soft | `#FFF0C7` | warning background |
-| Outline | `#D8DDEA` | card/control boundary |
-| Focus | `#2E6BFF` | keyboard focus ring |
+| Canvas | `#FAEEE7` | page background |
+| Headline / stroke | `#33272A` | headings, high-emphasis text and illustration strokes |
+| Paragraph | `#594A4E` | body and supporting copy |
+| Surface / illustration main | `#FFFFFE` | primary cards and main illustration fill |
+| Button / highlight | `#FF8BA7` | primary actions and illustration highlight |
+| Button text | `#33272A` | text and icons on primary actions |
+| Illustration secondary | `#FFC6C7` | tracks, selected groups and secondary fills |
+| Illustration tertiary | `#C3F0CA` | supporting information and tertiary fills |
+
+Derived semantic colours may darken rose or green when text contrast requires
+it. They do not replace the exact palette in the named roles above.
+
+Verified contrast on the default theme: headline on canvas `12.60:1`, paragraph
+on canvas `7.34:1`, and button text on button `6.49:1`.
 
 ### Dark theme — optional companion
 
 | Semantic role | Value | Rule |
 | --- | --- | --- |
-| Canvas | `#101321` | page background |
-| Canvas tint | `#181D36` | quiet hero/lens field |
-| Surface | `#191D2C` | primary content cards |
-| Surface strong | `#242A3E` | selected rows and grouped controls |
-| Ink | `#F5F6FB` | primary text |
-| Ink soft | `#C6CBD9` | body and supporting text |
-| Ink muted | `#99A1B5` | metadata |
-| Primary | `#A89CFF` | primary action and selected state |
-| Primary hover | `#BBB3FF` | hovered primary action |
-| Primary soft | `#302B59` | selected backgrounds |
-| On primary | `#101321` | text/icons on primary fill |
-| Cyan | `#66D2E8` | secondary analytical series and information |
-| Cyan soft | `#173B46` | informational background |
-| Positive | `#58D3A8` | positive observed values only |
-| Positive soft | `#173C31` | positive background |
-| Negative | `#FF7B8E` | negative observed values and errors |
-| Negative soft | `#49232D` | negative background |
-| Warning | `#F3C660` | stale, partial, caution |
-| Warning soft | `#443616` | warning background |
-| Outline | `#33394D` | card/control boundary |
-| Focus | `#7EA4FF` | keyboard focus ring |
+| Canvas | `#0F0E17` | page ground |
+| Canvas tint | `#17161F` | quiet hero/lens field |
+| Surface | `#17161F` | primary content cards |
+| Surface strong | `#201E2B` | selected rows and grouped controls |
+| Surface soft | `#12111C` | low-emphasis content regions |
+| Surface lift | `#222035` | tonal highlight inside a surface |
+| Ink | `#FFFFFE` | primary text |
+| Ink soft | `#B8B7CB` | body and supporting text |
+| Ink muted | `#9291A8` | metadata; must retain AA contrast |
+| Primary | `#8A3FE8` | primary action fill only |
+| Primary hover | `#994FF3` | hovered primary action |
+| Primary text | `#B07CF6` | violet used as text or as a link |
+| Primary soft | `#241A3D` | selected backgrounds, never body text |
+| On primary | `#FFFFFE` | text/icons on the primary fill |
+| Cyan | `#4FC4CF` | secondary analytical series and information |
+| Cyan soft | `#12313A` | informational background |
+| Positive | `#3DDC97` | positive observed values only |
+| Positive soft | `#10301F` | positive background |
+| Negative | `#FF5C7C` | negative observed values and errors |
+| Negative soft | `#3A1420` | negative background |
+| Warning | `#FBDD74` | stale, partial, caution |
+| Warning soft | `#332B14` | warning background |
+| Outline | `#2A2838` | card/control boundary |
+| Outline strong | `#45405C` | emphasized control boundary |
+| Focus | `#4FC4CF` | keyboard focus ring |
 
 ### Color laws
 
-1. Primary indigo means action or selection only.
+1. Primary rose means action, selection or illustration highlight only.
 2. Positive and negative colors are reserved for signed observed values and
    success/error states. They must never decorate the brand.
 3. Warning means incomplete, stale, or caution; it does not mean bearish.
@@ -133,6 +164,8 @@ must not simulate urgency, market excitement, or a game.
 6. Adjacent series must meet non-text contrast requirements or use distinct line
    styles/markers.
 7. Raw color literals may appear only in the token stylesheet and test fixtures.
+7b. Orange remains prohibited as the action colour so the product cannot drift
+    toward the reference project's terminal identity.
 8. All text combinations must meet WCAG 2.2 AA.
 
 CSS custom properties may use the required CSS `--` prefix. The class-name ban
@@ -187,12 +220,20 @@ Type scale:
   right.
 - Investigation screen begins with a sticky scope ribbon containing token,
   chain, timeframe, freshness, and refresh.
-- Main analytical area uses a twelve-column grid:
-  - signal lens: 4 columns;
-  - evidence overview: 8 columns;
-  - cohort chart: 7 columns;
-  - brief: 5 columns;
-  - actor and relationship sections: full width.
+- Main analytical area uses a twelve-column grid where **every row sums to
+  twelve**:
+  - signal lens: 4 columns, spanning two rows;
+  - evidence overview: 8 columns, beside the lens;
+  - cohort chart: 8 columns, beside the lens on the second row;
+  - score breakdown and brief: 6 columns each;
+  - buyers and sellers: 6 columns each;
+  - relationship, ledger and summary sections: full width.
+
+  The earlier 7/5 split assumed the lens did not span two rows. With the span
+  it left one column dangling beside the chart and seven columns empty beside
+  the breakdown, so the spans were rebalanced rather than the span removed:
+  the lens is tall, and the two cards beside it are what stop that height
+  becoming a hole.
 - Large empty areas are intentional; do not fill every grid cell.
 - Desktop page gutter: `32px`; tablet: `24px`; mobile: `16px`.
 
@@ -302,7 +343,7 @@ Rules:
 
 ### Primary button
 
-- Indigo fill, `44px` minimum height, sentence-case label.
+- Rose fill in light mode, `44px` minimum height, sentence-case label.
 - One primary button per decision region.
 - Label uses verb plus object: `Run investigation`.
 - Disabled state explains why through nearby text, not a hover-only tooltip.
@@ -341,7 +382,7 @@ Rules:
 ### Relationship map
 
 - Uses a calm node-link map on a tinted field, not a terminal graph.
-- Selected actor is a filled indigo node.
+- Selected actor is a filled primary-colour node.
 - Relation type controls edge style and label.
 - Node size maps only to a documented metric.
 - Table view is equal in status to graph view.

@@ -8,9 +8,34 @@
 body {
   background-color: var(--canvas);
   min-height: 100vh;
+  /*
+   * Two soft radial fields, fixed so they read as a canvas the content sits
+   * on rather than as decoration that scrolls with it. Large empty areas are
+   * intentional (DESIGN-RULES 6); this gives them tone instead of flatness.
+   */
+  background-image:
+    radial-gradient(
+      68rem 40rem at 78% -8%,
+      var(--field-primary) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      52rem 34rem at 4% 12%,
+      var(--field-cyan) 0%,
+      transparent 58%
+    );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+::selection {
+  background-color: var(--primary-soft);
+  color: var(--ink);
 }
 
 .app-shell {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -18,6 +43,15 @@ body {
 
 .app-main {
   flex: 1;
+}
+
+.command-bar-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: var(--canvas-veil);
+  backdrop-filter: blur(18px) saturate(140%);
+  border-block-end: 1px solid var(--outline);
 }
 
 .page-region {
@@ -41,15 +75,29 @@ body {
   padding-inline: var(--page-gutter);
 }
 
+/*
+ * DESIGN-RULES 12 sets a 44px minimum interactive target. An audit across
+ * every route, viewport and theme found the command bar, the theme control and
+ * the document index between 30 and 38px. Links that sit inline in a sentence
+ * are exempt under WCAG 2.2 and keep their natural height.
+ */
 .command-bar-links a {
   color: var(--ink-soft);
   text-decoration: none;
   font-weight: var(--weight-medium);
-  padding-block: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  transition:
+    color var(--motion-fast) var(--easing-standard),
+    background-color var(--motion-fast) var(--easing-standard);
 }
 
 .command-bar-links a:hover {
   color: var(--ink);
+  background-color: var(--surface-strong);
 }
 
 .command-bar-links {
@@ -61,20 +109,53 @@ body {
   margin-inline-start: auto;
 }
 
-/* Below the wrapping point the links start a new row instead of being pushed
-   past the viewport edge. */
-@media (max-width: 480px) {
-  .command-bar-links {
-    margin-inline-start: 0;
-    width: 100%;
-  }
-}
-
 .brand-mark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  gap: var(--space-3);
   font-weight: var(--weight-bold);
   color: var(--ink);
   font-size: var(--type-card-size);
   text-decoration: none;
+}
+
+.brand-symbol {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, var(--primary), var(--cyan));
+  box-shadow: var(--glow-primary);
+  transform: rotate(-8deg);
+}
+
+.brand-symbol::before,
+.brand-symbol::after,
+.brand-symbol-core {
+  content: "";
+  position: absolute;
+  border-radius: var(--radius-pill);
+  background-color: var(--on-primary);
+}
+
+.brand-symbol::before {
+  width: 4px;
+  height: 8px;
+  inset-inline-start: 7px;
+}
+
+.brand-symbol-core {
+  width: 4px;
+  height: 16px;
+}
+
+.brand-symbol::after {
+  width: 4px;
+  height: 11px;
+  inset-inline-end: 7px;
 }
 
 .site-footer {
@@ -92,33 +173,171 @@ body {
   flex-wrap: wrap;
   gap: var(--space-4);
   justify-content: space-between;
+  align-items: center;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.footer-brand strong {
+  color: var(--ink);
+}
+
+.footer-brand .brand-symbol {
+  width: 34px;
+  height: 34px;
 }
 
 /* Theme control and mode badge in the command bar. */
 .theme-toggle {
   border: 1px solid var(--outline);
   border-radius: var(--radius-pill);
-  padding: 2px;
+  padding: 3px;
   margin: 0;
   display: inline-flex;
   gap: 2px;
-  background-color: var(--surface);
+  background-color: var(--surface-frost);
 }
 
 .theme-option {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-pill);
-  padding-inline: var(--space-3);
-  min-height: 32px;
-  font-size: var(--type-meta-size);
+  padding: 0;
   color: var(--ink-muted);
+  transition:
+    color var(--motion-fast) var(--easing-standard),
+    background-color var(--motion-fast) var(--easing-standard),
+    transform var(--motion-fast) var(--easing-standard);
+}
+
+.theme-option:hover {
+  color: var(--ink);
+  transform: translateY(-1px);
 }
 
 .theme-option[aria-current="true"] {
-  background-color: var(--primary-soft);
+  background-color: var(--primary);
   color: var(--ink);
   font-weight: var(--weight-semibold);
 }
 
+.theme-icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .mode-indicator {
   display: inline-flex;
+}
+
+/* Mode badge and theme control: adjacent to navigation, not part of it. */
+.command-bar-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/*
+ * On a phone the bar is sticky, so every row it takes is permanently lost from
+ * the viewport. Three rows cost 193px, roughly a quarter of the screen. Brand
+ * and tools share the first row; the destinations take the second.
+ *
+ * The range runs to 783px, the last width at which the three groups do not fit
+ * on one line. Deciding it here rather than letting the text wrap keeps the
+ * bar exactly two rows throughout, which is what --sticky-offset declares.
+ */
+@media (max-width: 783px) {
+  .command-bar {
+    /*
+     * At 390px the brand and tools measure 350px against 358px of room, so a
+     * 12px column gap pushed them onto separate rows by four pixels. Eight
+     * keeps them together with slack to spare.
+     */
+    gap: var(--space-2);
+    justify-content: space-between;
+  }
+
+  .command-bar-links {
+    order: 2;
+    width: 100%;
+    margin-inline-start: 0;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .command-bar-tools {
+    order: 1;
+    gap: var(--space-1);
+  }
+}
+
+.mode-indicator-short {
+  display: none;
+}
+
+@media (max-width: 719px) {
+  .mode-indicator-full {
+    display: none;
+  }
+
+  .mode-indicator-short {
+    display: inline;
+  }
+}
+
+/*
+ * At 768px the three groups measure 717px against 720px of room, so the wide
+ * 24px gap alone forced a second row. The compact gap applies wherever the bar
+ * is not comfortably wide.
+ */
+@media (max-width: 1023px) {
+  .command-bar {
+    gap: var(--space-2);
+  }
+}
+
+/*
+ * Below 390px the wordmark and the tools need 354px against the 343px a 375px
+ * phone leaves inside the gutter, so the bar took a third sticky row. The
+ * symbol keeps the link recognisable and the accessible name still reads
+ * "ProofPulse" for anyone who cannot see it.
+ */
+@media (max-width: 389px) {
+  /* Without the wordmark the link measures 30px, under the 44px minimum. */
+  .brand-mark {
+    min-width: 44px;
+    justify-content: center;
+  }
+
+  .brand-wordmark {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/*
+ * At 320px, the documented minimum width, the three destinations measure 303px
+ * against 288px. Trimming the pill padding fits them on one row; the 44px tap
+ * target required by DESIGN-RULES 12 comes from min-height and is untouched.
+ */
+@media (max-width: 359px) {
+  .command-bar-links a {
+    padding-inline: var(--space-2);
+  }
 }

@@ -18,7 +18,7 @@
 
 .brief-provenance[data-provenance="model"] {
   background-color: var(--primary-soft);
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .brief-provenance[data-provenance="deterministic"] {
@@ -64,7 +64,7 @@
 .brief-citation {
   font-size: var(--type-meta-size);
   line-height: var(--type-meta-height);
-  color: var(--primary);
+  color: var(--primary-text);
   background-color: var(--primary-soft);
   border-radius: var(--radius-control);
   padding-inline: var(--space-2);

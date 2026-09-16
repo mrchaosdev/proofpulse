@@ -1,0 +1,85 @@
+/**
+ * Long-form document pages.
+ *
+ * One measure for everything. Prose was wrapping at 68ch while headings and
+ * tables ran the full 1360px content width, so the page read as two documents
+ * overlaid rather than one column.
+ */
+
+.doc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: var(--space-12);
+  align-items: start;
+}
+
+.doc-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: 760px;
+}
+
+.doc-body p,
+.doc-body ul {
+  max-width: none;
+}
+
+.doc-index {
+  position: sticky;
+  top: calc(var(--command-bar-height) + var(--space-6));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.doc-index-title {
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-muted);
+}
+
+.doc-index-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  list-style: none;
+}
+
+.doc-index-list a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding-block: var(--space-2);
+  padding-inline-start: var(--space-3);
+  border-inline-start: 2px solid var(--outline);
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+}
+
+.doc-index-list a:hover {
+  border-inline-start-color: var(--primary-text);
+  color: var(--ink);
+}
+
+.doc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-block-start: var(--space-6);
+  border-block-start: 1px solid var(--outline);
+}
+
+@media (max-width: 1023px) {
+  .doc-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+
+  .doc-index {
+    position: static;
+  }
+}

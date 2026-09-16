@@ -3,15 +3,9 @@
 /**
  * Theme control (04-information-architecture "Global navigation").
  *
- * Light is the product default. The system preference is honoured until the
- * visitor chooses, and the choice is stored per browser and applied by setting
- * `data-theme` on the document element, which is the same hook the token
- * stylesheet uses. Dark changes appearance, never semantics (DESIGN-RULES 3).
- *
- * The chosen theme lives on the document and in storage, not in React, so it
- * is read with `useSyncExternalStore` rather than copied into state inside an
- * effect. That keeps the server render and the first client render agreeing on
- * "system" and avoids a cascading re-render.
+ * Light is the product default. A stored explicit choice wins; System follows
+ * the operating system. Icons keep the command bar compact while each control
+ * retains a full accessible name and native tooltip.
  */
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
@@ -22,29 +16,50 @@ const STORAGE_KEY = "proofpulse-theme";
 const CHANGE_EVENT = "proofpulse-theme-change";
 
 const OPTIONS: readonly { value: Choice; label: string }[] = [
-  { value: "system", label: "System" },
   { value: "light", label: "Light" },
   { value: "dark", label: "Dark" },
+  { value: "system", label: "System" },
 ];
+
+function ThemeIcon({ choice }: { choice: Choice }) {
+  if (choice === "light") {
+    return (
+      <svg className="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.5" />
+        <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4" />
+      </svg>
+    );
+  }
+
+  if (choice === "dark") {
+    return (
+      <svg className="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.2 15.1A8.2 8.2 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg className="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="13" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </svg>
+  );
+}
 
 function readStored(): Choice {
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored === "light" || stored === "dark" ? stored : "system";
+    return stored === "light" || stored === "dark" || stored === "system"
+      ? stored
+      : "light";
   } catch {
-    // Private windows and blocked site data throw here; the system default is
-    // a correct answer, not an error.
-    return "system";
+    return "light";
   }
 }
 
 function applyToDocument(choice: Choice): void {
-  const root = document.documentElement;
-  if (choice === "system") {
-    root.removeAttribute("data-theme");
-    return;
-  }
-  root.setAttribute("data-theme", choice);
+  document.documentElement.setAttribute("data-theme", choice);
 }
 
 function subscribe(onChange: () => void): () => void {
@@ -58,12 +73,14 @@ function subscribe(onChange: () => void): () => void {
 
 function getSnapshot(): Choice {
   const attribute = document.documentElement.getAttribute("data-theme");
-  return attribute === "light" || attribute === "dark" ? attribute : "system";
+  if (attribute === "light" || attribute === "dark" || attribute === "system") {
+    return attribute;
+  }
+  return "light";
 }
 
-/** The server cannot know the visitor's stored choice, so it renders "system". */
 function getServerSnapshot(): Choice {
-  return "system";
+  return "light";
 }
 
 export function ThemeToggle() {
@@ -73,7 +90,6 @@ export function ThemeToggle() {
     getServerSnapshot,
   );
 
-  // Restores the stored choice once, on the client, after hydration.
   useEffect(() => {
     const stored = readStored();
     if (stored !== getSnapshot()) {
@@ -87,7 +103,7 @@ export function ThemeToggle() {
     try {
       window.localStorage.setItem(STORAGE_KEY, next);
     } catch {
-      // A stored preference is a convenience; losing it is not a failure.
+      // Storage is a convenience; the active document theme still changes.
     }
     window.dispatchEvent(new Event(CHANGE_EVENT));
   }, []);
@@ -100,10 +116,12 @@ export function ThemeToggle() {
           type="button"
           className="theme-option"
           key={option.value}
+          aria-label={option.label}
           aria-current={option.value === choice}
+          title={option.label}
           onClick={() => handleChange(option.value)}
         >
-          {option.label}
+          <ThemeIcon choice={option.value} />
         </button>
       ))}
     </fieldset>

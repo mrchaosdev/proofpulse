@@ -22,6 +22,7 @@ import type {
 import { shortenAddress } from "@/domain/investigation/address";
 import type { Timeframe } from "@/domain/investigation/scope";
 import { RelationshipMap } from "./RelationshipMap";
+import { LinkPending } from "@/components/actions/LinkPending";
 
 /** Actors offered for expansion, so the list can never be unbounded. */
 const MAX_OFFERED_ACTORS = 5;
@@ -73,8 +74,12 @@ export function RelationshipPanel({
               aria-current={isSelected}
               key={`${actor.side}-${actor.address}`}
               href={buildHref(timeframe, isFixture, actor.address)}
+              scroll={false}
             >
-              Inspect {shortenAddress(actor.address)}
+              <LinkPending
+                label={`Inspect ${shortenAddress(actor.address)}`}
+                pendingLabel="Requesting…"
+              />
             </Link>
           );
         })}
@@ -83,6 +88,7 @@ export function RelationshipPanel({
             className="button"
             data-variant="quiet"
             href={buildHref(timeframe, isFixture, null)}
+            scroll={false}
           >
             Clear selection
           </Link>

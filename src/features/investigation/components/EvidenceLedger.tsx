@@ -23,7 +23,15 @@ export function EvidenceLedger({
   evaluatedAt: string;
 }) {
   return (
-    <div className="table-scroll">
+    // The region scrolls, so it is focusable and named: a keyboard reader has
+    // to be able to reach the rows without a pointer (WCAG 2.1.1).
+    <div
+      className="table-scroll"
+      data-bounded="true"
+      role="region"
+      aria-label="Evidence ledger"
+      tabIndex={0}
+    >
       <table className="evidence-table">
         <caption className="visually-hidden">
           Every evidence item used in this investigation, with its source and

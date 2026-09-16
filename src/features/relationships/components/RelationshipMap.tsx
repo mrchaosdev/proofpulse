@@ -83,7 +83,7 @@ export function RelationshipMap({
         <text
           className="relationship-node-label"
           x={centre.x}
-          y={centre.y + 26}
+          y={centre.y + 34}
         >
           {shortenAddress(actorAddress)}
         </text>

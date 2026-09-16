@@ -122,10 +122,13 @@ function buildComponent(
     key: flow.segment,
     label: segmentLabel(flow.segment),
     value: normalized * renormalizedWeight,
+    // Rounded for reading. The unrounded inputs stay in the evidence ledger,
+    // whose expanded row carries the normalized record (DESIGN-RULES 13:
+    // compact numbers in overview, precise values in evidence detail).
     detail:
-      `tanh(${netFlowUsd} / ${scaleUsd}) = ${normalized.toFixed(4)}, ` +
-      `weight ${SEGMENT_WEIGHTS[flow.segment]} renormalized to ` +
-      `${renormalizedWeight.toFixed(4)}`,
+      `tanh(${Math.round(netFlowUsd)} ÷ ${Math.round(scaleUsd)}) = ` +
+      `${normalized.toFixed(4)} × weight ${renormalizedWeight.toFixed(3)} ` +
+      `(${SEGMENT_WEIGHTS[flow.segment]} renormalized)`,
     evidenceIds: [flowEvidenceId(flow.segment)],
   };
 }

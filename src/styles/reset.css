@@ -10,6 +10,11 @@
 }
 
 html {
+  /*
+   * Every heading in the methodology index landed exactly under the sticky
+   * bar — at 390px the whole heading was hidden behind 121px of chrome.
+   */
+  scroll-padding-block-start: calc(var(--sticky-offset) + var(--space-4));
   -webkit-text-size-adjust: 100%;
 }
 

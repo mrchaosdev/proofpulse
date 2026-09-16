@@ -15,6 +15,7 @@ import type { Actor } from "@/domain/investigation/investigation";
 import type { Timeframe } from "@/domain/investigation/scope";
 import { formatSignedUsd } from "@/domain/evidence/format-value";
 import { Address } from "@/components/data-display/Address";
+import { LinkPending } from "@/components/actions/LinkPending";
 
 function sign(value: number | null): "positive" | "negative" | "zero" {
   if (value === null || value === 0) return "zero";
@@ -75,8 +76,12 @@ export function ActorPanel({
                 className="actor-inspect"
                 href={inspectHref(timeframe, isFixture, actor.address)}
                 aria-current={isSelected}
+                scroll={false}
               >
-                {isSelected ? "Inspecting" : "Inspect relationships"}
+                <LinkPending
+                  label={isSelected ? "Inspecting" : "Inspect relationships"}
+                  pendingLabel="Requesting relationships…"
+                />
               </Link>
             </li>
           );

@@ -13,13 +13,43 @@
 
 .field-input,
 .field-select {
-  min-height: 44px;
-  padding-inline: var(--space-3);
+  min-height: 48px;
+  padding-inline: var(--space-4);
   border: 1px solid var(--outline);
   border-radius: var(--radius-control);
-  background-color: var(--surface);
+  background-color: var(--surface-soft);
   color: var(--ink);
   width: 100%;
+}
+
+/*
+ * The native chevron is drawn by the operating system and ignores every token
+ * here, so it sat beside authored controls looking borrowed. Two gradients
+ * draw the mark in currentColor, which keeps colour law 7 — no literals
+ * outside the token sheet — and follows the theme for free.
+ */
+.field-select {
+  appearance: none;
+  padding-inline-end: var(--space-8);
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    right 19px center,
+    right 14px center;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.field-input:hover,
+.field-select:hover {
+  border-color: var(--outline-strong);
+}
+
+.field-input:focus,
+.field-select:focus {
+  border-color: var(--focus);
+  box-shadow: var(--glow-primary);
 }
 
 .field-input[data-state="invalid"] {
@@ -51,29 +81,66 @@
   }
 }
 
+/*
+ * A segmented control. As separate pills each short label rendered as a small
+ * circle, which read as decoration rather than as a choice between four
+ * equivalent options.
+ */
 .choice-group {
-  display: flex;
+  display: inline-flex;
+  /* Hugs its options; a column flex parent would otherwise stretch it. */
+  align-self: flex-start;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-control);
+  background-color: var(--surface-strong);
+}
+
+/*
+ * Inside a card on a 320px phone the group has 248px and its four options want
+ * 278px, so the last one dropped to a second row and the control read as
+ * broken. As a grid the options divide whatever room there is. Auto columns
+ * rather than repeat(4) because the count comes from the timeframe list.
+ */
+@media (max-width: 400px) {
+  .choice-group {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    align-self: stretch;
+  }
+
+  .choice {
+    min-width: 0;
+    padding-inline: var(--space-2);
+  }
 }
 
 .choice {
   min-height: 44px;
+  min-width: 64px;
+  justify-content: center;
   padding-inline: var(--space-4);
-  border: 1px solid var(--outline);
-  border-radius: var(--radius-pill);
-  background-color: var(--surface);
+  border-radius: 7px;
+  background-color: transparent;
   color: var(--ink-soft);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.choice:hover {
+  color: var(--ink);
 }
 
 .choice[aria-current="true"] {
-  background-color: var(--primary-soft);
-  border-color: var(--primary);
+  background-color: var(--surface);
   color: var(--ink);
   font-weight: var(--weight-semibold);
+  box-shadow: var(--control-shadow);
 }
 
 /* Grouped choices use a fieldset for semantics, not for its default chrome. */

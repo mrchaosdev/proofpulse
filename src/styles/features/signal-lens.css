@@ -13,14 +13,22 @@
 
 .signal-lens-figure {
   width: 100%;
-  max-width: 300px;
+  max-width: 320px;
   aspect-ratio: 1;
+  filter: drop-shadow(0 18px 30px var(--field-primary));
 }
 
+/*
+ * The track is the unfilled remainder of each ring, so it has to recede. It
+ * used to take --illustration-secondary, which in dark resolves to the same
+ * #4fc4cf as --cyan: the empty track and the confidence arc were drawn in one
+ * colour, and all three rings read as full. An outline tone keeps the ring a
+ * complete shape while leaving the arc as the only thing carrying a value.
+ */
 .signal-lens-track {
   fill: none;
-  stroke: var(--surface-strong);
-  stroke-width: 16;
+  stroke: var(--outline-strong);
+  stroke-width: 14;
 }
 
 /*
@@ -29,8 +37,34 @@
  */
 .signal-lens-arc {
   fill: none;
-  stroke-width: 16;
+  stroke-width: 14;
   stroke-linecap: butt;
+}
+
+/*
+ * The arcs draw once, after real evidence has arrived (DESIGN-RULES 11). The
+ * dash offset animates, never the number: no value is shown passing through a
+ * figure the evidence does not support. Reduced-motion users see the final
+ * state immediately, because the duration token collapses to zero.
+ */
+.signal-lens-arc {
+  animation: signal-lens-draw var(--motion-lens-draw) var(--easing-standard)
+    both;
+}
+
+@keyframes signal-lens-draw {
+  from {
+    stroke-dasharray: 0 2000;
+  }
+  to {
+    stroke-dasharray: 2000 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-lens-arc {
+    animation: none;
+  }
 }
 
 /* Each dimension gets its own hue and its own band; none of them blend. */
@@ -69,7 +103,7 @@
 }
 
 .lens-swatch[data-dimension="direction"] {
-  background-color: var(--primary);
+  background-color: var(--primary-text);
 }
 
 .lens-swatch[data-dimension="confidence"] {
@@ -94,6 +128,54 @@
   align-items: baseline;
   padding-block-end: var(--space-4);
   border-block-end: 1px solid var(--outline);
+}
+
+.example-lens .signal-lens {
+  gap: var(--space-8);
+}
+
+.example-lens .signal-lens-figure {
+  max-width: 360px;
+}
+
+/*
+ * The three cards sized their own rows, so Coordination's number sat 6px below
+ * the other two and its caption 11px below. Subgrid puts name, value and
+ * caption on shared tracks, so they line up whatever the text is.
+ */
+.example-lens .signal-lens-readout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto auto auto;
+  gap: var(--space-3);
+}
+
+.example-lens .lens-row {
+  grid-template-columns: minmax(0, 1fr);
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  align-content: start;
+  padding: var(--space-4);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-control);
+  background-color: var(--surface-frost);
+}
+
+.example-lens .lens-row-value,
+.example-lens .lens-row-label,
+.example-lens .lens-row-definition,
+.example-lens .lens-row-unavailable {
+  grid-column: 1;
+}
+
+.example-lens .lens-row-definition {
+  display: none;
+}
+
+@media (max-width: 540px) {
+  .example-lens .signal-lens-readout {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .lens-row:last-child {

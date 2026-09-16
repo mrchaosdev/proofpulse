@@ -17,6 +17,9 @@ const SECRET_PATTERNS = [
     pattern:
       /\b(?:api[_-]?key|apikey|secret|token)\s*[:=]\s*["'][A-Za-z0-9_-]{16,}["']/i,
   },
+  // The credential this project actually uses. Its absence meant the gate
+  // could not catch the one key most likely to leak from this repository.
+  { name: "Nansen API key", pattern: /\bnsn_[A-Za-z0-9]{16,}\b/ },
   { name: "bearer token literal", pattern: /\bBearer\s+[A-Za-z0-9_\-.]{20,}/ },
   { name: "AWS access key id", pattern: /\bAKIA[0-9A-Z]{16}\b/ },
   {
@@ -56,6 +59,30 @@ function trackedFiles() {
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
+}
+
+/**
+ * Every file the repository would publish: tracked files plus files that are
+ * new and not ignored.
+ *
+ * Scanning only tracked files let a newly authored file carrying a credential
+ * pass this gate right up until the moment it was committed, which is exactly
+ * when it is too late to catch.
+ */
+function scannableFiles() {
+  const listed = execFileSync(
+    "git",
+    ["ls-files", "--cached", "--others", "--exclude-standard"],
+    { encoding: "utf8" },
+  );
+  return [
+    ...new Set(
+      listed
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean),
+    ),
+  ];
 }
 
 function extensionOf(file) {
@@ -109,7 +136,7 @@ function checkEnvExampleHasNoValues() {
 }
 
 function run() {
-  for (const file of trackedFiles()) scan(file);
+  for (const file of scannableFiles()) scan(file);
   checkEnvFilesAreIgnored();
   checkEnvExampleHasNoValues();
 

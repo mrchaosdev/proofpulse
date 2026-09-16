@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { InvestigationForm } from "@/features/investigation/components/InvestigationForm";
 import { describeFixture } from "@/server/fixtures/fixture-loader";
+import { getChainProfile } from "@/domain/investigation/scope";
+import { CREDITS_PER_CALL } from "@/domain/investigation/credits";
+import { REQUIRED_CAPABILITIES } from "@/domain/investigation/investigation";
+import { SpotlightCard } from "@/components/effects/SpotlightCard";
 
 export const metadata: Metadata = {
   title: "Investigate",
@@ -11,38 +16,72 @@ export const metadata: Metadata = {
 /** Empty workspace and scope input (04-information-architecture). */
 export default function InvestigatePage() {
   const fixture = describeFixture();
+  const coreCost = REQUIRED_CAPABILITIES.length * CREDITS_PER_CALL;
 
   return (
-    <div className="page-region stack">
-      <h1>Start an investigation</h1>
-      <p>
-        ProofPulse separates observed flow direction, evidence confidence, and
-        wallet coordination risk. It does not predict price and gives no trading
-        advice.
-      </p>
+    <div className="page-region investigate-entry">
+      <header className="investigate-header">
+        <p className="section-kicker">New research scope</p>
+        <h1>Start an investigation</h1>
+        <p>
+          Follow flows, inspect dominant actors and keep uncertainty visible.
+          ProofPulse does not predict price or give trading advice.
+        </p>
+      </header>
 
-      <div className="card">
-        <InvestigationForm />
+      <div className="investigate-split">
+        <SpotlightCard layout="form">
+          <div className="hero-panel-heading">
+            <div>
+              <p className="section-kicker">Scope</p>
+              <h2>Choose a token</h2>
+            </div>
+            <span className="hero-panel-badge">4 credits</span>
+          </div>
+          <InvestigationForm />
+        </SpotlightCard>
+
+        <aside className="investigate-aside">
+          <h2 className="card-heading">What happens when you run it</h2>
+          <ol className="step-compact">
+            <li>
+              The address is validated for the chain you picked. An invalid one
+              never reaches Nansen, so it costs nothing.
+            </li>
+            <li>
+              Four datasets are requested in parallel: token context, cohort
+              flows, top buyers and top sellers. That is {coreCost} credits.
+            </li>
+            <li>
+              Whatever returns is scored. A source that fails lowers confidence
+              instead of discarding the rest.
+            </li>
+            <li>
+              Wallet relationships stay unrequested until you pick an actor,
+              because they cost a credit each.
+            </li>
+          </ol>
+
+          <p className="text-meta">
+            No credential configured? The workspace runs on a recorded capture
+            and labels every screen accordingly.
+          </p>
+
+          <p>
+            <Link
+              className="button"
+              data-variant="secondary"
+              href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
+            >
+              Open the {fixture.tokenSymbol} capture from{" "}
+              {fixture.capturedAt.slice(0, 10)}
+            </Link>
+          </p>
+          <p className="text-meta">
+            {getChainProfile(fixture.chain).displayName} · spends no credits
+          </p>
+        </aside>
       </div>
-
-      <section className="stack">
-        <h2>Or open the deterministic demo</h2>
-        <p>
-          A timestamped capture of real Nansen responses, replayed through the
-          same normalization and scoring as live data. It spends no credits and
-          stays labelled as a fixture throughout.
-        </p>
-        <p>
-          <a
-            className="button"
-            data-variant="secondary"
-            href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
-          >
-            Open {fixture.tokenSymbol} fixture from{" "}
-            {fixture.capturedAt.slice(0, 10)}
-          </a>
-        </p>
-      </section>
     </div>
   );
 }

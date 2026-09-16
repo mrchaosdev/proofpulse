@@ -1,0 +1,71 @@
+/**
+ * Back to top: a floating return to the scope header on long reports.
+ *
+ * Hidden state uses visibility, not opacity alone. An opacity-zero button is
+ * still focusable and still announced, so a keyboard reader would tab into a
+ * control nobody can see.
+ */
+
+.back-to-top {
+  position: fixed;
+  /* Clears the home indicator on a phone, where the button sits lowest. */
+  inset-block-end: max(var(--space-6), env(safe-area-inset-bottom, 0px));
+  inset-inline-end: var(--space-6);
+  /* Above the sticky scope ribbon, which sits at 10. */
+  z-index: 30;
+
+  width: 48px;
+  height: 48px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+
+  border: 1px solid var(--outline-strong);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-frost);
+  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: var(--elevation-card);
+  color: var(--ink);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(var(--space-2));
+  transition:
+    opacity var(--motion-standard) var(--easing-standard),
+    transform var(--motion-standard) var(--easing-standard),
+    visibility var(--motion-standard) var(--easing-standard),
+    background-color var(--motion-fast) var(--easing-standard);
+}
+
+.back-to-top[data-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.back-to-top:hover {
+  background-color: var(--surface-lift);
+  border-color: var(--primary);
+}
+
+.back-to-top-icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/*
+ * On a phone the button overlaps the single column it floats above, so it
+ * moves to the gutter edge and stays clear of the horizontal scroll control
+ * on the evidence ledger.
+ */
+@media (max-width: 783px) {
+  .back-to-top {
+    inset-inline-end: var(--space-4);
+    inset-block-end: max(var(--space-4), env(safe-area-inset-bottom, 0px));
+  }
+}

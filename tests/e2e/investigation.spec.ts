@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 /**
  * Browser journeys against the deterministic fixture, so these tests spend no
@@ -392,6 +393,20 @@ test.describe("evidence ledger and actor controls", () => {
     page,
   }) => {
     await page.goto(FIXTURE_URL);
+
+    await expect(page.getByRole("button", { name: "Light" })).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => getComputedStyle(document.documentElement).colorScheme,
+        ),
+      )
+      .toBe("light");
+
     await page.getByRole("button", { name: "Dark" }).click();
 
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
@@ -416,6 +431,15 @@ test.describe("security headers", () => {
     expect(csp).toContain("connect-src 'self'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("object-src 'none'");
+  });
+
+  test("keeps unsafe-eval out of the production policy", async ({ page }) => {
+    const response = await page.goto("/");
+    const csp = response?.headers()["content-security-policy"] ?? "";
+
+    // React's development build needs eval and gets it from next.config in
+    // development only. A production build must never carry the allowance.
+    expect(csp).not.toContain("unsafe-eval");
   });
 
   test("serves the remaining security headers", async ({ page }) => {
@@ -504,5 +528,280 @@ test.describe("system states", () => {
     ).toBeVisible();
 
     await expect(page.locator(".skeleton")).toHaveCount(0);
+  });
+});
+
+/*
+ * --sticky-offset tells anchored content and the scope ribbon how much sticky
+ * chrome to clear. Its value is the bar's measured height, and the width at
+ * which the bar changes from two rows to one depends on how wide the nav links
+ * render, so nothing in CSS keeps the two in step. Clicking a methodology
+ * index link used to put the heading entirely behind the bar.
+ */
+test.describe("sticky offset matches the rendered bar", () => {
+  for (const width of [320, 390, 768, 783, 784, 1024, 1440]) {
+    test(`at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/methodology");
+      await page.waitForFunction(() => document.fonts.status === "loaded");
+
+      const bar = page.locator(".command-bar-wrap");
+      const barBox = await bar.boundingBox();
+      const declared = await page.evaluate(() =>
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--sticky-offset")
+          .trim(),
+      );
+      expect(declared).toBe(`${Math.round(barBox?.height ?? 0)}px`);
+
+      // Every index link must leave its heading clear of the bar.
+      const links = page.locator("a[href^='#']");
+      const count = await links.count();
+      expect(count).toBeGreaterThan(0);
+
+      for (let index = 0; index < count; index += 1) {
+        const target = await links.nth(index).getAttribute("href");
+        expect(target).not.toBeNull();
+        await links.nth(index).click();
+
+        const heading = page.locator(target ?? "#none");
+        const headingBox = await heading.boundingBox();
+        const currentBar = await bar.boundingBox();
+        expect(
+          headingBox?.y ?? -1,
+          `${target ?? ""} is hidden behind the command bar`,
+        ).toBeGreaterThanOrEqual(
+          (currentBar?.y ?? 0) + (currentBar?.height ?? 0),
+        );
+      }
+    });
+  }
+});
+
+/*
+ * Back to top. The hidden state is carried by visibility so the control leaves
+ * the tab order on its own; an opacity-only hide would strand a keyboard
+ * reader on a button nobody can see.
+ */
+test.describe("back to top", () => {
+  const report =
+    "/investigate/ethereum/0x6982508145454ce325ddbe47a25d4ec3d2311933" +
+    "?timeframe=7d&mode=fixture";
+
+  test("stays out of the way until the top is out of reach", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(report);
+    await page.waitForFunction(() => document.fonts.status === "loaded");
+
+    const button = page.getByRole("button", { name: "Back to top" });
+    await expect(button).toBeHidden();
+
+    await page.evaluate(() => window.scrollTo(0, 2000));
+    await expect(button).toBeVisible();
+
+    const box = await button.boundingBox();
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+  });
+
+  test("returns to the top and takes focus with it", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(report);
+    await page.waitForFunction(() => document.fonts.status === "loaded");
+
+    await page.evaluate(() => window.scrollTo(0, 3000));
+    await page.getByRole("button", { name: "Back to top" }).click();
+
+    await expect
+      .poll(() => page.evaluate(() => Math.round(window.scrollY)))
+      .toBe(0);
+
+    // Focus follows the scroll, so the next Tab continues from the top.
+    const focused = await page.evaluate(
+      () => document.activeElement?.tagName ?? "",
+    );
+    expect(focused).toBe("MAIN");
+  });
+
+  test("is not reachable by keyboard while hidden", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(report);
+    await page.waitForFunction(() => document.fonts.status === "loaded");
+
+    const tookFocus = await page.evaluate(() => {
+      const el = document.querySelector<HTMLElement>(".back-to-top");
+      el?.focus();
+      return document.activeElement === el;
+    });
+    expect(tookFocus).toBe(false);
+  });
+});
+
+/*
+ * Controls that broke into ragged rows on a narrow phone. Each of these was a
+ * layout that fitted at 390px and came apart at 320px, the documented minimum.
+ */
+test.describe("narrow phone layouts", () => {
+  test("the timeframe control keeps its options on one row", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.goto("/");
+    await page.waitForFunction(() => document.fonts.status === "loaded");
+
+    const rows = await page.evaluate(() => {
+      const group = document.querySelector(".choice-group");
+      if (group === null) return -1;
+      return new Set(
+        [...group.children].map((child) =>
+          Math.round(child.getBoundingClientRect().top),
+        ),
+      ).size;
+    });
+    expect(rows).toBe(1);
+  });
+
+  test("every actor row breaks the same way", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.goto(
+      "/investigate/ethereum/0x6982508145454ce325ddbe47a25d4ec3d2311933" +
+        "?timeframe=7d&mode=fixture",
+    );
+    await page.waitForFunction(() => document.fonts.status === "loaded");
+
+    // Rows differ only by whether the actor carries a label, so at most two
+    // heights. Before, the copy control wrapped unpredictably instead.
+    const heights = await page.evaluate(() => {
+      const rows = [...document.querySelectorAll(".actor-row")];
+      const withLabel = rows.filter((row) => row.querySelector(".actor-label"));
+      const without = rows.filter(
+        (row) => row.querySelector(".actor-label") === null,
+      );
+      const height = (list: Element[]) =>
+        new Set(
+          list.map((row) => Math.round(row.getBoundingClientRect().height)),
+        );
+      return {
+        labelled: [...height(withLabel)],
+        plain: [...height(without)],
+      };
+    });
+    expect(heights.labelled.length).toBeLessThanOrEqual(1);
+    expect(heights.plain.length).toBeLessThanOrEqual(1);
+  });
+});
+
+/*
+/*
+ * Entrance motion. The dangerous failure is content that never becomes
+ * visible, so the checks below matter more than the effect: script may not
+ * run, a page may be too short to scroll, and a reader may have asked for
+ * reduced motion. In each case the page must simply be readable.
+ *
+ * The second failure is silent. The reveal targets structural classes from one
+ * list in RevealOnView, so renaming a class would stop the animation without
+ * breaking anything, which is why every route asserts it still has motion.
+ */
+test.describe("entrance motion", () => {
+  const REPORT =
+    "/investigate/ethereum/0x6982508145454ce325ddbe47a25d4ec3d2311933" +
+    "?timeframe=7d&mode=fixture";
+  const ROUTES = ["/", "/investigate", "/methodology", REPORT];
+
+  const hiddenCount = (page: Page) =>
+    page.evaluate(
+      () =>
+        [...document.querySelectorAll("[data-revealed]")].filter(
+          (element) => Number(getComputedStyle(element).opacity) < 0.99,
+        ).length,
+    );
+
+  /*
+   * A jump rather than a stepped scroll, because that is the harsher case: it
+   * carries elements from below the window to above it without their ever
+   * intersecting, which is how the End key and a deep anchor behave.
+   */
+  const jumpToBottom = async (page: Page) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(120);
+  };
+
+  for (const route of ROUTES) {
+    test(`${route} animates and strands nothing`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(route);
+      await page.waitForFunction(() => document.fonts.status === "loaded");
+
+      // Something must move, or the reveal has silently stopped applying.
+      const loadIn = await page.evaluate(
+        () =>
+          document
+            .getAnimations()
+            .filter(
+              (animation) =>
+                (animation as CSSAnimation).animationName === "enter-rise",
+            ).length,
+      );
+      await jumpToBottom(page);
+      const revealed = await page.evaluate(
+        () => document.querySelectorAll('[data-revealed="true"]').length,
+      );
+      expect(loadIn + revealed).toBeGreaterThan(0);
+
+      await expect.poll(() => hiddenCount(page)).toBe(0);
+    });
+
+    test(`${route} strands nothing on a very tall window`, async ({ page }) => {
+      // A tall window leaves little scroll to spend, so an element hidden too
+      // far down could never come back. The reveal margin is in pixels for
+      // this reason: as a percentage it grew past the travel available.
+      //
+      // The report is not simply "unscrollable" here — its ledger is sized in
+      // vh, so the document grows with the window — which is why this scrolls
+      // rather than asserting the page cannot move.
+      await page.setViewportSize({ width: 1440, height: 6000 });
+      await page.goto(route);
+      await page.waitForFunction(() => document.fonts.status === "loaded");
+      await jumpToBottom(page);
+      await expect.poll(() => hiddenCount(page)).toBe(0);
+    });
+  }
+
+  test.describe("reduced motion", () => {
+    test.use({ reducedMotion: "reduce" });
+
+    for (const route of ROUTES) {
+      test(`${route} writes no hidden state at all`, async ({ page }) => {
+        await page.setViewportSize({ width: 1440, height: 900 });
+        await page.goto(route);
+        await page.waitForFunction(() => document.fonts.status === "loaded");
+        await jumpToBottom(page);
+        expect(
+          await page.evaluate(
+            () => document.querySelectorAll("[data-revealed]").length,
+          ),
+        ).toBe(0);
+        await expect.poll(() => hiddenCount(page)).toBe(0);
+      });
+    }
+  });
+
+  test.describe("without script", () => {
+    test.use({ javaScriptEnabled: false });
+
+    for (const route of ROUTES) {
+      test(`${route} stays readable`, async ({ page }) => {
+        await page.setViewportSize({ width: 1440, height: 900 });
+        await page.goto(route);
+        // Markup ships visible; only script adds a hidden state.
+        expect(
+          await page.evaluate(
+            () => document.querySelectorAll("[data-revealed]").length,
+          ),
+        ).toBe(0);
+      });
+    }
   });
 });

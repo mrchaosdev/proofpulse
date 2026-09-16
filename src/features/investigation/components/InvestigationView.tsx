@@ -18,6 +18,7 @@ import { CopyButton } from "@/components/actions/CopyButton";
 import { SignalLens } from "./SignalLens";
 import { SourceStatusStrip } from "./SourceStatusStrip";
 import { CohortFlowPanel } from "./CohortFlowPanel";
+import { FlowRibbon } from "./FlowRibbon";
 import { ActorPanel } from "./ActorPanel";
 import { ScoreBreakdown } from "./ScoreBreakdown";
 import { EvidenceLedger } from "./EvidenceLedger";
@@ -57,10 +58,13 @@ export function InvestigationView({
   result,
   briefOutcome,
   fixtureCapturedAt,
+  showsDifferentToken = false,
 }: {
   result: InvestigationResult;
   briefOutcome: BriefOutcome;
   fixtureCapturedAt?: string;
+  /** The capture does not cover the scope that was asked for. */
+  showsDifferentToken?: boolean;
 }) {
   const { investigation, scores, evidence } = result;
   const profile = getChainProfile(investigation.input.chain);
@@ -69,10 +73,26 @@ export function InvestigationView({
 
   return (
     <div className="stack">
+      {/*
+        One notice, not two. The substitution and the capture caveat are the
+        same fact seen from two sides, and stacked they cost 330px — on a
+        390px phone the first number sat below the fold.
+      */}
       {isFixture ? (
-        <div className="banner" data-state="fixture" role="note">
-          <span className="banner-title">Historical fixture — not live</span>
+        <div
+          className="banner"
+          data-state={showsDifferentToken ? "partial" : "fixture"}
+          role="note"
+        >
+          <span className="banner-title">
+            {showsDifferentToken
+              ? "Showing a different token — historical fixture"
+              : "Historical fixture — not live"}
+          </span>
           <span>
+            {showsDifferentToken
+              ? "No live credential is configured, so the demo capture is shown instead of the token you asked for. "
+              : null}
             Captured{" "}
             <span className="identifier">
               {fixtureCapturedAt ?? investigation.evaluatedAt}
@@ -87,9 +107,9 @@ export function InvestigationView({
 
       <section className="scope-ribbon" aria-label="Investigation scope">
         <div className="scope-identity">
-          <span className="scope-token">
+          <h1 className="scope-token">
             {context?.symbol ?? "Unresolved token"}
-          </span>
+          </h1>
           <span className="scope-meta">
             <span
               className="identifier"
@@ -159,11 +179,12 @@ export function InvestigationView({
           <p className="card-question">
             Which participant groups accumulated or distributed this token?
           </p>
+          <FlowRibbon flows={investigation.segmentFlows} />
           <CohortFlowPanel flows={investigation.segmentFlows} />
         </section>
 
         <section
-          className="card grid-brief"
+          className="card grid-half"
           aria-labelledby="confidence-heading"
         >
           <h2 className="card-heading" id="confidence-heading">
@@ -199,7 +220,7 @@ export function InvestigationView({
           )}
         </section>
 
-        <section className="card grid-full" aria-labelledby="brief-heading">
+        <section className="card grid-half" aria-labelledby="brief-heading">
           <h2 className="card-heading" id="brief-heading">
             Brief
           </h2>
@@ -210,7 +231,7 @@ export function InvestigationView({
           <BriefPanel outcome={briefOutcome} />
         </section>
 
-        <section className="card grid-brief" aria-labelledby="buyers-heading">
+        <section className="card grid-half" aria-labelledby="buyers-heading">
           <h2 className="card-heading" id="buyers-heading">
             Top net buyers
           </h2>
@@ -229,7 +250,7 @@ export function InvestigationView({
           />
         </section>
 
-        <section className="card grid-brief" aria-labelledby="sellers-heading">
+        <section className="card grid-half" aria-labelledby="sellers-heading">
           <h2 className="card-heading" id="sellers-heading">
             Top net sellers
           </h2>

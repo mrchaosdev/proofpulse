@@ -1,34 +1,505 @@
-/** Landing page: asymmetric hero, explanation left, lens example right. */
+/** Landing: editorial hierarchy with an interactive research surface. */
 
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: var(--space-12);
-  align-items: start;
-  padding-block-end: var(--space-12);
+.landing-page {
+  padding-block-start: var(--space-8);
 }
 
-@media (max-width: 1199px) {
-  .hero {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-8);
-  }
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(360px, 5fr);
+  gap: var(--space-12);
+  align-items: center;
+  /*
+   * A full-viewport hero forced 854px around 570px of content, so roughly
+   * 140px sat empty above the eyebrow and again below the signal strip. The
+   * hero is sized by what is in it.
+   */
+  padding-block: var(--space-12) var(--space-18);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-inline-end: 4%;
+  inset-block-start: 3%;
+  width: min(40vw, 34rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--field-cyan), transparent 68%);
+  filter: blur(24px);
+  opacity: 0.72;
+  pointer-events: none;
 }
 
 .hero-copy {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-5);
+  max-width: 780px;
+}
+
+.hero-eyebrow,
+.section-kicker {
+  color: var(--primary-text);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.08em;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--outline-strong);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-frost);
+}
+
+.hero-eyebrow-mark {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+.hero .text-display {
+  max-width: 12ch;
+  font-size: clamp(48px, 5.2vw, 76px);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.hero-accent {
+  display: block;
+  color: transparent;
+  background-image: linear-gradient(
+    100deg,
+    var(--ink) 4%,
+    var(--gradient-accent) 52%,
+    var(--gradient-cyan) 96%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
 }
 
 .hero-lead {
+  max-width: 62ch;
   font-size: 18px;
-  line-height: 28px;
+  line-height: 29px;
   color: var(--ink-soft);
 }
 
-.hero-panel {
-  background-color: var(--canvas-tint);
+.hero-signals {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  list-style: none;
+  margin-block-start: var(--space-2);
+}
+
+/*
+ * A hairline that fades out, rather than three equal rules across the column.
+ * As plain borders they read as the ruling of a table the hero does not have.
+ */
+.hero-signals li {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding-block-start: var(--space-3);
+  background-image: linear-gradient(
+    to right,
+    var(--outline-strong),
+    transparent
+  );
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: top left;
+  color: var(--ink-muted);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+}
+
+.hero-signals strong {
+  display: block;
+  color: var(--ink);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-height);
+}
+
+.hero-signal-index {
+  color: var(--primary-text);
+  font-family: var(--font-identifier);
+}
+
+.hero-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.hero-panel-heading h2 {
+  margin-block-start: var(--space-1);
+}
+
+/*
+ * "4 credits" is a cost and "Case 001" is a name. Both carried --cyan, which
+ * is the positive token — green in light, teal in dark — so a price read as a
+ * success state. Colour law 2 reserves those for signed values and outcomes.
+ */
+.hero-panel-badge,
+.example-label {
+  flex: 0 0 auto;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-strong);
+  border: 1px solid var(--outline);
+  color: var(--ink-soft);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  font-weight: var(--weight-semibold);
+}
+
+.hero-panel-note {
+  max-width: none;
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--outline);
+  color: var(--ink-muted);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-block: var(--space-18);
+}
+
+.section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 680px;
+}
+
+.section-heading h2 {
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+
+.proof-section {
+  position: relative;
+}
+
+.example-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(420px, 6fr);
+  border: 1px solid var(--outline);
+  border-radius: calc(var(--radius-card) + 8px);
+  overflow: hidden;
+  background-color: var(--surface);
+  box-shadow: var(--elevation-raised);
+}
+
+.example-copy {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: clamp(32px, 5vw, 72px);
+  background:
+    linear-gradient(150deg, var(--surface-lift), transparent 58%),
+    var(--surface);
+}
+
+.example-copy h3 {
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+
+.example-copy p {
+  color: var(--ink-soft);
+}
+
+.example-action {
+  margin-block-start: var(--space-2);
+}
+
+.example-lens {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  justify-content: center;
+  padding: clamp(28px, 4vw, 56px);
+  background:
+    radial-gradient(circle at 50% 32%, var(--field-primary), transparent 44%),
+    var(--canvas-tint);
+  border-inline-start: 1px solid var(--outline);
+}
+
+.example-lens-label {
+  align-self: center;
+  /*
+   * The rose field is the one ground where ink-muted falls under AA (4.09).
+   * ink-soft reaches 5.63 on it and keeps the label quiet enough.
+   */
+  color: var(--ink-soft);
+  font-size: var(--type-meta-size);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+}
+
+.process-section {
+  padding-block-start: var(--space-12);
+}
+
+.step-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  list-style: none;
+}
+
+.step-list > li {
+  min-width: 0;
+}
+
+.step-list .spotlight-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.step-list .spotlight-card::before {
+  background: radial-gradient(
+    24rem circle at var(--spotlight-x) var(--spotlight-y),
+    var(--spotlight-cyan),
+    transparent 52%
+  );
+}
+
+.step-name {
+  color: var(--ink);
+  font-size: var(--type-section-size);
+  line-height: var(--type-section-height);
+  font-weight: var(--weight-semibold);
+}
+
+.step-index {
+  color: var(--primary-text);
+  font-family: var(--font-identifier);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+}
+
+.guardrail-section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+  padding-block-start: var(--space-12);
+}
+
+.guardrail-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: clamp(24px, 4vw, 48px);
+  border-radius: var(--radius-card);
+  background-color: var(--surface-soft);
+}
+
+.guardrail-block:nth-child(2) {
+  background:
+    linear-gradient(145deg, var(--primary-soft), transparent 78%),
+    var(--surface-soft);
+}
+
+.boundary-list,
+.scope-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  list-style: none;
+}
+
+.boundary-list li {
+  position: relative;
+  padding-inline-start: var(--space-5);
+  color: var(--ink-soft);
+}
+
+.boundary-list li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 10px;
+  width: 7px;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background-color: var(--primary-text);
+}
+
+.scope-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  border-block-end: 1px solid var(--outline);
+  color: var(--ink);
+}
+
+.scope-list .identifier {
+  color: var(--ink-muted);
+  font-size: var(--type-meta-size);
+}
+
+@media (max-width: 1199px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+  }
+
+  .hero-copy {
+    max-width: 880px;
+  }
+
+  .hero .spotlight-card {
+    max-width: 760px;
+  }
+
+  .example-stage {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .landing-page {
+    padding-block-start: var(--space-4);
+  }
+
+  .hero {
+    gap: var(--space-8);
+    padding-block: var(--space-6) var(--space-12);
+  }
+
+  .hero .text-display {
+    font-size: clamp(40px, 13vw, 56px);
+    line-height: 1;
+  }
+
+  .hero-signals {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .hero-signals li {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .hero-signals strong {
+    font-size: 13px;
+    line-height: 19px;
+  }
+
+  /*
+   * Three columns leave 90px each at 320px, so every label wrapped mid-phrase
+   * and "Coordination" sat against the gutter. One row per signal costs height
+   * the hero can afford and keeps each name on one line. Nested here because
+   * the rule above re-asserts three columns and would otherwise win on order.
+   */
+  @media (max-width: 480px) {
+    .hero-signals {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-signals li {
+      flex-direction: row;
+      align-items: baseline;
+      gap: var(--space-3);
+    }
+  }
+
+  .section {
+    padding-block: var(--space-12);
+  }
+
+  .example-stage,
+  .guardrail-section {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .example-copy,
+  .example-lens {
+    padding: var(--space-6);
+  }
+
+  .example-lens {
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--outline);
+  }
+
+  .step-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Empty workspace: input left, expectation setting right. */
+.investigate-entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-block-start: var(--space-18);
+}
+
+.investigate-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 760px;
+}
+
+.investigate-header h1 {
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.investigate-header > p:last-child {
+  color: var(--ink-soft);
+  font-size: 18px;
+  line-height: 28px;
+}
+
+.investigate-split {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--space-6);
+  /*
+   * Starting the two cards left the shorter one ending 61px early, so the pair
+   * read as an L with a notch cut out of the corner. They share a height.
+   */
+  align-items: stretch;
+}
+
+.investigate-aside {
+  background:
+    linear-gradient(145deg, var(--primary-soft), transparent 76%),
+    var(--surface-soft);
+  border: 1px solid var(--outline);
   border-radius: var(--radius-card);
   padding: var(--space-6);
   display: flex;
@@ -36,63 +507,39 @@
   gap: var(--space-4);
 }
 
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  padding-block: var(--space-12);
-}
-
-.step-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-6);
-  list-style: none;
-}
-
-@media (max-width: 767px) {
-  .step-list {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.step-name {
-  font-weight: var(--weight-semibold);
-  color: var(--ink);
-  display: block;
-  margin-block-end: var(--space-2);
-}
-
-.boundary-list {
+.step-compact {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   list-style: none;
-  max-width: var(--prose-max-width);
+  counter-reset: step;
 }
 
-.boundary-list li {
-  padding-inline-start: var(--space-4);
-  border-inline-start: 2px solid var(--outline);
-}
-
-/* Explanation left, the signature lens right (DESIGN-RULES 6). */
-.example-split {
+.step-compact li {
   display: grid;
-  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-  gap: var(--space-12);
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: var(--space-3);
   align-items: start;
+  color: var(--ink-soft);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
 }
 
-.example-lens {
-  background-color: var(--canvas-tint);
-  border-radius: var(--radius-card);
-  padding: var(--space-6);
+.step-compact li::before {
+  counter-increment: step;
+  content: counter(step);
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background-color: var(--primary-soft);
+  color: var(--primary-text);
+  font-weight: var(--weight-bold);
+  display: grid;
+  place-items: center;
 }
 
-@media (max-width: 1199px) {
-  .example-split {
+@media (max-width: 1023px) {
+  .investigate-split {
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-8);
   }
 }

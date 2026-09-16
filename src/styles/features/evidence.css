@@ -4,6 +4,33 @@
   overflow-x: auto;
 }
 
+/*
+ * The ledger lists every evidence item the spec requires, which on a busy
+ * token is over forty rows: 3562px, forty per cent of the whole report, with
+ * the takeaway block pushed below it. Bounding the region keeps every row
+ * present and reachable rather than hiding any, and the column header stays
+ * put so a row deep in the list is still readable.
+ */
+.table-scroll[data-bounded="true"] {
+  max-height: 68vh;
+  overflow-y: auto;
+  border-radius: var(--radius-control);
+}
+
+.table-scroll[data-bounded="true"] thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  background-color: var(--surface);
+  /* A sticky cell's own border scrolls away with the row beneath it. */
+  box-shadow: inset 0 -1px 0 var(--outline-strong);
+}
+
+.table-scroll[data-bounded="true"]:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .evidence-table {
   min-width: 720px;
   font-size: var(--type-body-size);
@@ -86,7 +113,8 @@
 .evidence-json {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  background-color: var(--canvas-tint);
+  /* The normalized record is read, so its ground must carry text. */
+  background-color: var(--surface-soft);
   border-radius: var(--radius-control);
   padding: var(--space-3);
   font-size: var(--type-meta-size);

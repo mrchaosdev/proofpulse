@@ -14,10 +14,16 @@
 @import "./components/field.css";
 @import "./components/card.css";
 @import "./components/status.css";
+@import "./components/spotlight.css";
+@import "./components/back-to-top.css";
 
 @import "./features/landing.css";
 @import "./features/investigation.css";
 @import "./features/signal-lens.css";
 @import "./features/brief.css";
+@import "./features/document.css";
 @import "./features/evidence.css";
 @import "./features/relationships.css";
+
+/* Last: the scroll reveal must win over any feature rule touching animation. */
+@import "./motion.css";

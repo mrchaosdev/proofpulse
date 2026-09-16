@@ -34,9 +34,21 @@
   color: var(--warning);
 }
 
+/*
+ * Fixture is a notice, not a success.
+ *
+ * In this palette the informational and positive roles resolve to the same
+ * green, so borrowing the informational tokens rendered "Historical fixture —
+ * not live" in the colour that elsewhere means a positive observed value. A
+ * reader scanning for colour would have read a caution as reassurance, which
+ * works against product rule 5.7: fixture data must never be mistakable for
+ * live data. A neutral ground carries the notice without asserting a verdict;
+ * the word "Fixture" and the capture timestamp do the telling.
+ */
 .status-pill[data-state="fixture"] {
-  background-color: var(--cyan-soft);
-  color: var(--cyan);
+  background-color: var(--surface-strong);
+  color: var(--ink);
+  border: 1px solid var(--ink-muted);
 }
 
 .banner {
@@ -49,8 +61,9 @@
 }
 
 .banner[data-state="fixture"] {
-  background-color: var(--cyan-soft);
-  color: var(--cyan);
+  background-color: var(--surface-strong);
+  color: var(--ink);
+  border: 1px solid var(--ink-muted);
 }
 
 .banner[data-state="partial"] {

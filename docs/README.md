@@ -25,6 +25,9 @@ that works only on the author's machine.
 | [09 — Delivery plan](09-delivery-plan.md) | What is built each day and what gets cut first? | P0 |
 | [10 — Demo and submission](10-demo-and-submission.md) | How is the value shown and packaged for judges? | P0 |
 | [11 — Decisions and open questions](11-decisions-and-open-questions.md) | What has been decided, assumed, or still needs confirmation? | P0 |
+| [Demo script](demo-script.md) | What is said and shown in the recording? | P0 |
+| [Pitch deck](deck.md) | What goes on each slide? | P0 |
+| [Architecture diagram](architecture.svg) | How do the parts fit together? | P0 |
 
 ## Source-of-truth priority
 

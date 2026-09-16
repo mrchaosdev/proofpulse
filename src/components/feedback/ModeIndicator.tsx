@@ -27,7 +27,17 @@ export function ModeIndicator() {
       }
     >
       <StatusPill tone={live ? "ready" : "fixture"}>
-        {live ? "Live data" : "Fixture data"}
+        {/*
+          Two labels, one shown at a time by CSS. On a phone the sticky bar
+          costs viewport permanently, and "data" adds width without adding
+          meaning next to a badge that already sits in the chrome.
+        */}
+        <span className="mode-indicator-full">
+          {live ? "Live data" : "Fixture data"}
+        </span>
+        <span className="mode-indicator-short">
+          {live ? "Live" : "Fixture"}
+        </span>
       </StatusPill>
     </span>
   );

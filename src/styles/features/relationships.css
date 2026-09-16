@@ -15,7 +15,8 @@
   width: 100%;
   max-width: 100%;
   aspect-ratio: 4 / 3;
-  background-color: var(--canvas-tint);
+  /* The map field carries the selected address label, so it must carry text. */
+  background-color: var(--surface-soft);
   border-radius: var(--radius-card);
 }
 
@@ -45,10 +46,19 @@
   stroke: var(--primary-hover);
 }
 
+/*
+ * Sits clear of the selected node, and carries a halo in the field colour so
+ * the edges passing behind it do not break up the address.
+ */
 .relationship-node-label {
-  fill: var(--ink-muted);
-  font-size: 7px;
+  fill: var(--ink-soft);
+  font-size: 10px;
+  font-weight: var(--weight-medium);
   text-anchor: middle;
+  stroke: var(--surface-soft);
+  stroke-width: 4;
+  paint-order: stroke;
+  stroke-linejoin: round;
 }
 
 .relationship-legend {

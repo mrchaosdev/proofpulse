@@ -9,7 +9,7 @@
 
 export default function InvestigationLoading() {
   return (
-    <div className="page-region stack">
+    <div className="page-region stack investigation-page">
       <section className="scope-ribbon" aria-hidden="true">
         <span className="skeleton skeleton-title" />
         <span className="skeleton skeleton-meta" />

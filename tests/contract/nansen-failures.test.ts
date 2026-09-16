@@ -31,7 +31,7 @@ import injectedLabel from "../fixtures/nansen/synthetic/who-bought-sold-injected
 import duplicateEdges from "../fixtures/nansen/synthetic/related-wallets-duplicates.json";
 
 const ACTOR = "0x19a99f5b363f2dbb7a35cb0b16f96b3f3ae2c280";
-const TOKEN = "0x514910771af9ca656af840dff83e8264ecf986ca";
+const TOKEN_ADDRESS = "0x514910771af9ca656af840dff83e8264ecf986ca";
 
 function meta(capability: SourceMeta["capability"]): SourceMeta {
   return {
@@ -148,7 +148,7 @@ describe("empty actor list", () => {
     const result = scoreInvestigation({
       input: {
         chain: "ethereum",
-        tokenAddress: TOKEN,
+        tokenAddress: TOKEN_ADDRESS,
         timeframe: "1d",
         mode: "fixture",
       },
@@ -174,7 +174,7 @@ describe("hostile token metadata (M-04, S-05)", () => {
     const parsed = tokenScreenerResponseSchema.parse(injectedToken.body);
     const context = normalizeTokenScreener(
       parsed.data,
-      TOKEN,
+      TOKEN_ADDRESS,
       meta("token-context"),
     );
 
@@ -189,7 +189,7 @@ describe("hostile token metadata (M-04, S-05)", () => {
     const result = scoreInvestigation({
       input: {
         chain: "ethereum",
-        tokenAddress: TOKEN,
+        tokenAddress: TOKEN_ADDRESS,
         timeframe: "1d",
         mode: "fixture",
       },

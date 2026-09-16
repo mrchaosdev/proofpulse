@@ -13,16 +13,21 @@
   text-decoration: none;
   transition:
     background-color var(--motion-standard) var(--easing-standard),
-    color var(--motion-standard) var(--easing-standard);
+    color var(--motion-standard) var(--easing-standard),
+    transform var(--motion-fast) var(--easing-standard),
+    box-shadow var(--motion-standard) var(--easing-standard);
 }
 
 .button[data-variant="primary"] {
   background-color: var(--primary);
   color: var(--on-primary);
+  box-shadow: var(--glow-primary);
 }
 
 .button[data-variant="primary"]:hover {
   background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--elevation-card), var(--glow-primary);
 }
 
 .button[data-variant="secondary"] {
@@ -45,6 +50,10 @@
   cursor: not-allowed;
 }
 
+.button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 .copy-button {
   display: inline-flex;
   align-items: center;
@@ -58,4 +67,12 @@
 .copy-button:hover {
   background-color: var(--surface-strong);
   color: var(--ink);
+}
+
+/*
+ * Pending feedback on a link that refines the page it is on. Opacity only:
+ * no spinner, no motion that would compete with the evidence.
+ */
+.link-pending[data-pending="true"] {
+  opacity: 0.6;
 }

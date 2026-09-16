@@ -103,21 +103,12 @@ export default async function InvestigationPage({
   );
 
   return (
-    <div className="page-region stack">
-      {mode === "fixture" && !coversScope ? (
-        <div className="banner" data-state="partial" role="note">
-          <span className="banner-title">Showing a different token</span>
-          <span>
-            No live credential is configured, so the demo fixture is shown
-            instead of the token you requested. The fixture covers a single
-            captured scope.
-          </span>
-        </div>
-      ) : null}
+    <div className="page-region stack investigation-page">
       <InvestigationView
         result={result}
         briefOutcome={briefOutcome}
         fixtureCapturedAt={describeFixture().capturedAt}
+        showsDifferentToken={mode === "fixture" && !coversScope}
       />
     </div>
   );

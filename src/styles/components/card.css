@@ -4,7 +4,12 @@
  */
 
 .card {
-  background-color: var(--surface);
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, var(--surface-lift), transparent 46%),
+    var(--surface);
+  border: 1px solid var(--outline);
   border-radius: var(--radius-card);
   box-shadow: var(--elevation-card);
   padding: var(--space-6);
@@ -13,11 +18,27 @@
   gap: var(--space-4);
 }
 
+.card::before {
+  content: "";
+  position: absolute;
+  inset-inline: var(--space-6);
+  inset-block-start: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--outline-strong),
+    transparent
+  );
+  pointer-events: none;
+}
+
 .card-heading {
   font-size: var(--type-card-size);
   line-height: var(--type-card-height);
   font-weight: var(--weight-semibold);
   color: var(--ink);
+  letter-spacing: -0.015em;
 }
 
 .card-question {
@@ -34,7 +55,8 @@
 
 /* A tinted subsection, used instead of a nested card. */
 .subsection {
-  background-color: var(--canvas-tint);
+  /* The tinted subsection carries text, so it uses the text-safe tint. */
+  background-color: var(--surface-soft);
   border-radius: var(--radius-control);
   padding: var(--space-4);
 }

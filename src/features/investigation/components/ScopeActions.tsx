@@ -70,6 +70,7 @@ export function ScopeActions({
         className="button"
         data-variant="secondary"
         href={buildHref(investigation, [...REQUIRED_CAPABILITIES], inspect)}
+        scroll={false}
       >
         Refresh all sources
       </Link>
@@ -84,6 +85,7 @@ export function ScopeActions({
           data-variant="quiet"
           key={status.capability}
           href={buildHref(investigation, [status.capability], inspect)}
+          scroll={false}
         >
           Retry {CAPABILITY_NAMES[status.capability]} ({CREDITS_PER_CALL}{" "}
           credit)

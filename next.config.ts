@@ -13,10 +13,18 @@ import type { NextConfig } from "next";
  * forbidding inline script "where framework constraints permit", and this
  * framework does not; tightening it needs nonce plumbing through the document
  * response, which is recorded as follow-up work rather than claimed as done.
+ *
+ * `'unsafe-eval'` is added in development only. React's development build
+ * uses eval to reconstruct call stacks across environments, so without it the
+ * dev server reports "eval() is not supported in this environment" and loses
+ * its debugging features. Production never gets it: React does not use eval
+ * there, and allowing it would weaken the policy for every visitor.
  */
+const isDevelopment = process.env.NODE_ENV === "development";
+
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",

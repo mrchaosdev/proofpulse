@@ -105,6 +105,16 @@ const CALLS = [
       pagination: { page: 1, per_page: RESULT_ROWS },
     }),
   },
+  {
+    name: "related-wallets",
+    path: "/profiler/address/related-wallets",
+    // On demand only: pass --actor with an address from the investigation.
+    body: ({ chain, actor }) => ({
+      chain,
+      address: actor,
+      pagination: { page: 1, per_page: 20 },
+    }),
+  },
 ];
 
 function parseArguments(argv) {
@@ -210,6 +220,7 @@ async function run() {
     chain: args.chain,
     address: args.address,
     timeframe: args.timeframe,
+    actor: args.actor ?? args.address,
   };
   const plannedCount =
     args.only === "" ? CALLS.length : args.only.split(",").length;

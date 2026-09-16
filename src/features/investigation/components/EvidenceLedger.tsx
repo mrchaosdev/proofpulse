@@ -7,6 +7,7 @@
  */
 
 import type { Evidence } from "@/domain/evidence/evidence";
+import { EvidenceRowDetail } from "./EvidenceRowDetail";
 
 const POLARITY_WORDS: Readonly<Record<Evidence["polarity"], string>> = {
   supports_accumulation: "Supports accumulation",
@@ -35,6 +36,7 @@ export function EvidenceLedger({
             <th scope="col">Source</th>
             <th scope="col">Collected</th>
             <th scope="col">Effect</th>
+            <th scope="col">Record</th>
           </tr>
         </thead>
         <tbody>
@@ -61,6 +63,9 @@ export function EvidenceLedger({
               </td>
               <td className="evidence-polarity" data-polarity={item.polarity}>
                 {POLARITY_WORDS[item.polarity]}
+              </td>
+              <td>
+                <EvidenceRowDetail evidence={item} />
               </td>
             </tr>
           ))}

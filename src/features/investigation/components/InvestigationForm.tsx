@@ -96,8 +96,8 @@ export function InvestigationForm({
         )}
       </div>
 
-      <fieldset className="field">
-        <legend className="field-label">Timeframe</legend>
+      <fieldset className="field-group">
+        <legend>Timeframe</legend>
         <div className="choice-group">
           {TIMEFRAMES.map((option) => (
             <button

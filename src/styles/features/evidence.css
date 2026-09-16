@@ -74,3 +74,23 @@
   text-align: end;
   font-variant-numeric: tabular-nums;
 }
+
+/* Expanded ledger row: the normalized record a reader can take away. */
+.evidence-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.evidence-json {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background-color: var(--canvas-tint);
+  border-radius: var(--radius-control);
+  padding: var(--space-3);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  color: var(--ink-soft);
+  max-width: 100%;
+}

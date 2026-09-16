@@ -1,0 +1,86 @@
+/**
+ * Relationship map (DESIGN-RULES 9).
+ *
+ * A calm node-link map on a tinted field, not a terminal graph. The table
+ * below it is equal in status, so nothing is available only in the drawing.
+ */
+
+.relationship-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.relationship-figure {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: var(--canvas-tint);
+  border-radius: var(--radius-card);
+}
+
+.relationship-edge {
+  stroke: var(--ink-muted);
+  stroke-width: 1.5;
+}
+
+/* Relation type controls edge style as well as its label. */
+.relationship-edge[data-relation="first-funder"] {
+  stroke: var(--cyan);
+}
+
+.relationship-edge[data-relation="deployed-contract"] {
+  stroke: var(--primary);
+  stroke-dasharray: 6 4;
+}
+
+.relationship-node {
+  fill: var(--surface);
+  stroke: var(--outline);
+  stroke-width: 1.5;
+}
+
+.relationship-node[data-role="selected"] {
+  fill: var(--primary);
+  stroke: var(--primary-hover);
+}
+
+.relationship-node-label {
+  fill: var(--ink-muted);
+  font-size: 7px;
+  text-anchor: middle;
+}
+
+.relationship-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  color: var(--ink-muted);
+}
+
+.relationship-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.relationship-swatch {
+  width: 18px;
+  height: 0;
+  border-block-start: 2px solid var(--ink-muted);
+}
+
+.relationship-swatch[data-relation="first-funder"] {
+  border-color: var(--cyan);
+}
+
+.relationship-swatch[data-relation="deployed-contract"] {
+  border-color: var(--primary);
+  border-block-start-style: dashed;
+}
+
+.relationship-table {
+  min-width: 620px;
+}

@@ -12,6 +12,9 @@ export default tseslint.config(
       "coverage/**",
       "next-env.d.ts",
       "playwright-report/**",
+      // Git worktrees created by other tooling; linting them would report the
+      // same findings twice against a copy of this repository.
+      ".kilo/**",
       "test-results/**",
     ],
   },

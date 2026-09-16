@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/actions/ThemeToggle";
+import { ModeIndicator } from "@/components/feedback/ModeIndicator";
 import "@/styles/index.css";
 
 export const metadata: Metadata = {
@@ -11,7 +13,6 @@ export const metadata: Metadata = {
     "An evidence-first onchain investigation workspace built on Nansen data. " +
     "It separates observed flow direction, evidence confidence, and wallet " +
     "coordination risk. It is research software, not financial advice.",
-  robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
@@ -45,6 +46,12 @@ export default function RootLayout({
                   >
                     Source
                   </a>
+                </li>
+                <li>
+                  <ModeIndicator />
+                </li>
+                <li>
+                  <ThemeToggle />
                 </li>
               </ul>
             </nav>

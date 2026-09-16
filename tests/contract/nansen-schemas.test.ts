@@ -11,9 +11,11 @@ import { describe, expect, it } from "vitest";
 import { flowIntelligenceResponseSchema } from "@/integrations/nansen/schemas/flow-intelligence";
 import { tokenScreenerResponseSchema } from "@/integrations/nansen/schemas/token-screener";
 import { whoBoughtSoldResponseSchema } from "@/integrations/nansen/schemas/who-bought-sold";
+import { relatedWalletsResponseSchema } from "@/integrations/nansen/schemas/related-wallets";
 import { normalizeFlowIntelligence } from "@/integrations/nansen/normalizers/normalize-flow-intelligence";
 import { normalizeTokenScreener } from "@/integrations/nansen/normalizers/normalize-token-screener";
 import { normalizeWhoBoughtSold } from "@/integrations/nansen/normalizers/normalize-who-bought-sold";
+import { normalizeRelatedWallets } from "@/integrations/nansen/normalizers/normalize-related-wallets";
 import { scoreInvestigation } from "@/domain/investigation/investigation-result";
 import type { SourceMeta } from "@/domain/investigation/investigation";
 
@@ -21,6 +23,11 @@ import flowFixture from "../fixtures/nansen/flow-intelligence.json";
 import screenerFixture from "../fixtures/nansen/token-screener.json";
 import buyFixture from "../fixtures/nansen/who-bought-sold-buy.json";
 import sellFixture from "../fixtures/nansen/who-bought-sold-sell.json";
+import relatedFixture from "../fixtures/nansen/related-wallets.json";
+import solanaScreener from "../fixtures/nansen/solana-token-screener.json";
+import solanaFlow from "../fixtures/nansen/solana-flow-intelligence.json";
+import baseScreener from "../fixtures/nansen/base-token-screener.json";
+import baseFlow from "../fixtures/nansen/base-flow-intelligence.json";
 
 const COLLECTED_AT = "2026-09-15T00:40:00.000Z";
 const EVALUATED_AT = "2026-09-15T00:40:30.000Z";
@@ -316,4 +323,112 @@ describe("live capture through the full domain pipeline", () => {
 
     expect(result.scores.confidence.value).toBeLessThanOrEqual(69);
   });
+});
+
+describe("Related Wallets contract", () => {
+  const ACTOR = "0x19a99f5b363f2dbb7a35cb0b16f96b3f3ae2c280";
+
+  it("parses the captured response", () => {
+    const parsed = relatedWalletsResponseSchema.safeParse(relatedFixture.body);
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("preserves the Nansen relation type verbatim", () => {
+    const parsed = relatedWalletsResponseSchema.parse(relatedFixture.body);
+    const relationships = normalizeRelatedWallets(
+      parsed.data,
+      ACTOR,
+      meta("related-wallets"),
+    );
+    const relations = new Set(
+      relationships.map((relationship) => relationship.relation),
+    );
+
+    // The live API returns human-readable relation names; they are not
+    // rewritten into an internal vocabulary.
+    expect(relations.has("First Funder")).toBe(true);
+    expect(relations.has("Deployed Contract")).toBe(true);
+  });
+
+  it("carries the transaction and timestamp that evidence the link", () => {
+    const parsed = relatedWalletsResponseSchema.parse(relatedFixture.body);
+    const relationships = normalizeRelatedWallets(
+      parsed.data,
+      ACTOR,
+      meta("related-wallets"),
+    );
+    const first = relationships[0];
+    if (first === undefined) throw new Error("expected a relationship");
+
+    expect(first.transactionHash).not.toBeNull();
+    expect(first.observedAt).not.toBeNull();
+    expect(first.sourceAddress).toBe(ACTOR);
+  });
+
+  it("treats an empty related-wallet label as no label", () => {
+    const parsed = relatedWalletsResponseSchema.parse(relatedFixture.body);
+
+    expect(parsed.data.every((record) => record.address_label !== "")).toBe(
+      true,
+    );
+  });
+
+  it("drops a self edge, which carries no relational information", () => {
+    const parsed = relatedWalletsResponseSchema.parse(relatedFixture.body);
+    const template = parsed.data[0];
+    if (template === undefined) throw new Error("expected a record");
+    const withSelfEdge = [...parsed.data, { ...template, address: ACTOR }];
+    const relationships = normalizeRelatedWallets(
+      withSelfEdge,
+      ACTOR,
+      meta("related-wallets"),
+    );
+
+    expect(relationships).toHaveLength(parsed.data.length);
+  });
+});
+
+describe("chain coverage", () => {
+  // Solana and Base were exercised against the live API on 2026-09-16. Each
+  // returns the same schema as Ethereum, which is what lets one set of
+  // normalizers serve all three supported chains.
+  const captures = [
+    { chain: "solana", screener: solanaScreener, flow: solanaFlow },
+    { chain: "base", screener: baseScreener, flow: baseFlow },
+  ] as const;
+
+  for (const capture of captures) {
+    it(`parses a ${capture.chain} token context`, () => {
+      const parsed = tokenScreenerResponseSchema.parse(capture.screener.body);
+      const context = normalizeTokenScreener(
+        parsed.data,
+        capture.screener.scope.tokenAddress,
+        meta("token-context"),
+      );
+
+      expect(context?.symbol).toBe("USDC");
+      expect(context?.liquidityUsd).toBeGreaterThan(0);
+    });
+
+    it(`parses ${capture.chain} cohort flows and reports the same warnings`, () => {
+      const parsed = flowIntelligenceResponseSchema.parse(capture.flow.body);
+
+      expect(parsed.warnings).toHaveLength(2);
+      expect(parsed.warnings.join(" ")).toContain("not tracked");
+    });
+
+    it(`treats the untracked wallet counts as missing on ${capture.chain}`, () => {
+      const parsed = flowIntelligenceResponseSchema.parse(capture.flow.body);
+      const record = parsed.data[0];
+      if (record === undefined) throw new Error("expected a record");
+      const flows = normalizeFlowIntelligence(record, meta("cohort-flows"));
+      const bySegment = new Map(flows.map((flow) => [flow.segment, flow]));
+
+      expect(bySegment.get("exchange")?.walletCount).toBeNull();
+      expect(bySegment.get("fresh_wallet")?.walletCount).toBeNull();
+      // A tracked cohort still reports its real count.
+      expect(bySegment.get("smart_trader")?.walletCount).toBeGreaterThan(0);
+    });
+  }
 });

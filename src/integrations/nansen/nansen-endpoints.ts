@@ -13,8 +13,7 @@ import type { SourceCapability } from "@/domain/investigation/investigation";
 export const NANSEN_API_VERSION = "/api/v1";
 export const NANSEN_AUTH_HEADER = "apikey";
 
-/** Every call costs one credit on both the Free and Pro plans. */
-export const CREDITS_PER_CALL = 1;
+export { CREDITS_PER_CALL } from "@/domain/investigation/credits";
 
 /** Server constants, never client-controlled (07-security-and-privacy). */
 export const MAX_ACTOR_ROWS = 10;

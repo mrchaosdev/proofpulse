@@ -1,7 +1,13 @@
 import Link from "next/link";
-import { listChainProfiles } from "@/domain/investigation/scope";
+import {
+  getChainProfile,
+  listChainProfiles,
+} from "@/domain/investigation/scope";
 import { InvestigationForm } from "@/features/investigation/components/InvestigationForm";
 import { describeFixture } from "@/server/fixtures/fixture-loader";
+import { runInvestigation } from "@/server/investigations/investigation-service";
+import { MemoryCacheStore } from "@/server/cache/cache-store";
+import { SignalLens } from "@/features/investigation/components/SignalLens";
 
 /**
  * Landing page (04-information-architecture).
@@ -9,9 +15,21 @@ import { describeFixture } from "@/server/fixtures/fixture-loader";
  * Every claim here describes behaviour that works today (02-product-rules 9.1),
  * and the hero renders without waiting for a visual effect or an API request.
  */
-export default function LandingPage() {
+export default async function LandingPage() {
   const chains = listChainProfiles();
   const fixture = describeFixture();
+
+  // The example is the real captured investigation, scored by the same code
+  // that scores a live one. Nothing here is mocked up for display.
+  const example = await runInvestigation(
+    {
+      chain: fixture.chain,
+      tokenAddress: fixture.tokenAddress,
+      timeframe: fixture.timeframe,
+      mode: "fixture",
+    },
+    { cache: new MemoryCacheStore(), now: () => new Date() },
+  );
 
   return (
     <div className="page-region">
@@ -49,22 +67,37 @@ export default function LandingPage() {
       </section>
 
       <section className="section" aria-labelledby="example-heading">
-        <h2 id="example-heading">See it on real captured data</h2>
-        <p>
-          A timestamped capture of live Nansen responses for{" "}
-          {fixture.tokenSymbol}, replayed through exactly the same
-          normalization, scoring, and interface as live mode. It spends no API
-          credits and stays labelled as a fixture the whole way through.
-        </p>
-        <p>
-          <Link
-            className="button"
-            data-variant="primary"
-            href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
-          >
-            Open the {fixture.capturedAt.slice(0, 10)} capture
-          </Link>
-        </p>
+        <h2 id="example-heading">A real investigation, not a mock-up</h2>
+        <div className="example-split">
+          <div className="stack">
+            <p>
+              This is {fixture.tokenSymbol} on{" "}
+              {getChainProfile(fixture.chain).displayName}, captured from the
+              live Nansen API on{" "}
+              <span className="identifier">
+                {fixture.capturedAt.slice(0, 10)}
+              </span>{" "}
+              and scored by exactly the code that scores a live investigation.
+            </p>
+            <p>
+              Direction sits near zero while Confidence stays low: the cohorts
+              disagree and the evidence is thin. A product that merged these
+              into one number would have hidden that.
+            </p>
+            <p>
+              <Link
+                className="button"
+                data-variant="primary"
+                href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
+              >
+                Open the full investigation
+              </Link>
+            </p>
+          </div>
+          <div className="example-lens">
+            <SignalLens scores={example.scores} />
+          </div>
+        </div>
       </section>
 
       <section className="section" aria-labelledby="how-heading">

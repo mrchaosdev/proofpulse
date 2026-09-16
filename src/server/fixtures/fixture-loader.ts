@@ -11,6 +11,7 @@ import "server-only";
 
 import type {
   NormalizedInvestigation,
+  Relationship,
   SourceStatus,
 } from "@/domain/investigation/investigation";
 import type { Chain, Timeframe } from "@/domain/investigation/scope";
@@ -20,6 +21,8 @@ import { whoBoughtSoldResponseSchema } from "@/integrations/nansen/schemas/who-b
 import { normalizeFlowIntelligence } from "@/integrations/nansen/normalizers/normalize-flow-intelligence";
 import { normalizeTokenScreener } from "@/integrations/nansen/normalizers/normalize-token-screener";
 import { normalizeWhoBoughtSold } from "@/integrations/nansen/normalizers/normalize-who-bought-sold";
+import { normalizeRelatedWallets } from "@/integrations/nansen/normalizers/normalize-related-wallets";
+import { relatedWalletsResponseSchema } from "@/integrations/nansen/schemas/related-wallets";
 import { sourceMeta } from "@/integrations/nansen/adapters/adapter-result";
 import demoFixture from "./data/demo-investigation.json";
 
@@ -144,4 +147,27 @@ export function loadFixtureInvestigation(
     sourceStatuses: statuses,
     evaluatedAt,
   };
+}
+
+/** The address whose relationships the demo fixture captured. */
+export function fixtureActorAddress(): string {
+  return demoFixture.relationships.actorAddress;
+}
+
+/**
+ * Relationship expansion for the one actor the fixture covers. Returns null
+ * for any other address, so the demo cannot imply it holds relationship
+ * evidence it never captured.
+ */
+export function loadFixtureRelationships(
+  actorAddress: string,
+): readonly Relationship[] | null {
+  const captured = demoFixture.relationships;
+  if (captured.actorAddress.toLowerCase() !== actorAddress.toLowerCase()) {
+    return null;
+  }
+
+  const parsed = relatedWalletsResponseSchema.parse(captured.response);
+  const meta = sourceMeta("related-wallets", demoFixture.capturedAt, [], false);
+  return normalizeRelatedWallets(parsed.data, captured.actorAddress, meta);
 }

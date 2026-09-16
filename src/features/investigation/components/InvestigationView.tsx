@@ -8,7 +8,9 @@
  */
 
 import type { InvestigationResult } from "@/domain/investigation/investigation-result";
+import type { BriefOutcome } from "@/domain/brief/brief-outcome";
 import { getChainProfile } from "@/domain/investigation/scope";
+import { findSourceStatus } from "@/domain/investigation/investigation";
 import { shortenAddress } from "@/domain/investigation/address";
 import { formatUsd } from "@/domain/evidence/format-value";
 import { StatusPill } from "@/components/feedback/StatusPill";
@@ -19,6 +21,10 @@ import { CohortFlowPanel } from "./CohortFlowPanel";
 import { ActorPanel } from "./ActorPanel";
 import { ScoreBreakdown } from "./ScoreBreakdown";
 import { EvidenceLedger } from "./EvidenceLedger";
+import { BriefPanel } from "./BriefPanel";
+import { ScopeActions } from "./ScopeActions";
+import { FixtureFallback } from "./FixtureFallback";
+import { RelationshipPanel } from "@/features/relationships/components/RelationshipPanel";
 
 function buildSummary(result: InvestigationResult): string {
   const { investigation, scores } = result;
@@ -49,9 +55,11 @@ function buildSummary(result: InvestigationResult): string {
 
 export function InvestigationView({
   result,
+  briefOutcome,
   fixtureCapturedAt,
 }: {
   result: InvestigationResult;
+  briefOutcome: BriefOutcome;
   fixtureCapturedAt?: string;
 }) {
   const { investigation, scores, evidence } = result;
@@ -74,6 +82,8 @@ export function InvestigationView({
           </span>
         </div>
       ) : null}
+
+      {isFixture ? null : <FixtureFallback investigation={investigation} />}
 
       <section className="scope-ribbon" aria-label="Investigation scope">
         <div className="scope-identity">
@@ -106,6 +116,7 @@ export function InvestigationView({
             {isFixture ? "Fixture" : "Live"}
           </StatusPill>
         </div>
+        <ScopeActions investigation={investigation} />
       </section>
 
       <div className="investigation-grid">
@@ -174,9 +185,32 @@ export function InvestigationView({
             components={scores.confidence.components}
             formulaVersion={scores.formulaVersion}
           />
+          {scores.coordinationRisk.state === "not-assessed" ? (
+            <p className="card-question">
+              Coordination risk is not assessed. Expand an actor below to
+              request relationship evidence.
+            </p>
+          ) : (
+            <ScoreBreakdown
+              heading="Coordination risk"
+              components={scores.coordinationRisk.components}
+              formulaVersion={scores.formulaVersion}
+            />
+          )}
         </section>
 
-        <section className="card grid-flows" aria-labelledby="buyers-heading">
+        <section className="card grid-full" aria-labelledby="brief-heading">
+          <h2 className="card-heading" id="brief-heading">
+            Brief
+          </h2>
+          <p className="card-question">
+            Supporting and contradicting evidence appear before any
+            interpretation, and every sentence cites the evidence it rests on.
+          </p>
+          <BriefPanel outcome={briefOutcome} />
+        </section>
+
+        <section className="card grid-brief" aria-labelledby="buyers-heading">
           <h2 className="card-heading" id="buyers-heading">
             Top net buyers
           </h2>
@@ -187,6 +221,11 @@ export function InvestigationView({
           <ActorPanel
             actors={investigation.buyers}
             emptyMessage="No buyer records were returned for this scope."
+            timeframe={investigation.input.timeframe}
+            isFixture={isFixture}
+            inspectedActorAddress={
+              investigation.inspectedActorAddresses[0] ?? null
+            }
           />
         </section>
 
@@ -200,6 +239,34 @@ export function InvestigationView({
           <ActorPanel
             actors={investigation.sellers}
             emptyMessage="No seller records were returned for this scope."
+            timeframe={investigation.input.timeframe}
+            isFixture={isFixture}
+            inspectedActorAddress={
+              investigation.inspectedActorAddresses[0] ?? null
+            }
+          />
+        </section>
+
+        <section
+          className="card grid-full"
+          aria-labelledby="relationships-heading"
+        >
+          <h2 className="card-heading" id="relationships-heading">
+            Wallet relationships
+          </h2>
+          <p className="card-question">
+            Are the dominant actors connected to each other? An observed link is
+            not shared ownership.
+          </p>
+          <RelationshipPanel
+            timeframe={investigation.input.timeframe}
+            isFixture={isFixture}
+            actors={[...investigation.buyers, ...investigation.sellers]}
+            relationships={investigation.relationships}
+            inspectedActorAddress={
+              investigation.inspectedActorAddresses[0] ?? null
+            }
+            status={findSourceStatus(investigation, "related-wallets")}
           />
         </section>
 

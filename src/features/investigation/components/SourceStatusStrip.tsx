@@ -16,6 +16,7 @@ import { findSourceStatus } from "@/domain/investigation/investigation";
 import { StatusPill } from "@/components/feedback/StatusPill";
 import type { StatusTone } from "@/components/feedback/StatusPill";
 import { ageSeconds, freshnessState } from "@/domain/scoring/freshness";
+import { formatAge } from "@/domain/evidence/format-value";
 
 const CAPABILITY_NAMES: Readonly<Record<SourceCapability, string>> = {
   "token-context": "Token context",
@@ -33,10 +34,7 @@ function describe(
     case "ready": {
       const age = ageSeconds(status.source.collectedAt, evaluatedAt);
       const freshness = freshnessState(status.capability, age);
-      const minutes = Math.round(age / 60);
-      const detail =
-        `${status.recordCount} records, collected ${minutes} minute` +
-        `${minutes === 1 ? "" : "s"} ago (UTC).`;
+      const detail = `${status.recordCount} records, collected ${formatAge(age)}.`;
       return freshness === "stale"
         ? { tone: "stale", word: "Stale", detail }
         : { tone: "ready", word: "Ready", detail };

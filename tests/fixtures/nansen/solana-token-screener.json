@@ -1,0 +1,43 @@
+{
+  "capturedAt": "2026-09-16T12:31:25.536Z",
+  "endpoint": "/api/v1/token-screener",
+  "apiVersion": "/api/v1",
+  "schemaVersion": "nansen-2026-09-15",
+  "scope": {
+    "chain": "solana",
+    "tokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "tokenSymbol": "USDC",
+    "timeframe": "1d"
+  },
+  "observedLatencyMs": 1008,
+  "bodySha256": "ef402c133257868209fdbf80e8d2acd2c2db8d657168eed580f4106b9b47c0e5",
+  "body": {
+    "data": [
+      {
+        "chain": "solana",
+        "token_address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "token_symbol": "USDC",
+        "token_age_days": 2164,
+        "token_age_hours": 51931,
+        "token_deployment_date": "2020-10-13T17:37:53",
+        "market_cap_usd": 73890098026.3152,
+        "liquidity": 310467203.6854355,
+        "price_usd": 1.002507015978535,
+        "price_change": 0.00017525336796616863,
+        "fdv": 7878854322.99173,
+        "fdv_mc_ratio": 0.10662936622693012,
+        "buy_volume": 724394530.1967834,
+        "inflow_fdv_ratio": 0.0919416073074085,
+        "outflow_fdv_ratio": 0.09137822738596314,
+        "sell_volume": 719955741.867217,
+        "volume": 1444350272.0640004,
+        "netflow": 4438788.329566479
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "per_page": 10,
+      "is_last_page": true
+    }
+  }
+}

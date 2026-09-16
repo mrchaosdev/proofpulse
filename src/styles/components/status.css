@@ -67,3 +67,35 @@
   border-radius: var(--radius-control);
   height: 1em;
 }
+
+/*
+ * Skeletons match the geometry of the content they stand in for and never
+ * contain a number (DESIGN-RULES 10).
+ */
+.skeleton-title {
+  height: 24px;
+  width: 40%;
+}
+
+.skeleton-meta {
+  height: 16px;
+  width: 30%;
+}
+
+.skeleton-line {
+  height: 16px;
+  width: 100%;
+}
+
+.skeleton-block {
+  height: 180px;
+  width: 100%;
+}
+
+.skeleton-lens {
+  height: 300px;
+  width: 100%;
+  max-width: 300px;
+  border-radius: 50%;
+  align-self: center;
+}

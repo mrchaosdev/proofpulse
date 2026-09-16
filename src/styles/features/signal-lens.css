@@ -1,91 +1,125 @@
 /**
- * The signal lens (DESIGN-RULES 2): one circular figure carrying three arcs.
- * It is not a speedometer and not a trading gauge. A text table mirrors every
+ * The signal lens (DESIGN-RULES 2): one circular figure, three separate bands.
+ * It is not a speedometer and not a trading gauge. A text readout mirrors every
  * value, so no information exists only in the graphic.
  */
 
 .signal-lens {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-6);
   align-items: center;
 }
 
 .signal-lens-figure {
   width: 100%;
-  max-width: 260px;
+  max-width: 300px;
   aspect-ratio: 1;
 }
 
 .signal-lens-track {
   fill: none;
   stroke: var(--surface-strong);
-  stroke-width: 10;
-  stroke-linecap: round;
+  stroke-width: 16;
 }
 
+/*
+ * Square caps: a rounded cap renders a one-point value as a dot, which reads
+ * as a rendering artefact rather than as a small honest value.
+ */
 .signal-lens-arc {
   fill: none;
-  stroke-width: 10;
-  stroke-linecap: round;
+  stroke-width: 16;
+  stroke-linecap: butt;
 }
 
-/* Distinct line styles, so the arcs are separable without colour. */
+/* Each dimension gets its own hue and its own band; none of them blend. */
 .signal-lens-arc[data-dimension="direction"] {
   stroke: var(--primary);
 }
 
 .signal-lens-arc[data-dimension="confidence"] {
   stroke: var(--cyan);
-  stroke-dasharray: 2 6;
-  stroke-linecap: butt;
 }
 
 .signal-lens-arc[data-dimension="coordination"] {
   stroke: var(--warning);
-  stroke-dasharray: 10 5;
-  stroke-linecap: butt;
 }
 
-.signal-lens-centre {
-  fill: var(--ink);
-  font-weight: var(--weight-bold);
-  font-size: 22px;
-  text-anchor: middle;
+/* Zero marker on the bipolar direction ring. */
+.signal-lens-zero {
+  stroke: var(--ink);
+  stroke-width: 2;
 }
 
-.signal-lens-caption {
+.signal-lens-zero-label {
   fill: var(--ink-muted);
-  font-size: 9px;
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
   text-anchor: middle;
+}
+
+/* Ties each readout row back to its ring. */
+.lens-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-inline-end: var(--space-2);
+}
+
+.lens-swatch[data-dimension="direction"] {
+  background-color: var(--primary);
+}
+
+.lens-swatch[data-dimension="confidence"] {
+  background-color: var(--cyan);
+}
+
+.lens-swatch[data-dimension="coordination"] {
+  background-color: var(--warning);
 }
 
 .signal-lens-readout {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .lens-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-3);
   align-items: baseline;
+  padding-block-end: var(--space-4);
+  border-block-end: 1px solid var(--outline);
+}
+
+.lens-row:last-child {
+  padding-block-end: 0;
+  border-block-end: none;
 }
 
 .lens-row-name {
   color: var(--ink);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semibold);
 }
 
 .lens-row-value {
   font-variant-numeric: tabular-nums;
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-bold);
+  font-size: var(--type-section-size);
+  line-height: var(--type-section-height);
   color: var(--ink);
 }
 
 .lens-row-label {
+  grid-column: 1 / -1;
+  color: var(--ink-soft);
+}
+
+.lens-row-definition {
   grid-column: 1 / -1;
   color: var(--ink-muted);
   font-size: var(--type-meta-size);

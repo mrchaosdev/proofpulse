@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { validateInvestigationRequest } from "@/server/investigations/investigation-request";
 import { MAX_BODY_BYTES } from "@/server/investigations/investigation-request";
 import { runInvestigation } from "@/server/investigations/investigation-service";
-import { MemoryCacheStore } from "@/server/cache/cache-store";
+import { sharedCache } from "@/server/cache/shared-cache";
 import {
   CORE_INVESTIGATION_RULE,
   MemoryRateLimiter,
@@ -19,9 +19,6 @@ import {
  * rate limit, all before any external work (CODEBASE-RULES 9).
  */
 
-// Module-scope instances keep the vertical slice self-contained. They are
-// replaced by the shared cache and limiter when a deployment target is chosen.
-const cache = new MemoryCacheStore();
 const limiter = new MemoryRateLimiter();
 
 function errorResponse(
@@ -100,7 +97,7 @@ export async function POST(request: Request) {
   }
 
   const result = await runInvestigation(validation.request, {
-    cache,
+    cache: sharedCache,
     now: () => new Date(),
   });
 

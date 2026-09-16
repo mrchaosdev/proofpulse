@@ -1,0 +1,42 @@
+{
+  "capturedAt": "2026-09-16T12:31:33.542Z",
+  "endpoint": "/api/v1/tgm/flow-intelligence",
+  "apiVersion": "/api/v1",
+  "schemaVersion": "nansen-2026-09-15",
+  "scope": {
+    "chain": "base",
+    "tokenAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "tokenSymbol": "USDC",
+    "timeframe": "1d"
+  },
+  "observedLatencyMs": 1992,
+  "bodySha256": "445921f107173ecd4032fad5b373033b8bf7706cc191b7d4dc5150b759cc7637",
+  "body": {
+    "data": [
+      {
+        "public_figure_net_flow_usd": -2240498.2024646862,
+        "public_figure_avg_flow_usd": 235531.565397221,
+        "public_figure_wallet_count": 23,
+        "top_pnl_net_flow_usd": -112937.18826043764,
+        "top_pnl_avg_flow_usd": 713981.9953161553,
+        "top_pnl_wallet_count": 90,
+        "whale_net_flow_usd": 0,
+        "whale_avg_flow_usd": null,
+        "whale_wallet_count": 0,
+        "smart_trader_net_flow_usd": -185204.75284079832,
+        "smart_trader_avg_flow_usd": 97215.9098195032,
+        "smart_trader_wallet_count": 31,
+        "exchange_net_flow_usd": 34886539.9302872,
+        "exchange_avg_flow_usd": 31969631.93250642,
+        "exchange_wallet_count": 0,
+        "fresh_wallets_net_flow_usd": 16269694580.019407,
+        "fresh_wallets_avg_flow_usd": 23651717194.259674,
+        "fresh_wallets_wallet_count": 0
+      }
+    ],
+    "warnings": [
+      "exchange_wallet_count is always 0 (not tracked), even when exchange net flow is non-zero.",
+      "fresh_wallets_wallet_count is always 0 (not tracked), even when fresh-wallet net flow is non-zero."
+    ]
+  }
+}

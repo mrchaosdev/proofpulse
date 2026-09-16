@@ -22,7 +22,7 @@ import {
 } from "@/domain/scoring/calculate-coordination-risk";
 import { SCORE_FORMULA_VERSION } from "@/domain/scoring/score";
 import { SEGMENTS } from "@/domain/investigation/investigation";
-import { CREDITS_PER_CALL } from "@/integrations/nansen/nansen-endpoints";
+import { CREDITS_PER_CALL } from "@/domain/investigation/credits";
 
 export const metadata: Metadata = {
   title: "Methodology",

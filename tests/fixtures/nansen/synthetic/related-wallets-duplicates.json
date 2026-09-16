@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "note": "Synthetic fixture. Error envelopes and malformed payloads cannot be captured from a healthy API, so these are authored to the documented shape rather than recorded. Real captured responses live one directory up and are never edited (05-data-and-scoring fixture policy).",
+  "body": {
+    "data": [
+      {
+        "address": "0xc794a2c14d22aec2e4e3f86ff74d62a8897bb965",
+        "address_label": "",
+        "relation": "First Funder",
+        "transaction_hash": "0x94bb9cbce7daa29327e2516157cf3e7dda7990465935b0ad3c2b0ba36c466427",
+        "block_timestamp": "2020-03-02T14:03:45Z",
+        "order": 1,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0xc794a2c14d22aec2e4e3f86ff74d62a8897bb965",
+        "address_label": "",
+        "relation": "First Funder",
+        "transaction_hash": "0x94bb9cbce7daa29327e2516157cf3e7dda7990465935b0ad3c2b0ba36c466427",
+        "block_timestamp": "2020-03-02T14:03:45Z",
+        "order": 1,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x19a99f5b363f2dbb7a35cb0b16f96b3f3ae2c280",
+        "address_label": "",
+        "relation": "First Funder",
+        "transaction_hash": "0x94bb9cbce7daa29327e2516157cf3e7dda7990465935b0ad3c2b0ba36c466427",
+        "block_timestamp": "2020-03-02T14:03:45Z",
+        "order": 1,
+        "chain": "ethereum"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "per_page": 20,
+      "is_last_page": false
+    }
+  }
+}

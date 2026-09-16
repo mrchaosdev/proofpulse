@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "note": "Synthetic fixture. Error envelopes and malformed payloads cannot be captured from a healthy API, so these are authored to the documented shape rather than recorded. Real captured responses live one directory up and are never edited (05-data-and-scoring fixture policy).",
+  "body": {
+    "error": "Insufficient credits",
+    "message": "Your credit balance is exhausted.",
+    "code": "insufficient_credits",
+    "status": 402,
+    "request_id": "synthetic-402",
+    "doc_url": "https://docs.nansen.ai/getting-started/error-handling"
+  }
+}

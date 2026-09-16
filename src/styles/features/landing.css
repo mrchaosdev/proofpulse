@@ -75,3 +75,24 @@
   padding-inline-start: var(--space-4);
   border-inline-start: 2px solid var(--outline);
 }
+
+/* Explanation left, the signature lens right (DESIGN-RULES 6). */
+.example-split {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: var(--space-12);
+  align-items: start;
+}
+
+.example-lens {
+  background-color: var(--canvas-tint);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+}
+
+@media (max-width: 1199px) {
+  .example-split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+}

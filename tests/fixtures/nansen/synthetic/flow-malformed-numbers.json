@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "note": "Synthetic fixture. Error envelopes and malformed payloads cannot be captured from a healthy API, so these are authored to the documented shape rather than recorded. Real captured responses live one directory up and are never edited (05-data-and-scoring fixture policy).",
+  "body": {
+    "data": [
+      {
+        "public_figure_net_flow_usd": 0,
+        "public_figure_avg_flow_usd": null,
+        "public_figure_wallet_count": 0,
+        "top_pnl_net_flow_usd": "not-a-number",
+        "top_pnl_avg_flow_usd": 346199.4679439619,
+        "top_pnl_wallet_count": 12,
+        "whale_net_flow_usd": 0,
+        "whale_avg_flow_usd": null,
+        "whale_wallet_count": "7",
+        "smart_trader_net_flow_usd": "2400000.5",
+        "smart_trader_avg_flow_usd": 6853.404022644746,
+        "smart_trader_wallet_count": 1,
+        "exchange_net_flow_usd": -1414230.495841877,
+        "exchange_avg_flow_usd": 2431500.6806019484,
+        "exchange_wallet_count": 0,
+        "fresh_wallets_net_flow_usd": 3389312.810546227,
+        "fresh_wallets_avg_flow_usd": 3882696.1182056745,
+        "fresh_wallets_wallet_count": 0
+      }
+    ],
+    "warnings": []
+  }
+}

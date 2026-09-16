@@ -1,0 +1,201 @@
+{
+  "capturedAt": "2026-09-16T12:00:11.489Z",
+  "endpoint": "/api/v1/profiler/address/related-wallets",
+  "apiVersion": "/api/v1",
+  "schemaVersion": "nansen-2026-09-15",
+  "scope": {
+    "chain": "ethereum",
+    "actorAddress": "0x19a99f5b363f2dbb7a35cb0b16f96b3f3ae2c280"
+  },
+  "observedLatencyMs": 1240,
+  "bodySha256": "39c7dbf21596323ba44dda0ccec2bded06aaa3ffd193b2b8bad261280a1e8aef",
+  "body": {
+    "pagination": {
+      "page": 1,
+      "per_page": 20,
+      "is_last_page": false
+    },
+    "data": [
+      {
+        "address": "0xc794a2c14d22aec2e4e3f86ff74d62a8897bb965",
+        "address_label": "",
+        "relation": "First Funder",
+        "transaction_hash": "0x94bb9cbce7daa29327e2516157cf3e7dda7990465935b0ad3c2b0ba36c466427",
+        "block_timestamp": "2020-03-02T14:03:45Z",
+        "order": 1,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0xbdbba99eced5caf97d0203338d2b0bfd78dcab26",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0xbe1c13b5f5f92ef650a41af06d9dcb5d2706a1b0025347fa9d8a99b4c1c5425b",
+        "block_timestamp": "2020-12-12T06:13:25Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x4186d0a9775b629ea2ca3cad8659380b484652f0",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0xbe1c13b5f5f92ef650a41af06d9dcb5d2706a1b0025347fa9d8a99b4c1c5425b",
+        "block_timestamp": "2020-12-12T06:13:25Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x344490110d78d10d17ba6e362c2f4442ffbd486c",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x4634c8865993f482edbc012983eb7f23cbd279c061704ebad9d6263de460654d",
+        "block_timestamp": "2020-12-12T06:17:31Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x76dc6a91b388e64c8a4e53d01c4671f322bc6468",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x4634c8865993f482edbc012983eb7f23cbd279c061704ebad9d6263de460654d",
+        "block_timestamp": "2020-12-12T06:17:31Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x112e0b956ddfdf86781872b3ee56105d2ad95f2f",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x041aeecce20619231d4cd3c28ba9e564f0f2ba0fe23c1dac7d6ec835a0468cc3",
+        "block_timestamp": "2020-12-12T06:34:13Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x00b24e6ce4540e0f2b8dd371dff322a6d4313095",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x041aeecce20619231d4cd3c28ba9e564f0f2ba0fe23c1dac7d6ec835a0468cc3",
+        "block_timestamp": "2020-12-12T06:34:13Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0xbc550e28fb4d5a802fa6682f81ac4484930c63a4",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x8ed4e47e94fc80e5d87b61d63716996a276a95be003bf872820bc6b3af600a1a",
+        "block_timestamp": "2020-12-12T07:00:58Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0xe78cd821537b0748169a70909814dadde0ccdd2f",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x8ed4e47e94fc80e5d87b61d63716996a276a95be003bf872820bc6b3af600a1a",
+        "block_timestamp": "2020-12-12T07:00:58Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x7ef6eb2a89e7a4b26e32c641713d51c53fb654b8",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0xc41a709e5c77661b890245dc8ccd452977238b6604e6364d915e3e1d80996b90",
+        "block_timestamp": "2020-12-12T09:26:49Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x0e95c4057be16da5654e0257dac6825595f41b97",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0xc41a709e5c77661b890245dc8ccd452977238b6604e6364d915e3e1d80996b90",
+        "block_timestamp": "2020-12-12T09:26:49Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x9d5695b4a36d0684907797bd6b551cb24557af6f",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x2f74a49748680e8c44495ceadf9ff2a7ff0197d1fbe9f67d7d4f1fb8a5e6f1e6",
+        "block_timestamp": "2020-12-12T09:45:14Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0xe561844b16ee221dd743215b1411708c9ca8b7a0",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x2f74a49748680e8c44495ceadf9ff2a7ff0197d1fbe9f67d7d4f1fb8a5e6f1e6",
+        "block_timestamp": "2020-12-12T09:45:14Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0xaa8862ea4007e1d870d26c55bc5fc7a3af91891e",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x3a4bfcb0fc133241d149ab53142d896da7d5462733e2b4720b753dd3ea6e4bb9",
+        "block_timestamp": "2020-12-17T09:15:46Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x4b3a5ae91bdf5f688538dfb5e42d7c16862935cc",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x3a4bfcb0fc133241d149ab53142d896da7d5462733e2b4720b753dd3ea6e4bb9",
+        "block_timestamp": "2020-12-17T09:15:46Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x29ac9d82b9d19f934d3205a79503450ba48dd28f",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x3a4bfcb0fc133241d149ab53142d896da7d5462733e2b4720b753dd3ea6e4bb9",
+        "block_timestamp": "2020-12-17T09:15:46Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x9216d8f825d19a6c5cff840913abf7c86618472c",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x65691d0ddec94eaf784b22e1b146e8e3677f40b12d99494d5d1bb8151868222c",
+        "block_timestamp": "2020-12-17T09:17:19Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0xa8adb745bb3319f87e203596918769aa0a40b6b0",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x65691d0ddec94eaf784b22e1b146e8e3677f40b12d99494d5d1bb8151868222c",
+        "block_timestamp": "2020-12-17T09:17:19Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0xebd6397c7a1f35f668aac2d738fb18a02c917e9e",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x65691d0ddec94eaf784b22e1b146e8e3677f40b12d99494d5d1bb8151868222c",
+        "block_timestamp": "2020-12-17T09:17:19Z",
+        "order": 5,
+        "chain": "ethereum"
+      },
+      {
+        "address": "0x067f8764adc65e5c253c8972cfd2c1cbc48b17f6",
+        "address_label": "",
+        "relation": "Deployed Contract",
+        "transaction_hash": "0x7a1ec7d144adb65bdee6f07b7bc7b6ab931f272db361f742d0eab6d9b30f06f4",
+        "block_timestamp": "2021-12-03T14:03:51Z",
+        "order": 5,
+        "chain": "ethereum"
+      }
+    ]
+  }
+}

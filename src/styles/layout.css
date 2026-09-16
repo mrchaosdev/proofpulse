@@ -41,6 +41,17 @@ body {
   padding-inline: var(--page-gutter);
 }
 
+.command-bar-links a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-weight: var(--weight-medium);
+  padding-block: var(--space-2);
+}
+
+.command-bar-links a:hover {
+  color: var(--ink);
+}
+
 .command-bar-links {
   display: flex;
   align-items: center;
@@ -68,6 +79,7 @@ body {
 
 .site-footer {
   border-block-start: 1px solid var(--outline);
+  margin-block-start: var(--space-18);
 }
 
 .footer-inner {
@@ -80,4 +92,33 @@ body {
   flex-wrap: wrap;
   gap: var(--space-4);
   justify-content: space-between;
+}
+
+/* Theme control and mode badge in the command bar. */
+.theme-toggle {
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-pill);
+  padding: 2px;
+  margin: 0;
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--surface);
+}
+
+.theme-option {
+  border-radius: var(--radius-pill);
+  padding-inline: var(--space-3);
+  min-height: 32px;
+  font-size: var(--type-meta-size);
+  color: var(--ink-muted);
+}
+
+.theme-option[aria-current="true"] {
+  background-color: var(--primary-soft);
+  color: var(--ink);
+  font-weight: var(--weight-semibold);
+}
+
+.mode-indicator {
+  display: inline-flex;
 }

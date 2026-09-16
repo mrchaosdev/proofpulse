@@ -3,23 +3,46 @@ import { notFound } from "next/navigation";
 import { isChain, isTimeframe } from "@/domain/investigation/scope";
 import { validateTokenAddress } from "@/domain/investigation/address";
 import { runInvestigation } from "@/server/investigations/investigation-service";
-import { MemoryCacheStore } from "@/server/cache/cache-store";
+import { sharedCache } from "@/server/cache/shared-cache";
 import { getEffectiveMode } from "@/config/app-config";
 import {
   describeFixture,
   fixtureCovers,
 } from "@/server/fixtures/fixture-loader";
 import { InvestigationView } from "@/features/investigation/components/InvestigationView";
+import { buildBrief } from "@/server/investigations/brief-service";
 
 export const metadata: Metadata = { title: "Investigation" };
 
 // Evidence is collected per request; a cached page would misreport freshness.
 export const dynamic = "force-dynamic";
 
-const cache = new MemoryCacheStore();
-
 type PageParams = { chain: string; address: string };
-type PageSearch = { timeframe?: string; mode?: string };
+type PageSearch = {
+  timeframe?: string;
+  mode?: string;
+  inspect?: string;
+  refresh?: string;
+};
+
+const REFRESHABLE = [
+  "token-context",
+  "cohort-flows",
+  "buyers",
+  "sellers",
+] as const;
+
+type Refreshable = (typeof REFRESHABLE)[number];
+
+function parseRefresh(value: string | undefined): readonly Refreshable[] {
+  if (value === undefined) return [];
+  // Unknown values are dropped rather than forwarded (URL rules, doc 04).
+  return value
+    .split(",")
+    .filter((item): item is Refreshable =>
+      REFRESHABLE.includes(item as Refreshable),
+    );
+}
 
 export default async function InvestigationPage({
   params,
@@ -46,15 +69,32 @@ export default async function InvestigationPage({
   const mode =
     requestedFixture || getEffectiveMode() === "fixture" ? "fixture" : "live";
 
+  // An unparseable actor address is ignored rather than forwarded upstream.
+  const inspectCandidate =
+    search.inspect === undefined
+      ? null
+      : validateTokenAddress(chain, search.inspect);
+  const inspectActorAddress =
+    inspectCandidate !== null && inspectCandidate.ok
+      ? inspectCandidate.canonicalAddress
+      : undefined;
+
+  const refreshCapabilities = parseRefresh(search.refresh);
+
   const result = await runInvestigation(
     {
       chain,
       tokenAddress: validation.canonicalAddress,
       timeframe,
       mode,
+      ...(refreshCapabilities.length === 0 ? {} : { refreshCapabilities }),
+      ...(inspectActorAddress === undefined ? {} : { inspectActorAddress }),
     },
-    { cache, now: () => new Date() },
+    { cache: sharedCache, now: () => new Date() },
   );
+
+  // The brief is generated after scoring and never blocks it.
+  const briefOutcome = await buildBrief(result);
 
   const coversScope = fixtureCovers(
     chain,
@@ -76,6 +116,7 @@ export default async function InvestigationPage({
       ) : null}
       <InvestigationView
         result={result}
+        briefOutcome={briefOutcome}
         fixtureCapturedAt={describeFixture().capturedAt}
       />
     </div>

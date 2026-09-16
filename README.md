@@ -29,9 +29,11 @@ investigation costs four credits.
 
 ### Not built yet
 
-- On-demand related-wallet expansion, so Coordination Risk stays preliminary.
-- The model-assisted brief. Scores and the evidence ledger work without it.
+- A model provider adapter. The brief pipeline, its validation, and the
+  deterministic fallback all ship; every brief currently renders as the
+  deterministic one and says so.
 - Comparison, shareable snapshots, and local history (all P1).
+- The submission package: demo video, deck, and screenshots.
 
 ## Product documentation
 

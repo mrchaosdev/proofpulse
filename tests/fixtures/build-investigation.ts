@@ -133,6 +133,8 @@ export function investigation(
     sellers: [],
     relationships: [],
     inspectedActorAddresses: [],
+    smartMoneyHistory: null,
+    liquidityPeers: null,
     sourceStatuses: readyStatuses(),
     evaluatedAt: EVALUATED_AT,
     ...overrides,

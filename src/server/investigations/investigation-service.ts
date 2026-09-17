@@ -13,14 +13,18 @@ import { isSupportedScope } from "@/domain/investigation/scope";
 import type {
   Actor,
   InvestigationMode,
+  LiquidityPeers,
   NormalizedInvestigation,
   SegmentFlow,
+  SmartMoneyHistory,
   SourceStatus,
   TokenContext,
 } from "@/domain/investigation/investigation";
 import type { InvestigationResult } from "@/domain/investigation/investigation-result";
 import { scoreInvestigation } from "@/domain/investigation/investigation-result";
 import { fetchTokenContext } from "@/integrations/nansen/adapters/fetch-token-context";
+import { fetchSmartMoneyHistory } from "@/integrations/nansen/adapters/fetch-smart-money-history";
+import { fetchLiquidityPeers } from "@/integrations/nansen/adapters/fetch-liquidity-peers";
 import { fetchCohortFlows } from "@/integrations/nansen/adapters/fetch-cohort-flows";
 import { fetchActors } from "@/integrations/nansen/adapters/fetch-actors";
 import type { AdapterOutcome } from "@/integrations/nansen/adapters/adapter-result";
@@ -40,6 +44,11 @@ export type InvestigationRequest = {
    * (02-product-rules 5.7).
    */
   readonly mode: InvestigationMode;
+  /**
+   * Whether to fetch the seven-day history and the liquidity comparison. Each
+   * costs a credit, so both stay unrequested until a reader asks.
+   */
+  readonly includeContextPanels?: boolean;
   /**
    * Actor the user chose to expand, if any. Relationship evidence is fetched
    * only for an actor that appears in this investigation, and only when asked
@@ -116,6 +125,8 @@ export async function runInvestigation(
     ),
   ]);
 
+  const panels = await fetchContextPanels(request, scope, dependencies);
+
   const investigation: NormalizedInvestigation = {
     input: { ...request, mode: "live" },
     tokenContext: context.data,
@@ -124,11 +135,16 @@ export async function runInvestigation(
     sellers: sellers.data ?? [],
     relationships: [],
     inspectedActorAddresses: [],
+    smartMoneyHistory: panels.history,
+    liquidityPeers: panels.peers,
     sourceStatuses: [
       context.status,
       flows.status,
       buyers.status,
       sellers.status,
+      // Empty unless the panels were asked for, so an unrequested dataset
+      // reports "not requested" rather than appearing as a silent absence.
+      ...panels.statuses,
     ],
     evaluatedAt: collectedAt,
   };
@@ -191,9 +207,62 @@ async function withRelationships(
   };
 }
 
-type CachedCapability = "token-context" | "cohort-flows" | "buyers" | "sellers";
+/**
+ * The history and the peer comparison, fetched only when asked for.
+ *
+ * Each costs a credit, so neither rides along with the core four. This is the
+ * same bargain wallet relationships make: context that is worth paying for
+ * when a reader wants it, and worth nothing when they do not.
+ */
+async function fetchContextPanels(
+  request: InvestigationRequest,
+  scope: {
+    readonly chain: Chain;
+    readonly tokenAddress: string;
+    readonly timeframe: Timeframe;
+    readonly now: Date;
+    readonly collectedAt: string;
+  },
+  dependencies: InvestigationDependencies,
+): Promise<{
+  readonly history: SmartMoneyHistory | null;
+  readonly peers: LiquidityPeers | null;
+  readonly statuses: readonly SourceStatus[];
+}> {
+  if (request.includeContextPanels !== true) {
+    return { history: null, peers: null, statuses: [] };
+  }
 
-type CachedData = TokenContext | readonly SegmentFlow[] | readonly Actor[];
+  const [history, peers] = await Promise.all([
+    cached(dependencies.cache, "smart-money-history", request, () =>
+      fetchSmartMoneyHistory(scope),
+    ),
+    cached(dependencies.cache, "liquidity-peers", request, () =>
+      fetchLiquidityPeers(scope),
+    ),
+  ]);
+
+  return {
+    history: history.data,
+    peers: peers.data,
+    statuses: [history.status, peers.status],
+  };
+}
+
+type CachedCapability =
+  | "token-context"
+  | "cohort-flows"
+  | "buyers"
+  | "sellers"
+  | "smart-money-history"
+  | "liquidity-peers";
+
+type CachedData =
+  | TokenContext
+  | readonly SegmentFlow[]
+  | readonly Actor[]
+  | SmartMoneyHistory
+  | LiquidityPeers;
 
 /**
  * Serves a normalized outcome from cache when one is fresh, so a repeated
@@ -247,6 +316,8 @@ function emptyInvestigation(
     sellers: [],
     relationships: [],
     inspectedActorAddresses: [],
+    smartMoneyHistory: null,
+    liquidityPeers: null,
     sourceStatuses: statuses,
     evaluatedAt: collectedAt,
   };

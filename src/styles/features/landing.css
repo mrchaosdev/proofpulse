@@ -237,24 +237,30 @@
   margin-block-start: var(--space-2);
 }
 
+/*
+ * The signature figure sits on the same ground as the copy beside it, with a
+ * single soft field behind it and no edge between the two.
+ *
+ * It used to sit on a flat slab of --canvas-tint, which in light is the
+ * #FFC6C7 of the negative family: a loud pink half-page behind a graphic that
+ * carries no warning. A full-height rule separated the halves, which inside a
+ * card reads as the ruling of a table (DESIGN-RULES 5), and dropping it left a
+ * hard step between two different surfaces. One surface, one glow.
+ */
 .example-lens {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
   justify-content: center;
-  padding: clamp(28px, 4vw, 56px);
+  padding: clamp(24px, 3vw, 44px);
   background:
-    radial-gradient(circle at 50% 32%, var(--field-primary), transparent 44%),
-    var(--canvas-tint);
-  border-inline-start: 1px solid var(--outline);
+    radial-gradient(circle at 50% 34%, var(--field-primary), transparent 56%),
+    var(--surface);
 }
 
 .example-lens-label {
-  align-self: center;
-  /*
-   * The rose field is the one ground where ink-muted falls under AA (4.09).
-   * ink-soft reaches 5.63 on it and keeps the label quiet enough.
-   */
+  align-self: start;
+  /* Kept at ink-soft: quiet, and comfortably clear of AA on the new ground. */
   color: var(--ink-soft);
   font-size: var(--type-meta-size);
   font-weight: var(--weight-semibold);

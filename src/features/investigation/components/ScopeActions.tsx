@@ -18,6 +18,7 @@ import type {
 } from "@/domain/investigation/investigation";
 import { REQUIRED_CAPABILITIES } from "@/domain/investigation/investigation";
 import { CREDITS_PER_CALL } from "@/domain/investigation/credits";
+import { Button } from "@/components/ui/button";
 
 const CAPABILITY_NAMES: Readonly<Record<SourceCapability, string>> = {
   "token-context": "token context",
@@ -25,6 +26,8 @@ const CAPABILITY_NAMES: Readonly<Record<SourceCapability, string>> = {
   buyers: "top buyers",
   sellers: "top sellers",
   "related-wallets": "wallet relationships",
+  "smart-money-history": "smart money history",
+  "liquidity-peers": "liquidity peers",
 };
 
 function buildHref(
@@ -66,30 +69,29 @@ export function ScopeActions({
 
   return (
     <div className="scope-actions">
-      <Link
-        className="button"
-        data-variant="secondary"
-        href={buildHref(investigation, [...REQUIRED_CAPABILITIES], inspect)}
-        scroll={false}
-      >
-        Refresh all sources
-      </Link>
+      <Button asChild variant="outline">
+        <Link
+          href={buildHref(investigation, [...REQUIRED_CAPABILITIES], inspect)}
+          scroll={false}
+        >
+          Refresh all sources
+        </Link>
+      </Button>
       <span className="scope-actions-note">
         Medium credit impact: {refreshCost} Nansen credits. Refreshing again
         inside the cache window costs nothing.
       </span>
 
       {failed.map((status) => (
-        <Link
-          className="button"
-          data-variant="quiet"
-          key={status.capability}
-          href={buildHref(investigation, [status.capability], inspect)}
-          scroll={false}
-        >
-          Retry {CAPABILITY_NAMES[status.capability]} ({CREDITS_PER_CALL}{" "}
-          credit)
-        </Link>
+        <Button asChild variant="ghost" key={status.capability}>
+          <Link
+            href={buildHref(investigation, [status.capability], inspect)}
+            scroll={false}
+          >
+            Retry {CAPABILITY_NAMES[status.capability]} ({CREDITS_PER_CALL}{" "}
+            credit)
+          </Link>
+        </Button>
       ))}
     </div>
   );

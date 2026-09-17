@@ -25,6 +25,7 @@ import {
 import { SCORE_FORMULA_VERSION } from "@/domain/scoring/score";
 import { SEGMENTS } from "@/domain/investigation/investigation";
 import { CREDITS_PER_CALL } from "@/domain/investigation/credits";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Methodology",
@@ -233,16 +234,16 @@ export default function MethodologyPage() {
         </section>
 
         <div className="doc-actions">
-          <Link className="button" data-variant="primary" href="/investigate">
-            Run an investigation
-          </Link>
-          <Link
-            className="button"
-            data-variant="secondary"
-            href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
-          >
-            See these formulas on real data
-          </Link>
+          <Button asChild variant="default">
+            <Link href="/investigate">Run an investigation</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link
+              href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
+            >
+              See these formulas on real data
+            </Link>
+          </Button>
         </div>
       </div>
 

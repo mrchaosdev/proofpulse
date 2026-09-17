@@ -24,7 +24,13 @@
     "quality": "npm run format-check && npm run lint && npm run typecheck && npm run check-classes && npm run check-secrets && npm run test && npm run test-contract && npm run test-integration && npm run build"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "class-variance-authority": "^0.7.1",
+    "cn": "^0.3.0",
+    "gsap": "^3.15.0",
+    "lucide-react": "^1.46.0",
     "next": "16.3.5",
+    "radix-ui": "^1.6.7",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
@@ -33,12 +39,14 @@
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "@playwright/test": "1.63.0",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "26.5.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.3.5",
     "prettier": "3.9.6",
+    "tailwindcss": "^4.3.3",
     "typescript": "5.9.3",
     "typescript-eslint": "8.70.0",
     "vitest": "5.0.0"

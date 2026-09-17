@@ -898,6 +898,226 @@
   enforced it. This one was never scripted because the suite quietly tested a
   single environment.
 
+### D-065 — Nansen has no gas endpoint, so there is no gas tracker
+
+- Date: `2026-09-17`
+- Status: accepted
+- Decision: the gas-tracker idea is dropped. The deeper Nansen integration is
+  the token screener's list form instead.
+- Reason: the endpoint catalogue has no gas or gas-price endpoint at all. The
+  API covers trading activity, wallet analysis and market data, not network
+  conditions. Building one would have meant a second provider or a fabricated
+  figure, and the second is what this product exists not to do.
+
+### D-066 — Liquidity is compared, and stablecoins are excluded from it
+
+- Date: `2026-09-17`
+- Status: accepted
+- Decision: `/token-screener` gains a second use, in list form, returning the
+  deepest non-stablecoin pools on the chain with the subject marked among them.
+  `include_stablecoins` and `include_native_tokens` are both false.
+- Reason: a liquidity figure alone says nothing — thirty million dollars is
+  thin for one token and enormous for another. The comparison supplies the
+  scale. With stablecoins included, seven of the ten deepest Ethereum pools
+  were stablecoins and LINK did not appear at all; excluded, LINK sits third at
+  $30.4M, which is an answer. A pool that exists to hold a peg is not a
+  comparison for a token that floats.
+
+### D-067 — The seven-day history plots units, not dollars
+
+- Date: `2026-09-17`
+- Status: accepted
+- Decision: the history uses `POST /api/v1/tgm/flows` with
+  `label: smart_money` and an explicit seven-day window — one call, one
+  credit. Hourly buckets are collapsed to one point per UTC day by taking the
+  day's last bucket. The chart plots `token_amount`; `value_usd` is reported
+  in words beside it. The axis starts at zero.
+- Reason, and the finding that justifies the whole panel: over the captured
+  week the smart money position in LINK was flat at 25,036 tokens from day two
+  onward, while its dollar value moved between $272.4K and $297.1K. A reader
+  shown only the dollar line would conclude smart money was selling. It sold
+  once, 747 tokens on day two, and has not moved since. The rest is price.
+  Units change only when somebody trades.
+- Three mechanical consequences:
+  - Buckets are never summed. Adding two snapshots of the same holdings would
+    invent a quantity nobody holds, so a day takes its last bucket.
+  - The day in progress is drawn hollow and excluded from the change, because
+    `is_complete` is false and a part-day is not a reading.
+  - The axis starts at zero. Anchored at the lowest value, a 2.9% fall filled
+    the frame and read as a collapse — the exact misreading the panel exists
+    to prevent.
+- Rejected alternatives, each verified against the live API first:
+  `smart-money/netflow` returns rolling windows ending at request time, not a
+  series. `token-screener/historical` returns one aggregated row per token per
+  call, has no `token_address` filter, and costs 5–25 credits, so a week would
+  have been seven calls and up to 175 credits.
+
+### D-068 — Both panels are opt-in, like wallet relationships
+
+- Date: `2026-09-17`
+- Status: accepted
+- Decision: neither dataset joins the core four. `?context=on` requests both,
+  the offer states the cost, and fixture mode carries them already.
+- Reason: each costs a credit. This is the bargain relationships already make —
+  context worth paying for when a reader wants it and worth nothing when they
+  do not.
+
+### D-069 — The fixture is parsed once per process
+
+- Date: `2026-09-17`
+- Status: accepted
+- Decision: `loadFixtureInvestigation` memoizes everything except the clock.
+- Reason: the capture is immutable at runtime, but parsing it is real work —
+  the history alone is 168 hourly buckets through a Zod schema — and it ran on
+  every render of the demo route.
+
+### D-070 — The example lens is one surface, not two panels
+
+- Date: `2026-09-17`
+- Status: accepted
+- Decision: the landing example loses its `--canvas-tint` half, its dividing
+  rule and its three bordered score boxes. The figure sits on the same surface
+  as the copy beside it with one soft field behind it, and the three scores
+  become a tinted subsection divided by its own grid gap. The figure shrinks
+  from 360px to 300px.
+- Reason, in the order the problems showed up:
+  - `--canvas-tint` resolves to `#FFC6C7` in light, which is the negative
+    family. Half the showcase was a loud pink slab behind a graphic that
+    carries no warning.
+  - A full-height rule split the card, which DESIGN-RULES 5 calls the ruling of
+    a table. Removing it left a hard step between two different surfaces, so
+    both halves now share one.
+  - The three score cards were bordered, rounded and filled inside the card
+    that already surrounded them — the nested cards rule 5 prohibits, and the
+    same shape already fixed on the evidence status strip in D-059.
+  - At 360px the figure made the lens column 669px tall against 348px of copy,
+    leaving about 160px empty above and below the text. It is now 575px.
+
+### D-071 — The lens track is its own token
+
+- Date: `2026-09-17`
+- Status: accepted
+- Decision: `--lens-track` aliases `--outline` in light and
+  `--outline-strong` in dark. No new colour literal.
+- Reason: one value cannot serve both themes. `--outline-strong` is
+  `#B99E9A` in light, a mauve-brown that reads as dirt behind the arcs;
+  `--outline` is `#2A2838` in dark, too faint to keep the ring a complete
+  shape, which is the whole reason the track is drawn. `--surface-strong` was
+  tried and lost the ring almost entirely.
+- The first edit reached only two of the three theme blocks: the
+  `prefers-color-scheme: dark` block indents by four spaces, so a two-space
+  pattern missed it and anyone on System with a dark system would have had the
+  faint track. Counting the declarations caught it.
+
+### D-072 — shadcn/ui is adopted, and Tailwind with it
+
+- Date: `2026-09-17`
+- Status: accepted, supersedes D-062 and the authored-CSS-only position
+- Decision: the project adopts shadcn/ui. Tailwind v4 is installed as a
+  PostCSS plugin, `class-variance-authority`, `cn`, `radix-ui` and
+  `lucide-react` join it, and DESIGN-RULES 7 is rewritten as two vocabularies
+  rather than one ban. The project owner asked for this directly after several
+  rounds of incremental styling did not converge.
+- What was argued against it, and answered: shadcn supplies primitives, and the
+  complaints were about composition — empty space, no focal point, blocks of
+  equal weight — which primitives do not fix. The owner made the call anyway;
+  it is their product.
+- What is kept, deliberately:
+  - **The palette.** `tokens.css` stays the single source of colour and the
+    shadcn variable names are defined *from* it in `@theme inline`. Without
+    that mapping the product would arrive looking like every other shadcn app,
+    and the Happy Hues set the owner supplied would be gone.
+  - **The 44px target.** Upstream sizes run 24–40px. Button, Input, Select,
+    Toggle and ToggleGroup were all raised, because DESIGN-RULES 12 and WCAG
+    2.2 outrank a library default and an audit of this project once found 264
+    targets under the minimum.
+  - **The class-name law, for what this project names.** 7b still applies to
+    every authored class, and the checker now recognises Tailwind's real
+    grammar — `@container/name`, `*:data-[slot=x]:flex`, `-mx-1`,
+    `max-h-(--radix-…)` — while still failing BEM, PascalCase, CSS Modules
+    and a class built from a value. A utility carrying a colour literal fails
+    too, which keeps colour law 7 intact.
+- Two things that had to be fixed before anything rendered:
+  - Authored CSS loaded after Tailwind won every tie, so
+    `reset.css`'s `button { background: none }` erased `bg-primary` and
+    every shadcn button rendered with no fill. Authored rules now sit inside
+    Tailwind's `base` and `components` layers, so utilities override them.
+  - The CLI installed `cn` alongside the `clsx` and `tailwind-merge` pair
+    already added. Two libraries for one concern breaks CODEBASE-RULES 13, so
+    the pair was removed and the official package kept.
+- Migrated so far: the investigation form (Select, Input, Label,
+  ToggleGroup), and every button on every route — fourteen sites across ten
+  files, with links becoming `<Button asChild>` so an anchor stays an anchor.
+  `components/button.css` is deleted. The remaining authored stylesheets
+  still render everything else; the two systems coexist by design while the
+  migration proceeds.
+
+### D-073 — GSAP is adopted and DESIGN-RULES 11 is amended for it
+
+- Date: `2026-09-17`
+- Status: accepted, supersedes D-062 and D-063
+- Decision: GSAP 3.15 with ScrollTrigger replaces the hand-written
+  `IntersectionObserver` reveal. Rule 11 is rewritten to permit entrance
+  motion, orchestrated staggers, scroll-linked movement, and a 900ms ceiling
+  for a sequence.
+- A correction worth stating plainly: the project owner asked for GSAP on the
+  basis that Tailwind had unblocked it. Tailwind was never the blocker —
+  D-062 recorded that the content security policy allows a bundled copy and
+  that rule 11 was what ruled it out. The rule has now been changed
+  deliberately, in the same change as the code, which is what the rules
+  document requires.
+- What did not change, because these are the reasons the rule existed:
+  - No perpetual loop. Every trigger is `once: true`. A reader must be able
+    to finish a page and have it hold still.
+  - No number counts up through values the evidence does not support.
+  - Nothing is carried by motion alone.
+  - `prefers-reduced-motion` is honoured through `gsap.matchMedia`, which
+    never creates the tween, so there is no start state to undo.
+- The failure that had to be handled again: on a window taller than the
+  document there is almost no scroll to spend, and an element below the
+  trigger line waited for a position the reader could never reach. The hand
+  written version needed an explicit reachability guard; ScrollTrigger needed
+  one too, comparing each trigger's start against `ScrollTrigger.maxScroll`
+  after every refresh. The test that caught it the first time caught it again.
+- `gsap` and `@gsap/react` ship under GSAP's standard no-charge licence.
+
+### D-074 — The chosen theme is applied before the first paint
+
+- Date: `2026-09-17`
+- Status: accepted
+- Decision: a small synchronous script at the top of `<body>` reads the
+  stored theme and sets `data-theme` while the document is still parsing.
+  `<html>` carries `suppressHydrationWarning`, and the storage key lives in
+  one module shared with ThemeToggle.
+- Reason: the server renders `data-theme="light"`, and ThemeToggle only read
+  storage from an effect. An effect runs after the first paint by definition,
+  so a reader who had chosen dark watched the page flash white and then turn
+  over. Nothing in React can fix that; only something that runs before paint
+  can. The content security policy already allows `'unsafe-inline'` for
+  scripts, so no policy change was needed.
+- Measured: with dark stored, `data-theme` is `dark` and the canvas is
+  `rgb(15, 14, 23)` at DOMContentLoaded, at the first animation frame and at
+  load. The served HTML still says `light`, which is what proves the script
+  is doing the work. No console warning, and the toggle shows Dark after
+  hydration.
+- A test records the attribute at those three moments for both themes and
+  fails if any early sample disagrees with the reader's choice.
+
+### D-075 — The loading skeleton is asserted against the stream
+
+- Date: `2026-09-17`
+- Status: accepted
+- Decision: the skeleton test reads the streamed HTML rather than racing the
+  browser for it.
+- Reason: it delayed the document route and looked for `role="status"` in the
+  page, which worked only while the server was slow. Memoizing the fixture
+  parse (D-069) made the report render almost immediately, the skeleton stopped
+  appearing, and the locator began matching every other live region on the
+  finished page — forty-seven of them. Next puts the loading shell in the
+  initial stream, so it can be read with certainty instead of caught in
+  passing. The contract tested is unchanged: the shell names the task and no
+  skeleton carries a digit.
+
 ## Open competition questions
 
 These must be answered from official rules or a written organizer response. Do

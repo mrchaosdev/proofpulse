@@ -27,6 +27,8 @@ export const SOURCE_CAPABILITIES = [
   "buyers",
   "sellers",
   "related-wallets",
+  "smart-money-history",
+  "liquidity-peers",
 ] as const;
 export type SourceCapability = (typeof SOURCE_CAPABILITIES)[number];
 
@@ -91,6 +93,53 @@ export type Relationship = {
   readonly source: SourceMeta;
 };
 
+/**
+ * One day of what smart money held, not what it moved.
+ *
+ * `tokenAmount` is the position in token units and `valueUsd` the same
+ * position priced. They move apart whenever the price moves, so a fall in
+ * value with a flat amount is a cheaper token, not a sale. Reading one for the
+ * other is the mistake this product exists to prevent, so both are carried and
+ * the change is derived from the amount.
+ */
+export type HoldingPoint = {
+  /** End of the daily bucket, ISO 8601 UTC. */
+  readonly date: string;
+  readonly tokenAmount: number | null;
+  readonly valueUsd: number | null;
+  readonly holderCount: number | null;
+  readonly priceUsd: number | null;
+  /** False while the day is still filling. Today is never complete. */
+  readonly complete: boolean;
+};
+
+export type SmartMoneyHistory = {
+  readonly points: readonly HoldingPoint[];
+  /** Upstream warnings, preserved verbatim and shown beside the chart. */
+  readonly warnings: readonly string[];
+  readonly source: SourceMeta;
+};
+
+/**
+ * A token on the same chain, for placing the investigated one in context.
+ * These are observations about other tokens, never a recommendation between
+ * them (02-product-rules: no trading advice).
+ */
+export type LiquidityPeer = {
+  readonly tokenAddress: string;
+  readonly symbol: string | null;
+  readonly liquidityUsd: number | null;
+  readonly volumeUsd: number | null;
+  readonly netFlowUsd: number | null;
+  /** True for the token under investigation, wherever it lands in the list. */
+  readonly isSubject: boolean;
+};
+
+export type LiquidityPeers = {
+  readonly peers: readonly LiquidityPeer[];
+  readonly source: SourceMeta;
+};
+
 export type TokenContext = {
   readonly name: string | null;
   readonly symbol: string | null;
@@ -147,6 +196,9 @@ export type NormalizedInvestigation = {
   readonly sellers: readonly Actor[];
   readonly relationships: readonly Relationship[];
   readonly inspectedActorAddresses: readonly string[];
+  /** Both cost a credit each, so both are null until asked for. */
+  readonly smartMoneyHistory: SmartMoneyHistory | null;
+  readonly liquidityPeers: LiquidityPeers | null;
   readonly sourceStatuses: readonly SourceStatus[];
   /** Single clock read for the whole investigation, ISO 8601 UTC. */
   readonly evaluatedAt: string;

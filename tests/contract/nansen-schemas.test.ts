@@ -232,6 +232,8 @@ describe("live capture through the full domain pipeline", () => {
       sellers: normalizeWhoBoughtSold(sellers.data, "seller", meta("sellers")),
       relationships: [],
       inspectedActorAddresses: [],
+      smartMoneyHistory: null,
+      liquidityPeers: null,
       sourceStatuses: [
         {
           state: "ready",
@@ -289,6 +291,8 @@ describe("live capture through the full domain pipeline", () => {
       sellers: [],
       relationships: [],
       inspectedActorAddresses: [],
+      smartMoneyHistory: null,
+      liquidityPeers: null,
       sourceStatuses: [],
       evaluatedAt: EVALUATED_AT,
     });
@@ -317,6 +321,8 @@ describe("live capture through the full domain pipeline", () => {
       sellers: [],
       relationships: [],
       inspectedActorAddresses: [],
+      smartMoneyHistory: null,
+      liquidityPeers: null,
       sourceStatuses: [],
       evaluatedAt: EVALUATED_AT,
     });

@@ -7,12 +7,15 @@
  * interpretation (02-product-rules 7.4).
  */
 
+import Link from "next/link";
 import type { InvestigationResult } from "@/domain/investigation/investigation-result";
 import type { BriefOutcome } from "@/domain/brief/brief-outcome";
 import { getChainProfile } from "@/domain/investigation/scope";
 import { findSourceStatus } from "@/domain/investigation/investigation";
 import { shortenAddress } from "@/domain/investigation/address";
 import { formatUsd } from "@/domain/evidence/format-value";
+import { CREDITS_PER_CALL } from "@/domain/investigation/credits";
+import { LinkPending } from "@/components/actions/LinkPending";
 import { StatusPill } from "@/components/feedback/StatusPill";
 import { CopyButton } from "@/components/actions/CopyButton";
 import { SignalLens } from "./SignalLens";
@@ -26,6 +29,9 @@ import { BriefPanel } from "./BriefPanel";
 import { ScopeActions } from "./ScopeActions";
 import { FixtureFallback } from "./FixtureFallback";
 import { RelationshipPanel } from "@/features/relationships/components/RelationshipPanel";
+import { SmartMoneyHistory } from "./SmartMoneyHistory";
+import { LiquidityPeers } from "./LiquidityPeers";
+import { Button } from "@/components/ui/button";
 
 function buildSummary(result: InvestigationResult): string {
   const { investigation, scores } = result;
@@ -52,6 +58,33 @@ function buildSummary(result: InvestigationResult): string {
     `Formula: ${scores.formulaVersion}`,
     `ProofPulse is research software. It is not financial advice.`,
   ].join("\n");
+}
+
+/** Two datasets, so two calls. Named so the cost in the copy cannot drift. */
+const CONTEXT_PANEL_CALLS = 2;
+
+/**
+ * The same scope with the context flag added. Every other query value the
+ * reader arrived with is preserved, so asking for context never silently
+ * changes the timeframe or drops a selected actor.
+ */
+function contextHref(investigation: {
+  readonly input: {
+    readonly chain: string;
+    readonly tokenAddress: string;
+    readonly timeframe: string;
+    readonly mode: string;
+  };
+  readonly inspectedActorAddresses: readonly string[];
+}): string {
+  const query = new URLSearchParams({
+    timeframe: investigation.input.timeframe,
+    context: "on",
+  });
+  if (investigation.input.mode === "fixture") query.set("mode", "fixture");
+  const inspected = investigation.inspectedActorAddresses[0];
+  if (inspected !== undefined) query.set("inspect", inspected);
+  return `/investigate/${investigation.input.chain}/${investigation.input.tokenAddress}?${query.toString()}`;
 }
 
 export function InvestigationView({
@@ -290,6 +323,64 @@ export function InvestigationView({
             status={findSourceStatus(investigation, "related-wallets")}
           />
         </section>
+
+        {investigation.smartMoneyHistory !== null ||
+        investigation.liquidityPeers !== null ? null : (
+          <section className="card grid-full" aria-labelledby="context-heading">
+            <h2 className="card-heading" id="context-heading">
+              Deeper context
+            </h2>
+            <p className="card-question">
+              Two more Nansen datasets: what smart money held across seven days,
+              and how this pool&apos;s depth compares with the rest of the
+              chain.
+            </p>
+            <p>
+              <Button asChild variant="outline">
+                <Link href={contextHref(investigation)} scroll={false}>
+                  <LinkPending
+                    label="Add seven-day history and liquidity context"
+                    pendingLabel="Requesting two datasets…"
+                  />
+                </Link>
+              </Button>
+            </p>
+            <p className="text-meta">
+              Costs {CONTEXT_PANEL_CALLS * CREDITS_PER_CALL} Nansen credits.
+              Unrequested datasets cost nothing.
+            </p>
+          </section>
+        )}
+
+        {investigation.smartMoneyHistory === null ? null : (
+          <section className="card grid-full" aria-labelledby="history-heading">
+            <h2 className="card-heading" id="history-heading">
+              Smart money over seven days
+            </h2>
+            <p className="card-question">
+              Did the smart money position change, or did only its price?
+            </p>
+            <SmartMoneyHistory
+              history={investigation.smartMoneyHistory}
+              symbol={investigation.tokenContext?.symbol ?? null}
+            />
+          </section>
+        )}
+
+        {investigation.liquidityPeers === null ? null : (
+          <section className="card grid-full" aria-labelledby="peers-heading">
+            <h2 className="card-heading" id="peers-heading">
+              Liquidity in context
+            </h2>
+            <p className="card-question">
+              Is this pool deep or thin compared with the rest of the chain?
+            </p>
+            <LiquidityPeers
+              peers={investigation.liquidityPeers}
+              symbol={investigation.tokenContext?.symbol ?? null}
+            />
+          </section>
+        )}
 
         <section className="card grid-full" aria-labelledby="ledger-heading">
           <h2 className="card-heading" id="ledger-heading">

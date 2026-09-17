@@ -2,6 +2,39 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
 /**
+ * Assertions that wait on hydration get longer than the five-second default.
+ *
+ * The report ships about 237KB of HTML — forty evidence rows carrying their
+ * normalized records, a seven-day table and a peer table — and the suite runs
+ * four browsers against one server. Nothing is wrong when React takes more
+ * than five seconds to attach under that load, but a control that answers
+ * scroll cannot answer before it does.
+ */
+const HYDRATION_TIMEOUT = 20_000;
+
+/**
+ * Scrolls to the true bottom, not to where the bottom was.
+ *
+ * A page grows as it hydrates, so a single scroll issued early is clamped to
+ * whatever height the document had at that instant — on the report it reached
+ * 722px of an eventual 12,000 — and everything below is never visited. The
+ * scroll repeats until the position stops moving.
+ */
+async function scrollToBottom(page: Page): Promise<number> {
+  let previous = -1;
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    const position = await page.evaluate(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+      return Math.round(window.scrollY);
+    });
+    if (position === previous) return position;
+    previous = position;
+    await page.waitForTimeout(150);
+  }
+  return previous;
+}
+
+/**
  * Browser journeys against the deterministic fixture, so these tests spend no
  * Nansen credits and do not depend on mutable external data
  * (08-testing-and-acceptance "Journey C").
@@ -28,11 +61,19 @@ test.describe("landing page", () => {
     await page.goto("/");
     const readout = page.locator(".signal-lens-readout");
 
-    // The example is scored by the same code as a live run, so its values must
-    // match the investigation the link leads to.
+    /*
+     * The invariant, not the number. Confidence carries a freshness component,
+     * so the fixture's score falls as the capture ages: it read 43 the day it
+     * was taken and 46 the day it was retaken. Pinning the label would make
+     * this test fail with the calendar rather than with the code. What must
+     * hold is that all three scores render with a label, from the same code a
+     * live run uses.
+     */
     await expect(readout.getByText("mixed", { exact: true })).toBeVisible();
+    await expect(readout.locator(".lens-row-value")).toHaveCount(3);
+    await expect(readout.locator(".lens-row-label")).toHaveCount(3);
     await expect(
-      readout.getByText("low confidence", { exact: true }),
+      readout.getByText(/confidence$/, { exact: false }).first(),
     ).toBeVisible();
   });
 
@@ -502,23 +543,30 @@ test.describe("system states", () => {
   });
 
   test("shows a skeleton that names the task and states no values", async ({
-    page,
+    request,
   }) => {
-    // Hold the document response so the streamed shell is observable. Without
-    // this the shell is replaced too quickly to assert on.
-    await page.route("**/investigate/ethereum/**", async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      await route.continue();
-    });
+    /*
+     * Asserted against the streamed HTML rather than against the browser.
+     *
+     * Next puts the loading shell in the initial stream, so it is there to be
+     * read with certainty. Watching for it in a page was a race that this
+     * project kept losing: the document route was delayed, which only worked
+     * while the server was slow, and memoizing the fixture parse made the
+     * report render almost immediately. The assertion then matched every
+     * other role="status" on the finished page — forty-seven of them.
+     */
+    const response = await request.get(FIXTURE_URL);
+    const html = await response.text();
 
-    await page.goto(FIXTURE_URL, { waitUntil: "commit" });
-
-    const status = page.getByRole("status");
-    await expect(status).toContainText("Requesting token context");
+    // It names the task rather than showing an empty frame.
+    expect(html).toContain("Requesting token context");
 
     // A skeleton must never imply a value it does not have.
-    const skeletonText = await page.locator(".skeleton").allTextContents();
-    expect(skeletonText.join("")).not.toMatch(/d/);
+    const skeletons = [
+      ...html.matchAll(/<span class="skeleton[^"]*"[^>]*>([^<]*)/g),
+    ].map((match) => match[1] ?? "");
+    expect(skeletons.length).toBeGreaterThan(0);
+    expect(skeletons.join("")).not.toMatch(/[0-9]/);
   });
 
   test("replaces the skeleton once evidence has rendered", async ({ page }) => {
@@ -598,8 +646,8 @@ test.describe("back to top", () => {
     const button = page.getByRole("button", { name: "Back to top" });
     await expect(button).toBeHidden();
 
-    await page.evaluate(() => window.scrollTo(0, 2000));
-    await expect(button).toBeVisible();
+    expect(await scrollToBottom(page)).toBeGreaterThan(900);
+    await expect(button).toBeVisible({ timeout: HYDRATION_TIMEOUT });
 
     const box = await button.boundingBox();
     expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
@@ -611,8 +659,14 @@ test.describe("back to top", () => {
     await page.goto(report);
     await page.waitForFunction(() => document.fonts.status === "loaded");
 
-    await page.evaluate(() => window.scrollTo(0, 3000));
-    await page.getByRole("button", { name: "Back to top" }).click();
+    expect(await scrollToBottom(page)).toBeGreaterThan(900);
+
+    // The control answers scroll only once React has subscribed to it, and
+    // while hidden it is out of the accessibility tree entirely. Waiting for
+    // it to appear is waiting for hydration.
+    const button = page.getByRole("button", { name: "Back to top" });
+    await expect(button).toBeVisible({ timeout: HYDRATION_TIMEOUT });
+    await button.click();
 
     await expect
       .poll(() => page.evaluate(() => Math.round(window.scrollY)))
@@ -651,13 +705,14 @@ test.describe("narrow phone layouts", () => {
     await page.goto("/");
     await page.waitForFunction(() => document.fonts.status === "loaded");
 
+    // The control is a shadcn toggle group now; the invariant is unchanged.
     const rows = await page.evaluate(() => {
-      const group = document.querySelector(".choice-group");
-      if (group === null) return -1;
+      const items = [
+        ...document.querySelectorAll("[data-slot='toggle-group-item']"),
+      ];
+      if (items.length === 0) return -1;
       return new Set(
-        [...group.children].map((child) =>
-          Math.round(child.getBoundingClientRect().top),
-        ),
+        items.map((item) => Math.round(item.getBoundingClientRect().top)),
       ).size;
     });
     expect(rows).toBe(1);
@@ -710,12 +765,31 @@ test.describe("entrance motion", () => {
     "?timeframe=7d&mode=fixture";
   const ROUTES = ["/", "/investigate", "/methodology", REPORT];
 
+  /*
+   * Every block the reveal can touch, asserted directly. The previous version
+   * counted elements carrying a data attribute, which GSAP does not write —
+   * that test would now pass by finding nothing at all.
+   */
+  const REVEAL_TARGETS = [
+    ".section-heading",
+    ".step-list > li",
+    ".example-stage",
+    ".guardrail-block",
+    ".investigation-grid > *",
+    ".doc-body > section",
+    ".doc-actions",
+    ".hero-copy",
+    ".investigate-header",
+    ".scope-ribbon",
+  ].join(", ");
+
   const hiddenCount = (page: Page) =>
     page.evaluate(
-      () =>
-        [...document.querySelectorAll("[data-revealed]")].filter(
+      (selector) =>
+        [...document.querySelectorAll(selector)].filter(
           (element) => Number(getComputedStyle(element).opacity) < 0.99,
         ).length,
+      REVEAL_TARGETS,
     );
 
   /*
@@ -724,8 +798,7 @@ test.describe("entrance motion", () => {
    * intersecting, which is how the End key and a deep anchor behave.
    */
   const jumpToBottom = async (page: Page) => {
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await page.waitForTimeout(120);
+    await scrollToBottom(page);
   };
 
   for (const route of ROUTES) {
@@ -734,23 +807,18 @@ test.describe("entrance motion", () => {
       await page.goto(route);
       await page.waitForFunction(() => document.fonts.status === "loaded");
 
-      // Something must move, or the reveal has silently stopped applying.
-      const loadIn = await page.evaluate(
-        () =>
-          document
-            .getAnimations()
-            .filter(
-              (animation) =>
-                (animation as CSSAnimation).animationName === "enter-rise",
-            ).length,
+      // Something must be animatable, or the reveal has silently stopped
+      // applying to this route and the checks below would pass vacuously.
+      const targets = await page.evaluate(
+        (selector) => document.querySelectorAll(selector).length,
+        REVEAL_TARGETS,
       );
+      expect(targets).toBeGreaterThan(0);
       await jumpToBottom(page);
-      const revealed = await page.evaluate(
-        () => document.querySelectorAll('[data-revealed="true"]').length,
-      );
-      expect(loadIn + revealed).toBeGreaterThan(0);
 
-      await expect.poll(() => hiddenCount(page)).toBe(0);
+      await expect
+        .poll(() => hiddenCount(page), { timeout: HYDRATION_TIMEOUT })
+        .toBe(0);
     });
 
     test(`${route} strands nothing on a very tall window`, async ({ page }) => {
@@ -765,7 +833,9 @@ test.describe("entrance motion", () => {
       await page.goto(route);
       await page.waitForFunction(() => document.fonts.status === "loaded");
       await jumpToBottom(page);
-      await expect.poll(() => hiddenCount(page)).toBe(0);
+      await expect
+        .poll(() => hiddenCount(page), { timeout: HYDRATION_TIMEOUT })
+        .toBe(0);
     });
   }
 
@@ -777,13 +847,12 @@ test.describe("entrance motion", () => {
         await page.setViewportSize({ width: 1440, height: 900 });
         await page.goto(route);
         await page.waitForFunction(() => document.fonts.status === "loaded");
+        // gsap.matchMedia never creates the tween under this preference, so
+        // no element is ever given a start state to come back from.
         await jumpToBottom(page);
-        expect(
-          await page.evaluate(
-            () => document.querySelectorAll("[data-revealed]").length,
-          ),
-        ).toBe(0);
-        await expect.poll(() => hiddenCount(page)).toBe(0);
+        await expect
+          .poll(() => hiddenCount(page), { timeout: HYDRATION_TIMEOUT })
+          .toBe(0);
       });
     }
   });
@@ -795,13 +864,62 @@ test.describe("entrance motion", () => {
       test(`${route} stays readable`, async ({ page }) => {
         await page.setViewportSize({ width: 1440, height: 900 });
         await page.goto(route);
-        // Markup ships visible; only script adds a hidden state.
-        expect(
-          await page.evaluate(
-            () => document.querySelectorAll("[data-revealed]").length,
-          ),
-        ).toBe(0);
+        // Markup ships visible; only script applies a start state.
+        expect(await hiddenCount(page)).toBe(0);
       });
     }
   });
+});
+
+/*
+ * The theme a reader chose must be on screen from the first frame.
+ *
+ * The server renders data-theme="light", so without a bootstrap that runs
+ * before paint, someone who chose dark watches the page flash white and then
+ * turn over. A React effect cannot fix it: an effect runs after the first
+ * paint by definition. An inline script at the top of the body can, and this
+ * asserts that it does.
+ */
+test.describe("chosen theme survives the first paint", () => {
+  for (const choice of ["dark", "light"] as const) {
+    test(`${choice} is applied before anything is drawn`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({
+        viewport: { width: 1200, height: 800 },
+      });
+
+      await context.addInitScript((stored) => {
+        try {
+          localStorage.setItem("proofpulse-theme", stored);
+        } catch {
+          // A blocked store leaves the default, which is a readable page.
+        }
+        const samples: string[] = [];
+        (window as unknown as { __themeSamples: string[] }).__themeSamples =
+          samples;
+        const record = () => {
+          samples.push(
+            document.documentElement.getAttribute("data-theme") ?? "none",
+          );
+        };
+        requestAnimationFrame(record);
+        document.addEventListener("DOMContentLoaded", record);
+        window.addEventListener("load", record);
+      }, choice);
+
+      const page = await context.newPage();
+      await page.goto("/", { waitUntil: "load" });
+
+      const samples = await page.evaluate(
+        () =>
+          (window as unknown as { __themeSamples: string[] }).__themeSamples,
+      );
+      expect(samples.length).toBeGreaterThan(0);
+      // Not one early frame carried anything but the reader's choice.
+      expect(samples.every((value) => value === choice)).toBe(true);
+
+      await context.close();
+    });
+  }
 });

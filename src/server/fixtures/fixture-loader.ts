@@ -23,6 +23,9 @@ import { normalizeTokenScreener } from "@/integrations/nansen/normalizers/normal
 import { normalizeWhoBoughtSold } from "@/integrations/nansen/normalizers/normalize-who-bought-sold";
 import { normalizeRelatedWallets } from "@/integrations/nansen/normalizers/normalize-related-wallets";
 import { relatedWalletsResponseSchema } from "@/integrations/nansen/schemas/related-wallets";
+import { smartMoneyFlowsResponseSchema } from "@/integrations/nansen/schemas/smart-money-flows";
+import { normalizeSmartMoneyHistory } from "@/integrations/nansen/normalizers/normalize-smart-money-history";
+import { normalizeLiquidityPeers } from "@/integrations/nansen/normalizers/normalize-liquidity-peers";
 import { sourceMeta } from "@/integrations/nansen/adapters/adapter-result";
 import demoFixture from "./data/demo-investigation.json";
 
@@ -62,12 +65,20 @@ export function fixtureCovers(
 }
 
 /**
- * Builds a normalized investigation from the captured responses. `live` is
- * false on every source, so the interface can never present this as live data.
+ * Parsed once per process rather than per request.
+ *
+ * The capture never changes at runtime, but parsing it does real work: the
+ * seven-day history alone is 168 hourly buckets through a Zod schema. Doing
+ * that on every render made the demo route slow enough that four parallel
+ * browser tests against one server started timing out.
+ *
+ * Only the clock is per-request, and it is not part of what is cached.
  */
-export function loadFixtureInvestigation(
-  evaluatedAt: string,
-): NormalizedInvestigation {
+type FixtureParts = Omit<NormalizedInvestigation, "evaluatedAt">;
+
+let parsedFixture: FixtureParts | null = null;
+
+function buildFixtureParts(): FixtureParts {
   const fixture = describeFixture();
   const collectedAt = fixture.capturedAt;
 
@@ -84,6 +95,13 @@ export function loadFixtureInvestigation(
     demoFixture.responses.sellers,
   );
 
+  const history = smartMoneyFlowsResponseSchema.parse(
+    demoFixture.responses["smart-money-history"],
+  );
+  const peers = tokenScreenerResponseSchema.parse(
+    demoFixture.responses["token-peers"],
+  );
+
   const contextMeta = sourceMeta("token-context", collectedAt, [], false);
   const flowMeta = sourceMeta(
     "cohort-flows",
@@ -93,6 +111,24 @@ export function loadFixtureInvestigation(
   );
   const buyerMeta = sourceMeta("buyers", collectedAt, [], false);
   const sellerMeta = sourceMeta("sellers", collectedAt, [], false);
+  const historyWarnings = history.warnings ?? [];
+  const historyMeta = sourceMeta(
+    "smart-money-history",
+    collectedAt,
+    historyWarnings,
+    false,
+  );
+  const peerMeta = sourceMeta("liquidity-peers", collectedAt, [], false);
+  const smartMoneyHistory = normalizeSmartMoneyHistory(
+    history.data,
+    historyWarnings,
+    historyMeta,
+  );
+  const liquidityPeers = normalizeLiquidityPeers(
+    peers.data,
+    fixture.tokenAddress,
+    peerMeta,
+  );
 
   const flowRecord = flow.data[0];
   const segmentFlows =
@@ -125,6 +161,19 @@ export function loadFixtureInvestigation(
       source: sellerMeta,
       recordCount: sellers.data.length,
     },
+    {
+      state: "ready",
+      capability: "smart-money-history",
+      source: historyMeta,
+      // Days shown, not the hourly buckets they were collapsed from.
+      recordCount: smartMoneyHistory.points.length,
+    },
+    {
+      state: "ready",
+      capability: "liquidity-peers",
+      source: peerMeta,
+      recordCount: liquidityPeers.peers.length,
+    },
   ];
 
   return {
@@ -144,9 +193,21 @@ export function loadFixtureInvestigation(
     sellers: normalizeWhoBoughtSold(sellers.data, "seller", sellerMeta),
     relationships: [],
     inspectedActorAddresses: [],
+    smartMoneyHistory,
+    liquidityPeers,
     sourceStatuses: statuses,
-    evaluatedAt,
   };
+}
+
+/**
+ * Builds a normalized investigation from the captured responses. `live` is
+ * false on every source, so the interface can never present this as live data.
+ */
+export function loadFixtureInvestigation(
+  evaluatedAt: string,
+): NormalizedInvestigation {
+  parsedFixture ??= buildFixtureParts();
+  return { ...parsedFixture, evaluatedAt };
 }
 
 /** The address whose relationships the demo fixture captured. */

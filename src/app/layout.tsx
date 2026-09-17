@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { BackToTop } from "@/components/actions/BackToTop";
 import { RevealOnView } from "@/components/effects/RevealOnView";
+import { THEME_BOOTSTRAP } from "@/components/actions/theme-script";
 import { ThemeToggle } from "@/components/actions/ThemeToggle";
 import { ModeIndicator } from "@/components/feedback/ModeIndicator";
 import "@/styles/index.css";
@@ -26,8 +27,19 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-theme="light">
+    /*
+      suppressHydrationWarning is on the element the bootstrap edits, and only
+      that element: the script below may change data-theme before React
+      hydrates, which is exactly the mismatch the warning is for.
+    */
+    <html lang="en" data-theme="light" suppressHydrationWarning>
       <body>
+        {/*
+          First thing in the body, and synchronous, so the chosen theme is
+          applied while the document is still parsing rather than after an
+          effect runs.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
         <div className="app-shell">
           <header className="command-bar-wrap">
             <nav className="command-bar" aria-label="Primary">

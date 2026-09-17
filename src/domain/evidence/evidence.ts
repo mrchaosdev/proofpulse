@@ -78,6 +78,14 @@ export function tokenContextEvidenceId(index = 0): string {
   return `TOKEN-CTX-${sequence(index)}`;
 }
 
+export function historyEvidenceId(index = 0): string {
+  return `HIST-SM-${sequence(index)}`;
+}
+
+export function peerEvidenceId(index = 0): string {
+  return `PEER-LIQ-${sequence(index)}`;
+}
+
 /** Index for O(1) lookup when validating model output against real evidence. */
 export function indexEvidence(
   items: readonly Evidence[],

@@ -18,6 +18,11 @@ const WINDOWS: Readonly<Record<SourceCapability, FreshnessWindow>> = {
   buyers: { freshSeconds: 300, staleAfterSeconds: 900 },
   sellers: { freshSeconds: 300, staleAfterSeconds: 900 },
   "related-wallets": { freshSeconds: 1800, staleAfterSeconds: 86_400 },
+  // A seven-day history barely moves in an hour, and its newest bucket is
+  // marked incomplete anyway, so it is allowed to age far longer than a
+  // live flow reading before it counts as stale.
+  "smart-money-history": { freshSeconds: 3600, staleAfterSeconds: 21_600 },
+  "liquidity-peers": { freshSeconds: 300, staleAfterSeconds: 3600 },
 };
 
 export function freshnessWindow(capability: SourceCapability): FreshnessWindow {

@@ -23,6 +23,7 @@ type PageSearch = {
   mode?: string;
   inspect?: string;
   refresh?: string;
+  context?: string;
 };
 
 const REFRESHABLE = [
@@ -79,6 +80,9 @@ export default async function InvestigationPage({
       ? inspectCandidate.canonicalAddress
       : undefined;
 
+  // Two more paid calls, so nothing but an explicit "on" turns them on.
+  const includeContextPanels = search.context === "on";
+
   const refreshCapabilities = parseRefresh(search.refresh);
 
   const result = await runInvestigation(
@@ -89,6 +93,7 @@ export default async function InvestigationPage({
       mode,
       ...(refreshCapabilities.length === 0 ? {} : { refreshCapabilities }),
       ...(inspectActorAddress === undefined ? {} : { inspectActorAddress }),
+      ...(includeContextPanels ? { includeContextPanels } : {}),
     },
     { cache: sharedCache, now: () => new Date() },
   );

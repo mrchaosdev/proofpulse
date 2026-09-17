@@ -36,7 +36,30 @@ export const ENDPOINTS = {
     capability: "related-wallets",
     path: "/profiler/address/related-wallets",
   },
+  // Verified 2026-09-17. Takes an explicit date window and returns a bucketed
+  // series: hourly for a range of seven days or less, daily beyond that. This
+  // is the only endpoint in the catalogue that returns a series at all — Flow
+  // Intelligence and the screener both answer for one window ending now.
+  smartMoneyFlows: {
+    capability: "smart-money-history",
+    path: "/tgm/flows",
+  },
+  // The same screener path as tokenScreener, asked in its list form.
+  liquidityPeers: {
+    capability: "liquidity-peers",
+    path: "/token-screener",
+  },
 } as const satisfies Record<string, NansenEndpoint>;
+
+/** The history window, in days. One call covers all of it. */
+export const HISTORY_WINDOW_DAYS = 7;
+
+/**
+ * The label whose holdings the history follows. Verified against the live API:
+ * `smart_money` is accepted, alongside whale, public_figure, top_100_holders
+ * and exchange.
+ */
+export const SMART_MONEY_LABEL = "smart_money";
 
 /**
  * The two timeframe enums do not agree, so a domain timeframe is translated

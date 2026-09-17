@@ -1,73 +1,13 @@
 /**
- * Entrance motion (DESIGN-RULES 11).
+ * Motion that CSS still owns (DESIGN-RULES 11).
  *
- * Motion here states a spatial relationship — where a block came from as it
- * arrives — which is one of the two reasons the rule permits movement at all.
- * Nothing loops, nothing moves on its own, and no number passes through a
- * value the evidence does not support. Durations stay inside the 140–220ms
- * band through the tokens.
+ * Entrance and scroll-linked movement moved to GSAP in D-073, so the rules
+ * that hid elements behind a `data-revealed` attribute are gone with them —
+ * GSAP applies its own start state and removes it when reduced motion is set.
  *
- * Two mechanisms, each chosen for where it is safe:
- *
- * - Above the fold, a plain CSS animation. It starts hidden on the very first
- *   paint, so nothing flashes, and it always finishes even if script never
- *   runs.
- * - Below the fold, `data-revealed`, written by RevealOnView. Markup ships
- *   visible and script adds the hidden state, so a page that fails to hydrate
- *   stays readable.
- *
- * Reduced motion is handled at both: the load-in sits inside a
- * `no-preference` query, and the component writes no attribute at all.
- *
- * This file is imported last so the reveal wins over any feature rule that
- * touches animation or transform.
+ * What remains here is the one animation tied to evidence rather than to
+ * arrival: the signal lens draws its arcs once, after real data exists.
  */
-
-/* Below the fold: hidden only once script has said so. */
-[data-revealed="false"] {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-[data-revealed="true"] {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity var(--motion-slow) var(--easing-standard),
-    transform var(--motion-slow) var(--easing-standard);
-}
-
-/*
- * The first screen of each route. Nobody can scroll into what is already on
- * screen, so these arrive on load: the landing hero, the investigate scope
- * pair, and the opening section of the methodology document. A short delay on
- * the second element makes each pair read as one arrival rather than two
- * separate entrances.
- */
-@media (prefers-reduced-motion: no-preference) {
-  .hero > .hero-copy,
-  .hero > .spotlight-card,
-  .investigate-header,
-  .investigate-split > *,
-  .investigation-page > .stack > .banner,
-  .scope-ribbon,
-  .doc-body > h1,
-  /* The document opens with an h1, so the first section is not a first child. */
-  .doc-body > section:first-of-type {
-    animation: enter-rise var(--motion-slow) var(--easing-standard) both;
-  }
-
-  .hero > .spotlight-card,
-  .investigate-split > :last-child,
-  .scope-ribbon,
-  .doc-body > section:first-of-type {
-    animation-delay: 90ms;
-  }
-
-  .investigate-split > :first-child {
-    animation-delay: 45ms;
-  }
-}
 
 @keyframes enter-rise {
   from {

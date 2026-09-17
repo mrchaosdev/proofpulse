@@ -9,6 +9,7 @@ import { SignalLens } from "@/features/investigation/components/SignalLens";
 import { MemoryCacheStore } from "@/server/cache/cache-store";
 import { describeFixture } from "@/server/fixtures/fixture-loader";
 import { runInvestigation } from "@/server/investigations/investigation-service";
+import { Button } from "@/components/ui/button";
 
 /**
  * Landing page. The example is a real captured investigation scored by the
@@ -117,13 +118,13 @@ export default async function LandingPage() {
               into one number would have hidden that.
             </p>
             <p className="example-action">
-              <Link
-                className="button"
-                data-variant="primary"
-                href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
-              >
-                Open the full investigation
-              </Link>
+              <Button asChild variant="default">
+                <Link
+                  href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
+                >
+                  Open the full investigation
+                </Link>
+              </Button>
             </p>
           </div>
           <div className="example-lens">

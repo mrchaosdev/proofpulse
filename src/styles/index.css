@@ -1,29 +1,125 @@
 /**
- * Fixed import order prevents cascade accidents (DESIGN-RULES 8):
- * tokens, reset, typography, layout, components, features.
+ * Tailwind first, then the project's own layers.
+ *
+ * The palette is not replaced. tokens.css stays the single source of colour —
+ * the Happy Hues set the project owner supplied, the dark companion, and the
+ * decisions recorded against them (D-060 on counts, D-071 on the lens track) —
+ * and the shadcn/ui variable names are defined *from* those tokens below.
+ * Adopting a component library should not mean adopting its palette; without
+ * this mapping the product would arrive looking like every other shadcn app.
+ *
+ * Authored stylesheets are placed inside Tailwind's cascade layers, so that
+ * where the two disagree a utility wins — see the note above the imports.
  */
 
+@import "tailwindcss";
+
+/* Fonts and tokens stay unlayered: they declare, they do not compete. */
 @import "./fonts.css";
 @import "./tokens.css";
-@import "./reset.css";
-@import "./typography.css";
-@import "./layout.css";
-@import "./utilities.css";
 
-@import "./components/button.css";
-@import "./components/field.css";
-@import "./components/card.css";
-@import "./components/status.css";
-@import "./components/spotlight.css";
-@import "./components/back-to-top.css";
+/*
+ * Authored rules are placed into Tailwind's own cascade layers rather than
+ * after them.
+ *
+ * Loaded plainly they came last and won every tie, so `reset.css`'s
+ * `button { background: none }` quietly erased `bg-primary` and every shadcn
+ * button rendered with no fill at all. Inside `base` and `components` the
+ * element resets still apply to unstyled markup while a utility, which lives
+ * in the later `utilities` layer, overrides them — which is the whole contract
+ * a utility class offers.
+ */
+@import "./reset.css" layer(base);
+@import "./typography.css" layer(base);
 
-@import "./features/landing.css";
-@import "./features/investigation.css";
-@import "./features/signal-lens.css";
-@import "./features/brief.css";
-@import "./features/document.css";
-@import "./features/evidence.css";
-@import "./features/relationships.css";
+@import "./layout.css" layer(components);
+@import "./utilities.css" layer(components);
 
-/* Last: the scroll reveal must win over any feature rule touching animation. */
-@import "./motion.css";
+@import "./components/field.css" layer(components);
+@import "./components/card.css" layer(components);
+@import "./components/status.css" layer(components);
+@import "./components/spotlight.css" layer(components);
+@import "./components/back-to-top.css" layer(components);
+
+@import "./features/landing.css" layer(components);
+@import "./features/investigation.css" layer(components);
+@import "./features/signal-lens.css" layer(components);
+@import "./features/brief.css" layer(components);
+@import "./features/document.css" layer(components);
+@import "./features/evidence.css" layer(components);
+@import "./features/relationships.css" layer(components);
+@import "./features/history.css" layer(components);
+
+/* Last within the layer: the reveal wins over any feature rule it touches. */
+@import "./motion.css" layer(components);
+
+/*
+ * Dark is driven by the document's data-theme attribute, not by a class, so
+ * the `dark:` variant is redefined to match. Both branches matter: an explicit
+ * choice, and System following a dark operating system.
+ *
+ * Most components need no `dark:` utility at all, because every colour below
+ * resolves through a token that already switches.
+ */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:where([data-theme="system"], [data-theme="system"] *) {
+      @slot;
+    }
+  }
+}
+
+/*
+ * The names shadcn/ui components reference, each pointing at a project token.
+ * Changing a colour still means editing tokens.css and nowhere else.
+ */
+@theme inline {
+  --color-background: var(--canvas);
+  --color-foreground: var(--ink);
+
+  --color-card: var(--surface);
+  --color-card-foreground: var(--ink);
+  --color-popover: var(--surface-lift);
+  --color-popover-foreground: var(--ink);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--on-primary);
+
+  --color-secondary: var(--surface-strong);
+  --color-secondary-foreground: var(--ink);
+
+  --color-muted: var(--surface-soft);
+  --color-muted-foreground: var(--ink-muted);
+
+  --color-accent: var(--primary-soft);
+  --color-accent-foreground: var(--primary-text);
+
+  --color-destructive: var(--negative);
+  --color-destructive-foreground: var(--surface);
+
+  --color-success: var(--positive);
+  --color-warning: var(--warning);
+
+  --color-border: var(--outline);
+  --color-input: var(--outline);
+  --color-ring: var(--focus);
+
+  /* Charts keep the meanings DESIGN-RULES 3 assigns them. */
+  --color-chart-1: var(--primary);
+  --color-chart-2: var(--cyan);
+  --color-chart-3: var(--warning);
+  --color-chart-4: var(--positive);
+  --color-chart-5: var(--negative);
+
+  --font-sans: var(--font-primary);
+  --font-mono: var(--font-identifier);
+
+  --radius-sm: calc(var(--radius-control) - 4px);
+  --radius-md: calc(var(--radius-control) - 2px);
+  --radius-lg: var(--radius-control);
+  --radius-xl: var(--radius-card);
+}

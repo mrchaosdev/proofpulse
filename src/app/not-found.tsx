@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 /**
  * Not found. A mistyped address or an unsupported chain lands here rather than
@@ -13,9 +14,9 @@ export default function NotFound() {
         valid for it. Nothing was requested from Nansen.
       </p>
       <p>
-        <Link className="button" data-variant="primary" href="/investigate">
-          Start an investigation
-        </Link>
+        <Button asChild variant="default">
+          <Link href="/investigate">Start an investigation</Link>
+        </Button>
       </p>
     </div>
   );

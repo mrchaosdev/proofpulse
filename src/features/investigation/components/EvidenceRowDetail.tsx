@@ -12,6 +12,7 @@
 import { useState } from "react";
 import type { Evidence } from "@/domain/evidence/evidence";
 import { CopyButton } from "@/components/actions/CopyButton";
+import { Button } from "@/components/ui/button";
 
 function toNormalizedJson(evidence: Evidence): string {
   return JSON.stringify(evidence, null, 2);
@@ -23,15 +24,15 @@ export function EvidenceRowDetail({ evidence }: { evidence: Evidence }) {
 
   return (
     <div className="evidence-detail">
-      <button
+      <Button
         type="button"
-        className="button"
-        data-variant="quiet"
+        variant="ghost"
+        size="sm"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
         {open ? "Hide normalized record" : "Show normalized record"}
-      </button>
+      </Button>
       <div hidden={!open}>
         <pre className="identifier evidence-json">{json}</pre>
         <CopyButton

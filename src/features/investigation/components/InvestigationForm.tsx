@@ -17,6 +17,17 @@ import {
   describeAddressRejection,
   validateTokenAddress,
 } from "@/domain/investigation/address";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export function InvestigationForm({
   initialChain = "ethereum",
@@ -52,29 +63,32 @@ export function InvestigationForm({
   return (
     <form className="stack" onSubmit={handleSubmit} noValidate>
       <div className="field">
-        <label className="field-label" htmlFor={`${addressFieldId}-chain`}>
-          Chain
-        </label>
-        <select
-          className="field-select"
-          id={`${addressFieldId}-chain`}
+        <Label htmlFor={`${addressFieldId}-chain`}>Chain</Label>
+        <Select
           value={chain}
-          onChange={(event) => setChain(event.target.value as Chain)}
+          onValueChange={(value) => setChain(value as Chain)}
         >
-          {listChainProfiles().map((profile) => (
-            <option key={profile.chain} value={profile.chain}>
-              {profile.displayName}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger
+            className="w-full"
+            id={`${addressFieldId}-chain`}
+            aria-label="Chain"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {listChainProfiles().map((profile) => (
+              <SelectItem key={profile.chain} value={profile.chain}>
+                {profile.displayName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="field">
-        <label className="field-label" htmlFor={addressFieldId}>
-          Token contract address
-        </label>
-        <input
-          className="field-input identifier"
+        <Label htmlFor={addressFieldId}>Token contract address</Label>
+        <Input
+          className="font-mono"
           id={addressFieldId}
           value={address}
           onChange={(event) => setAddress(event.target.value)}
@@ -98,25 +112,30 @@ export function InvestigationForm({
 
       <fieldset className="field-group">
         <legend>Timeframe</legend>
-        <div className="choice-group">
+        {/*
+          A single-selection toggle group: the timeframe is one choice among
+          four, and the group gives it roving focus and arrow-key movement
+          that four separate buttons did not have.
+        */}
+        <ToggleGroup
+          type="single"
+          value={timeframe}
+          onValueChange={(value) => {
+            if (value !== "") setTimeframe(value as Timeframe);
+          }}
+          variant="outline"
+          className="w-full"
+        >
           {TIMEFRAMES.map((option) => (
-            <button
-              type="button"
-              className="choice"
-              key={option}
-              aria-current={option === timeframe}
-              onClick={() => setTimeframe(option)}
-            >
+            <ToggleGroupItem key={option} value={option} aria-label={option}>
               {option}
-            </button>
+            </ToggleGroupItem>
           ))}
-        </div>
+        </ToggleGroup>
       </fieldset>
 
       <div className="cluster">
-        <button className="button" data-variant="primary" type="submit">
-          Run investigation
-        </button>
+        <Button type="submit">Run investigation</Button>
         <span className="field-hint">Costs four Nansen credits.</span>
       </div>
     </form>

@@ -10,6 +10,7 @@
 import Link from "next/link";
 import type { NormalizedInvestigation } from "@/domain/investigation/investigation";
 import { REQUIRED_CAPABILITIES } from "@/domain/investigation/investigation";
+import { Button } from "@/components/ui/button";
 
 export function FixtureFallback({
   investigation,
@@ -43,9 +44,9 @@ export function FixtureFallback({
         You can open the timestamped demo capture instead. It is a different
         token and is labelled as a fixture throughout.
       </span>
-      <Link className="button" data-variant="secondary" href="/investigate">
-        Open the demo capture
-      </Link>
+      <Button asChild variant="outline">
+        <Link href="/investigate">Open the demo capture</Link>
+      </Button>
     </div>
   );
 }

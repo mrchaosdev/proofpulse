@@ -36,6 +36,17 @@ export function formatCount(value: number): string {
   return String(Math.round(value));
 }
 
+/**
+ * A token quantity, grouped so six figures can be read at a glance.
+ * Separate from formatCount, whose output the deterministic brief and its
+ * validator both parse.
+ */
+export function formatTokenAmount(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 export function formatPercent(ratio: number): string {
   return `${(ratio * 100).toFixed(1)}%`;
 }

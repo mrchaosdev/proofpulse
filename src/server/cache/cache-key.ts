@@ -18,6 +18,8 @@ const TTL_SECONDS: Readonly<Record<SourceCapability, number>> = {
   buyers: 300,
   sellers: 300,
   "related-wallets": 1800,
+  "smart-money-history": 3600,
+  "liquidity-peers": 300,
 };
 
 export function cacheTtlSeconds(capability: SourceCapability): number {

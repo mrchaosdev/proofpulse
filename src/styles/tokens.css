@@ -34,6 +34,13 @@
   --outline: #dec7c2;
   --outline-strong: #b99e9a;
   --focus: #8f3452;
+  /*
+   * The unfilled remainder of a signal lens ring. An alias, not a new colour:
+   * the two themes need different weights for the same job. In light,
+   * outline-strong is a mauve-brown that reads as dirt behind the arcs; in
+   * dark, plain outline is too faint to keep the ring a complete shape.
+   */
+  --lens-track: var(--outline);
 
   /* Illustration palette. */
   --illustration-stroke: #33272a;
@@ -146,6 +153,7 @@
   --warning-soft: #332b14;
   --outline: #2a2838;
   --outline-strong: #45405c;
+  --lens-track: var(--outline-strong);
   --focus: #4fc4cf;
 
   --illustration-stroke: #fffffe;
@@ -200,6 +208,7 @@
     --warning-soft: #332b14;
     --outline: #2a2838;
     --outline-strong: #45405c;
+    --lens-track: var(--outline-strong);
     --focus: #4fc4cf;
 
     --illustration-stroke: #fffffe;

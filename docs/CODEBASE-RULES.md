@@ -262,8 +262,10 @@ match:
 ^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$
 ```
 
-No `:`, `_`, `__`, `--`, Tailwind utility token, CSS Module output, or dynamic
-class construction is allowed.
+That is the rule for classes this project writes. Tailwind utilities are a
+separate vocabulary and are permitted under DESIGN-RULES 7a, provided each one
+resolves through a token. No `_`, `__`, `--`, CSS Module output, or dynamic
+class construction is allowed in either vocabulary.
 
 ## 7. File-size and responsibility rules
 
@@ -306,7 +308,8 @@ class construction is allowed.
 
 ## 10. Styling implementation rules
 
-- No Tailwind dependency.
+- Tailwind is a dependency, as the base of shadcn/ui (decision D-072). Its
+  utilities must resolve through the tokens in `src/styles/tokens.css`.
 - No CSS Modules.
 - No CSS-in-JS runtime.
 - No inline style for static presentation.
@@ -393,7 +396,8 @@ npm run quality
 - [ ] No circular dependency exists.
 - [ ] No file is a miscellaneous dumping ground.
 - [ ] No authored class violates the class-name law.
-- [ ] No Tailwind, CSS Module, or CSS-in-JS styling exists.
+- [ ] No CSS Module or CSS-in-JS styling exists, and no Tailwind utility
+      carries an arbitrary colour value.
 - [ ] External data is runtime validated.
 - [ ] Scores remain pure and model-independent.
 - [ ] Secrets, dead code, debug logs, and unused dependencies are absent.

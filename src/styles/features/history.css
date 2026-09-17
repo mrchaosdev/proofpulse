@@ -1,0 +1,134 @@
+/**
+ * Smart money history and liquidity peers.
+ *
+ * Both panels pair a figure with the table it was drawn from, so neither the
+ * line nor the bars carry anything the text does not (DESIGN-RULES 12).
+ */
+
+.history-panel,
+.peers-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.history-figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.history-chart {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.history-line {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  /* Butt caps: a round cap on a flat week reads as a blob, not a line. */
+  stroke-linecap: butt;
+}
+
+.history-dot {
+  fill: var(--cyan);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+/* The day still filling is hollow, so it cannot pass as a finished reading. */
+.history-dot[data-complete="false"] {
+  fill: var(--surface);
+  stroke: var(--cyan);
+  stroke-dasharray: 3 2;
+}
+
+.history-summary {
+  color: var(--ink);
+  font-size: var(--type-card-size);
+  line-height: var(--type-card-height);
+}
+
+.history-partial {
+  color: var(--warning);
+  font-size: var(--type-meta-size);
+  font-family: var(--font-primary);
+}
+
+.history-warnings {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border-block-start: 1px solid var(--outline);
+  padding-block-start: var(--space-3);
+}
+
+/* Liquidity peers. */
+.peers-table th[scope="row"] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.peers-badge {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background-color: var(--primary-soft);
+  color: var(--primary-text);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-height);
+  font-weight: var(--weight-semibold);
+}
+
+.peers-row[data-subject="true"] {
+  background-color: var(--surface-strong);
+}
+
+.peers-bar {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 80px;
+  block-size: 10px;
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-strong);
+  overflow: hidden;
+}
+
+.peers-bar-fill {
+  display: block;
+  block-size: 100%;
+  border-radius: var(--radius-pill);
+  background-color: var(--ink-muted);
+  /* Set per row from the data; the fallback keeps an unset bar empty. */
+  inline-size: var(--peer-share, 0%);
+}
+
+.peers-bar-fill[data-subject="true"] {
+  background-color: var(--primary);
+}
+
+@media (max-width: 767px) {
+  /* The bar is decoration beside a figure that already reads; on a phone the
+     row needs the width for the number instead. */
+  .peers-table td:last-child,
+  .peers-table th:last-child {
+    display: none;
+  }
+}
+
+.history-axis {
+  stroke: var(--outline-strong);
+  stroke-width: 1;
+}
+
+.history-axis-label {
+  fill: var(--ink-muted);
+  font-family: var(--font-identifier);
+  font-size: 11px;
+}

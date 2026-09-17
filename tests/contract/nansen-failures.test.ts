@@ -161,6 +161,8 @@ describe("empty actor list", () => {
       sellers: [],
       relationships: [],
       inspectedActorAddresses: [],
+      smartMoneyHistory: null,
+      liquidityPeers: null,
       sourceStatuses: [],
       evaluatedAt: "2026-09-16T12:00:00.000Z",
     });
@@ -199,6 +201,8 @@ describe("hostile token metadata (M-04, S-05)", () => {
       sellers: [],
       relationships: [],
       inspectedActorAddresses: [],
+      smartMoneyHistory: null,
+      liquidityPeers: null,
       sourceStatuses: [],
       evaluatedAt: "2026-09-16T12:00:00.000Z",
     });

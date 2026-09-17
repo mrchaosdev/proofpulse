@@ -1,6 +1,6 @@
 # ProofPulse design rules
 
-Version: `2.2`
+Version: `3.0`
 Status: `normative`  
 Applies to: every public route, application route, component, visualization,
 loading state, fixture, screenshot, and demo artifact.
@@ -248,7 +248,31 @@ Responsive behavior:
 
 ## 7. Class-name law
 
-Every author-written HTML class token must match:
+Superseded on 2026-09-17 by the decision to adopt shadcn/ui, which is built on
+Tailwind. Decision D-072 records what was traded away and why.
+
+Two naming systems now coexist, and which applies depends on who wrote the
+class.
+
+### 7a. Utility classes
+
+Tailwind utilities are permitted in TSX. They carry `:`, `/`, `[`, `]` and
+`.`, which the previous law forbade outright.
+
+1. A utility must resolve through a project token. `bg-primary` is allowed
+   because `--color-primary` points at `--primary`; an arbitrary value such
+   as `bg-[#ff0000]` is not, because it puts a colour literal outside
+   tokens.css and breaks colour law 7.
+2. Class strings stay static. A utility assembled from a value at runtime is
+   still forbidden, for the same reason as before: the rendered token must be
+   readable in the source.
+3. `dark:` follows the document's `data-theme`, not a class. Most components
+   need it for nothing, because the tokens already switch.
+
+### 7b. Authored classes
+
+Every class this project writes itself — the signal lens, the flow ribbon, the
+relationship map, the evidence ledger, page layout — still matches:
 
 ```text
 ^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$
@@ -261,41 +285,35 @@ app-shell
 signal-lens
 signal-lens-title
 evidence-row
-evidence-row-value
 ```
 
 Forbidden:
 
 ```text
-md:grid
 score_card
 score-card__value
 score-card--warning
 ScoreCard
-card--compact
 ```
 
 Hard rules:
 
-1. A class token contains lowercase letters, numbers, and single hyphens only.
-2. A class token must not contain `:`, `_`, `__`, `--`, brackets, slash,
-   backslash, whitespace, or escaped characters.
-3. Tailwind utility classes and variant syntax are forbidden in JSX/TSX.
-4. BEM double-underscore and double-hyphen syntax is forbidden.
-5. CSS Modules are forbidden because generated class names may contain
-   implementation-specific underscores or hashes that violate the visible DOM
-   naming contract.
-6. Dynamic class-name construction is forbidden.
-7. Visual variants use attributes such as `data-state="warning"`,
-   `data-size="compact"`, or `aria-current="page"`, not modifier classes.
-8. Repeated elements share one semantic class; never append an index.
-9. Class names describe responsibility, not color or coordinates. Use
+1. An authored class contains lowercase letters, numbers, and single hyphens.
+2. BEM double-underscore and double-hyphen syntax is forbidden.
+3. CSS Modules remain forbidden: generated names carry hashes and underscores
+   that nobody can read in the DOM.
+4. Dynamic class-name construction is forbidden.
+5. Visual variants use attributes such as `data-state="warning"` or
+   `aria-current="page"`, not modifier classes.
+6. Repeated elements share one semantic class; never append an index.
+7. Class names describe responsibility, not colour or coordinates. Use
    `brief-warning`, not `yellow-left-box`.
-10. A source check must scan JSX/TSX class tokens and authored CSS selectors in
-    CI. Any invalid token fails the build.
+8. A source check scans authored CSS selectors and every non-utility class
+   token in CI. An invalid token fails the build. The check recognises
+   Tailwind utilities and leaves them alone.
 
 Pseudo-classes such as `:hover` and `:focus-visible` are valid CSS selector
-syntax. They are not HTML class tokens and are outside the class-name ban.
+syntax. They are not HTML class tokens and are outside the ban.
 
 ## 8. CSS organization
 
@@ -405,15 +423,37 @@ Skeletons contain no fake metrics. Loading must not render zero-valued charts.
 
 ## 11. Motion
 
-- Motion clarifies state change or spatial relationship only.
-- Standard duration: `140–220ms`.
-- Use opacity and transform for routine transitions.
+Amended on 2026-09-17 to permit GSAP and a wider range of movement than state
+change alone. Decision D-073 records what changed and what did not.
+
+### Permitted
+
+- Motion for state change, spatial relationship, or entrance.
+- Orchestrated sequences: a group of elements may arrive together with a
+  stagger, and a timeline may run longer than a single transition.
+- Scroll-linked movement through GSAP ScrollTrigger, provided it is driven by
+  the reader's own scrolling and finishes.
+- Routine transitions: `140–220ms`. An orchestrated entrance may run to
+  `900ms` in total including its stagger.
+- Opacity and transform are the default properties. Anything that forces
+  layout on every frame is not.
 - The signal lens may draw its arcs once after real evidence arrives, maximum
-  `420ms`; reduced-motion users see the final state immediately.
-- No perpetual ticker, pulse, particle field, fluid cursor, or background loop.
-- Do not animate number values through invented values.
-- Stop nonessential motion when the tab is hidden.
-- Respect `prefers-reduced-motion` globally.
+  `420ms`.
+
+### Still prohibited, and these are the ones that matter
+
+- **No perpetual loop.** No ticker, pulse, particle field, fluid cursor, or
+  background animation that never ends. A reader must be able to finish
+  reading a page and have it hold still. This is the rule the library makes
+  easiest to break.
+- **No invented numbers.** A figure may fade in; its value may not count up
+  through numbers the evidence does not support. Counting from zero to 43
+  displays forty-two quantities nobody measured.
+- **No motion that carries meaning on its own.** Anything the movement says
+  must also be readable when it is switched off.
+- Nonessential motion stops when the tab is hidden.
+- `prefers-reduced-motion` is respected globally, and under it every animated
+  element renders in its final state rather than its first.
 
 ## 12. Accessibility
 
@@ -447,9 +487,11 @@ Skeletons contain no fake metrics. Loading must not render zero-valued charts.
 
 Before an interface pull request merges:
 
-- [ ] Every authored class token passes the class-name regex.
-- [ ] No class contains `:`, `_`, `__`, or `--`.
-- [ ] No Tailwind class or CSS Module is present.
+- [ ] Every authored class token passes the class-name regex (7b).
+- [ ] No authored class contains `_`, `__`, or `--`.
+- [ ] Every Tailwind utility resolves through a token; no arbitrary value
+      carries a colour literal (7a).
+- [ ] No CSS Module is present.
 - [ ] Screenshot does not resemble `arc-payment` in theme, structure, shapes,
       typography, or signature graphics.
 - [ ] Light theme is complete; dark theme does not change semantics.

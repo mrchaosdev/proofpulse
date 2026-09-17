@@ -10,6 +10,7 @@
  */
 
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function InvestigationError({
   reset,
@@ -30,17 +31,12 @@ export default function InvestigationError({
       </div>
 
       <div className="cluster">
-        <button
-          type="button"
-          className="button"
-          data-variant="primary"
-          onClick={reset}
-        >
+        <Button type="button" onClick={reset}>
           Try again
-        </button>
-        <Link className="button" data-variant="secondary" href="/investigate">
-          Open the demo capture instead
-        </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/investigate">Open the demo capture instead</Link>
+        </Button>
       </div>
     </div>
   );

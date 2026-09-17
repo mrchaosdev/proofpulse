@@ -6,6 +6,7 @@ import { getChainProfile } from "@/domain/investigation/scope";
 import { CREDITS_PER_CALL } from "@/domain/investigation/credits";
 import { REQUIRED_CAPABILITIES } from "@/domain/investigation/investigation";
 import { SpotlightCard } from "@/components/effects/SpotlightCard";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Investigate",
@@ -68,14 +69,14 @@ export default function InvestigatePage() {
           </p>
 
           <p>
-            <Link
-              className="button"
-              data-variant="secondary"
-              href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
-            >
-              Open the {fixture.tokenSymbol} capture from{" "}
-              {fixture.capturedAt.slice(0, 10)}
-            </Link>
+            <Button asChild variant="outline">
+              <Link
+                href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
+              >
+                Open the {fixture.tokenSymbol} capture from{" "}
+                {fixture.capturedAt.slice(0, 10)}
+              </Link>
+            </Button>
           </p>
           <p className="text-meta">
             {getChainProfile(fixture.chain).displayName} · spends no credits

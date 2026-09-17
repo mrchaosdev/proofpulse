@@ -8,22 +8,32 @@
 
 import type {
   Actor,
+  LiquidityPeers,
   NormalizedInvestigation,
   Relationship,
   SegmentFlow,
+  SmartMoneyHistory,
   SourceMeta,
   TokenContext,
 } from "../investigation/investigation";
+import { positionChange } from "../investigation/position-change";
 import { segmentLabel } from "../scoring/calculate-direction";
 import type { Evidence } from "./evidence";
 import {
   actorEvidenceId,
   flowEvidenceId,
+  historyEvidenceId,
+  peerEvidenceId,
   relationshipEvidenceId,
   tokenContextEvidenceId,
   warningEvidenceId,
 } from "./evidence";
-import { formatCount, formatSignedUsd, formatUsd } from "./format-value";
+import {
+  formatCount,
+  formatSignedUsd,
+  formatTokenAmount,
+  formatUsd,
+} from "./format-value";
 
 export function buildObservationEvidence(
   investigation: NormalizedInvestigation,
@@ -34,6 +44,8 @@ export function buildObservationEvidence(
     ...actorEvidence(investigation.buyers),
     ...actorEvidence(investigation.sellers),
     ...relationshipEvidence(investigation.relationships),
+    ...historyEvidence(investigation.smartMoneyHistory),
+    ...peerEvidence(investigation.liquidityPeers, investigation.tokenContext),
     ...warningEvidence(investigation),
   ];
 }
@@ -68,6 +80,113 @@ function tokenContextEvidence(
     });
   }
   return items;
+}
+
+/**
+ * The history contributes two observations, not seven.
+ *
+ * A ledger row per day would bury the finding under its own detail, and the
+ * finding is the pair: what the position did, and what its value did over the
+ * same week. Only complete days count — the day still filling is not a
+ * reading. The daily figures remain in the panel's table.
+ */
+function historyEvidence(
+  history: SmartMoneyHistory | null,
+): readonly Evidence[] {
+  if (history === null) return [];
+
+  const change = positionChange(history);
+  const items: Evidence[] = [];
+
+  if (change !== null) {
+    items.push({
+      id: historyEvidenceId(0),
+      kind: "observation",
+      statement:
+        `Smart money position moved from ${formatTokenAmount(change.fromAmount)} ` +
+        `to ${formatTokenAmount(change.toAmount)} tokens across the complete ` +
+        `days of the last seven, a change of ${formatTokenAmount(change.deltaAmount)}.`,
+      numericValue: change.deltaAmount,
+      unit: "count",
+      // Units bought or sold are a direction, and this is the only place the
+      // ledger learns it from a position rather than from a flow reading.
+      polarity:
+        change.deltaAmount > 0
+          ? "supports_accumulation"
+          : change.deltaAmount < 0
+            ? "supports_distribution"
+            : "neutral",
+      sourceEvidenceIds: [],
+      source: history.source,
+    });
+  }
+
+  const values = history.points
+    .map((point) => point.valueUsd)
+    .filter((value): value is number => value !== null);
+
+  if (values.length > 1) {
+    const low = Math.min(...values);
+    const high = Math.max(...values);
+    items.push({
+      id: historyEvidenceId(1),
+      kind: "observation",
+      statement:
+        `The same position was valued between ${formatUsd(low)} and ` +
+        `${formatUsd(high)} over the week. A value range is not a flow.`,
+      numericValue: high - low,
+      unit: "usd",
+      polarity: "neutral",
+      sourceEvidenceIds: [],
+      source: history.source,
+    });
+  }
+
+  return items;
+}
+
+/**
+ * One observation placing the subject's pool depth on a scale, because a
+ * liquidity figure on its own says nothing about whether it is deep or thin.
+ * The peers themselves are context and are not each a claim about this token.
+ */
+function peerEvidence(
+  peers: LiquidityPeers | null,
+  context: TokenContext | null,
+): readonly Evidence[] {
+  if (peers === null || peers.peers.length === 0) return [];
+
+  const rank = peers.peers.findIndex((peer) => peer.isSubject);
+  const deepest = peers.peers[0];
+  if (deepest === undefined) return [];
+
+  // The subject's own depth, which is a measurement, rather than its rank,
+  // which is only a position within whatever the screener happened to return.
+  const subjectLiquidity =
+    context?.liquidityUsd ?? peers.peers[rank]?.liquidityUsd ?? null;
+
+  const statement =
+    rank === -1
+      ? `This token was not among the ${peers.peers.length} deepest ` +
+        `non-stablecoin pools returned for the chain. The deepest returned ` +
+        `was ${formatUsd(deepest.liquidityUsd ?? 0)}.`
+      : `This token held the number ${rank + 1} deepest non-stablecoin pool ` +
+        `of ${peers.peers.length} returned for the chain.`;
+
+  return [
+    {
+      id: peerEvidenceId(0),
+      kind: "observation",
+      statement,
+      // Omitted rather than zeroed when the screener returned no figure.
+      ...(subjectLiquidity === null
+        ? {}
+        : { numericValue: subjectLiquidity, unit: "usd" as const }),
+      polarity: "neutral",
+      sourceEvidenceIds: [],
+      source: peers.source,
+    },
+  ];
 }
 
 function segmentFlowEvidence(flow: SegmentFlow): readonly Evidence[] {

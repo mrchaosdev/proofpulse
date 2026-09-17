@@ -1,30 +1,31 @@
 "use client";
 
 /**
- * Reveal on view (DESIGN-RULES 11).
+ * Entrance motion, driven by GSAP ScrollTrigger (DESIGN-RULES 11).
  *
- * A block settles into place as it enters the viewport, which states where it
- * came from — the spatial relationship the rule permits motion for. Nothing
- * loops and nothing moves on its own: each element is revealed once and then
- * unobserved.
+ * A block settles into place as it enters the viewport. Each element is
+ * revealed once — `once: true` — because a block that re-animates on every
+ * pass is the perpetual loop rule 11 still prohibits.
  *
- * This replaced a CSS `animation-timeline: view()` version, which only ran in
- * Chromium. Every other engine fell through the `@supports` guard and showed
- * nothing at all.
+ * Three properties carry over from the hand-written version this replaces, and
+ * they matter more than the effect:
  *
- * Two properties matter more than the effect:
- *
- * 1. The hidden state is set here, in script. Markup ships visible, so a
- *    failure to hydrate leaves the page readable rather than blank.
- * 2. Only elements below the fold are hidden. Hiding what has already painted
- *    would flash it away and bring it back. The first screen of each route is
- *    therefore animated by the load-in in motion.css, not from here.
- *
- * The bookkeeping lives in reveal-state.ts, which is where its tests are.
+ * 1. Markup ships visible. The hidden state is applied here, in script, so a
+ *    page that fails to hydrate is readable rather than blank.
+ * 2. Reduced motion is honoured through `gsap.matchMedia`, which never creates
+ *    the tween, so there is no hidden state to undo.
+ * 3. Nothing can be stranded. ScrollTrigger evaluates its start on creation
+ *    and on refresh, so an element the page can never scroll far enough to
+ *    reach is revealed immediately rather than waiting forever — the failure
+ *    the previous version needed an explicit reachability guard to avoid.
  */
 
-import { useEffect } from "react";
-import { canHide, createRevealState, REVEAL_MARGIN_PX } from "./reveal-state";
+import { useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /**
  * The main block of each route. Kept here rather than in the markup so a
@@ -45,84 +46,95 @@ const TARGETS = [
   ".doc-actions",
 ].join(", ");
 
+/**
+ * The first screen of each route. Nobody scrolls into what is already on
+ * screen, so these arrive on load as one orchestrated sequence rather than
+ * waiting for a trigger that has already passed.
+ */
+const FIRST_SCREEN = [
+  ".hero-copy",
+  ".hero > .spotlight-card",
+  ".investigate-header",
+  ".investigate-split > *",
+  ".investigation-page > .stack > .banner",
+  ".scope-ribbon",
+  ".doc-body > h1",
+  ".doc-body > section:first-of-type",
+].join(", ");
+
+/** Well within rule 11's 900ms ceiling for an orchestrated entrance. */
+const DURATION_SECONDS = 0.5;
+const TRAVEL_PX = 20;
+/** 0.5s duration plus three 0.09s steps stays under the ceiling. */
+const STAGGER_SECONDS = 0.09;
+
 export function RevealOnView() {
-  useEffect(() => {
-    // Respected here rather than in CSS: with no attribute written, there is
-    // no hidden state to undo.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const scope = useRef<HTMLDivElement>(null);
 
-    const state = createRevealState();
+  useGSAP(() => {
+    const media = gsap.matchMedia();
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          state.reveal(entry.target);
-          // Once revealed, never again. A block that re-hides on scroll is a
-          // loop, which DESIGN-RULES 11 does not allow.
-          observer.unobserve(entry.target);
-        }
-      },
-      {
-        /*
-         * The top margin extends the root far above the window so anything
-         * already scrolled past counts as intersecting and is revealed.
-         * Without it, a jump — the End key, an anchor deep in the document, a
-         * restored scroll position — carries elements from below the window to
-         * above it between two frames, and they stay hidden forever having
-         * never once intersected.
-         *
-         * The bottom margin is the opposite: elements below must come
-         * REVEAL_MARGIN_PX into the window before they arrive.
-         */
-        rootMargin: `100000px 0px -${REVEAL_MARGIN_PX}px 0px`,
-        threshold: 0.05,
-      },
-    );
-
-    const arm = () => {
-      const maxScroll = Math.max(
-        0,
-        document.documentElement.scrollHeight - window.innerHeight,
-      );
-
-      for (const element of document.querySelectorAll(TARGETS)) {
-        const hideable = canHide({
-          top: element.getBoundingClientRect().top,
-          innerHeight: window.innerHeight,
-          scrollY: window.scrollY,
-          maxScroll,
-          revealMargin: REVEAL_MARGIN_PX,
+    media.add("(prefers-reduced-motion: no-preference)", () => {
+      // One sequence, so the first screen reads as a single arrival rather
+      // than as several elements each appearing on their own.
+      const firstScreen = gsap.utils.toArray<HTMLElement>(FIRST_SCREEN);
+      if (firstScreen.length > 0) {
+        gsap.from(firstScreen, {
+          opacity: 0,
+          y: TRAVEL_PX,
+          duration: DURATION_SECONDS,
+          ease: "power2.out",
+          stagger: STAGGER_SECONDS,
         });
-        if (!hideable) continue;
-        if (state.arm(element)) observer.observe(element);
+      }
+
+      for (const element of gsap.utils.toArray<HTMLElement>(TARGETS)) {
+        gsap.from(element, {
+          opacity: 0,
+          y: TRAVEL_PX,
+          duration: DURATION_SECONDS,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: element,
+            // Far enough in that a block has settled before it is read.
+            start: "top 88%",
+            once: true,
+          },
+        });
+      }
+    });
+
+    /*
+     * Any trigger the page cannot scroll far enough to reach is completed.
+     *
+     * On a window taller than the document there is barely any scroll to
+     * spend: an element sitting below the start line would wait for a
+     * position the reader can never reach and stay at opacity zero for good.
+     * The same failure appeared in the hand-written version this replaced.
+     */
+    const settleUnreachable = () => {
+      const furthest = ScrollTrigger.maxScroll(window);
+      for (const trigger of ScrollTrigger.getAll()) {
+        if (trigger.start > furthest) trigger.animation?.progress(1);
       }
     };
 
-    arm();
-
-    // A navigation that only changes search params — the timeframe switch on a
-    // report — swaps the content without remounting this component. Watching
-    // the document catches the replacements; a render frame coalesces bursts.
-    let frame = 0;
-    const mutations = new MutationObserver(() => {
-      if (frame !== 0) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        arm();
-      });
+    // Fonts change the page height after the triggers are placed, which would
+    // leave every start measured against a shorter document than the reader
+    // actually scrolls.
+    void document.fonts.ready.then(() => {
+      ScrollTrigger.refresh();
+      settleUnreachable();
     });
-    mutations.observe(document.body, { childList: true, subtree: true });
+
+    ScrollTrigger.addEventListener("refresh", settleUnreachable);
+    settleUnreachable();
 
     return () => {
-      if (frame !== 0) window.cancelAnimationFrame(frame);
-      mutations.disconnect();
-      observer.disconnect();
-      // Cleanup owes the document a way back. Without this, a remount in
-      // development left every block below the fold hidden for good.
-      state.release();
+      ScrollTrigger.removeEventListener("refresh", settleUnreachable);
+      media.revert();
     };
-  }, []);
+  });
 
-  return null;
+  return <div ref={scope} hidden />;
 }

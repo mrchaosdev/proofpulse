@@ -23,6 +23,7 @@ import { shortenAddress } from "@/domain/investigation/address";
 import type { Timeframe } from "@/domain/investigation/scope";
 import { RelationshipMap } from "./RelationshipMap";
 import { LinkPending } from "@/components/actions/LinkPending";
+import { Button } from "@/components/ui/button";
 
 /** Actors offered for expansion, so the list can never be unbounded. */
 const MAX_OFFERED_ACTORS = 5;
@@ -68,30 +69,31 @@ export function RelationshipPanel({
             inspectedActorAddress?.toLowerCase() ===
             actor.address.toLowerCase();
           return (
-            <Link
-              className="button"
-              data-variant={isSelected ? "primary" : "secondary"}
-              aria-current={isSelected}
+            <Button
+              asChild
+              // The selected actor is filled; the rest are offers.
+              variant={isSelected ? "default" : "outline"}
               key={`${actor.side}-${actor.address}`}
-              href={buildHref(timeframe, isFixture, actor.address)}
-              scroll={false}
             >
-              <LinkPending
-                label={`Inspect ${shortenAddress(actor.address)}`}
-                pendingLabel="Requesting…"
-              />
-            </Link>
+              <Link
+                aria-current={isSelected}
+                href={buildHref(timeframe, isFixture, actor.address)}
+                scroll={false}
+              >
+                <LinkPending
+                  label={`Inspect ${shortenAddress(actor.address)}`}
+                  pendingLabel="Requesting…"
+                />
+              </Link>
+            </Button>
           );
         })}
         {inspectedActorAddress === null ? null : (
-          <Link
-            className="button"
-            data-variant="quiet"
-            href={buildHref(timeframe, isFixture, null)}
-            scroll={false}
-          >
-            Clear selection
-          </Link>
+          <Button asChild variant="ghost">
+            <Link href={buildHref(timeframe, isFixture, null)} scroll={false}>
+              Clear selection
+            </Link>
+          </Button>
         )}
       </div>
 

@@ -9,10 +9,10 @@
  */
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { THEME_STORAGE_KEY as STORAGE_KEY } from "./theme-script";
 
 type Choice = "system" | "light" | "dark";
 
-const STORAGE_KEY = "proofpulse-theme";
 const CHANGE_EVENT = "proofpulse-theme-change";
 
 const OPTIONS: readonly { value: Choice; label: string }[] = [

@@ -24,6 +24,8 @@ const CAPABILITY_NAMES: Readonly<Record<SourceCapability, string>> = {
   buyers: "Top buyers",
   sellers: "Top sellers",
   "related-wallets": "Wallet relationships",
+  "smart-money-history": "Smart money history",
+  "liquidity-peers": "Liquidity peers",
 };
 
 function describe(

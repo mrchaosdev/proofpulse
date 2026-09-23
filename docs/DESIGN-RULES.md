@@ -42,9 +42,17 @@ ProofPulse must not reuse the reference project's visual identity:
 - no orange action colour or single-accent terminal palette;
 - no monospace outside raw identifiers, and no uppercase navigation;
 - no scanlines, dot matrix, technical grid, pulse sphere, or fluid cursor;
-- no persistent dashboard sidebar;
-- no component taken from the ChaoUi library, in source or in appearance; and
+- no persistent dashboard sidebar; and
 - no copied component proportions, route composition, copy, logo, or animation.
+
+ChaosUI is the product owner's own component library, not the reference
+project, and amendment D-079 permits its patterns here on one condition: a
+pattern may be rebuilt, never copied. What is taken is structure — how a glass
+navbar layers, how an aurora composes light — and it is re-authored against
+this product's tokens, so no palette, proportion or animation arrives with it.
+The prohibitions above still bind: they rule out much of that library,
+including every grid, dot-matrix and scanline background, and rule 11's ban on
+perpetual motion rules out its drifting and particle effects.
 
 The `arc-payment` codebase is never imported. React Bits may supply a vetted
 interaction primitive when it is adapted into this repository under these
@@ -424,7 +432,8 @@ Skeletons contain no fake metrics. Loading must not render zero-valued charts.
 ## 11. Motion
 
 Amended on 2026-09-17 to permit GSAP and a wider range of movement than state
-change alone. Decision D-073 records what changed and what did not.
+change alone (D-073). Amended again on 2026-09-23 to name one exception to the
+perpetual-loop ban below: the dark canvas's live background (D-083).
 
 ### Permitted
 
@@ -442,10 +451,16 @@ change alone. Decision D-073 records what changed and what did not.
 
 ### Still prohibited, and these are the ones that matter
 
-- **No perpetual loop.** No ticker, pulse, particle field, fluid cursor, or
-  background animation that never ends. A reader must be able to finish
-  reading a page and have it hold still. This is the rule the library makes
-  easiest to break.
+- **No perpetual loop, with one named exception.** No ticker, pulse, particle
+  field, fluid cursor, or background animation that never ends. A reader must
+  be able to finish reading a page and have it hold still. This is the rule
+  the library makes easiest to break. The one exception is the live WebGL
+  field under the dark canvas (D-083): it may run continuously, on the
+  condition — enforced in code, checked, not assumed — that
+  `prefers-reduced-motion` freezes it, that it pauses on a hidden tab and when
+  scrolled out of view, and that it never carries information the interface
+  depends on. No other element gets this exception by resembling it; each one
+  needs its own decision.
 - **No invented numbers.** A figure may fade in; its value may not count up
   through numbers the evidence does not support. Counting from zero to 43
   displays forty-two quantities nobody measured.

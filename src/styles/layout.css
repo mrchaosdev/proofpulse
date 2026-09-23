@@ -8,24 +8,72 @@
 body {
   background-color: var(--canvas);
   min-height: 100vh;
-  /*
-   * Two soft radial fields, fixed so they read as a canvas the content sits
-   * on rather than as decoration that scrolls with it. Large empty areas are
-   * intentional (DESIGN-RULES 6); this gives them tone instead of flatness.
-   */
-  background-image:
-    radial-gradient(
-      68rem 40rem at 78% -8%,
-      var(--field-primary) 0%,
-      transparent 62%
-    ),
-    radial-gradient(
-      52rem 34rem at 4% 12%,
-      var(--field-cyan) 0%,
-      transparent 58%
-    );
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+}
+
+/*
+ * The light fields the page sits on. Three soft radial layers, painted here at
+ * their resting position so the canvas is complete without script; CanvasFields
+ * then ties them to scroll position. Large empty areas are intentional
+ * (DESIGN-RULES 6) — this gives them tone instead of flatness, and the third
+ * sits low so a long report does not run out of ground.
+ */
+.canvas-fields {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.canvas-field {
+  position: absolute;
+  /* Room to travel without ever exposing an edge. */
+  inset: -25% 0;
+  display: block;
+  will-change: transform;
+}
+
+.canvas-field-primary {
+  background-image: radial-gradient(
+    68rem 40rem at 78% 6%,
+    var(--field-primary) 0%,
+    transparent 62%
+  );
+}
+
+.canvas-field-cyan {
+  background-image: radial-gradient(
+    52rem 34rem at 4% 22%,
+    var(--field-cyan) 0%,
+    transparent 58%
+  );
+}
+
+.canvas-field-deep {
+  background-image: radial-gradient(
+    60rem 36rem at 50% 88%,
+    var(--field-deep) 0%,
+    transparent 64%
+  );
+}
+
+/*
+ * The live terrain field TopographicBackground paints into, dark only (D-083).
+ * It covers the three light fields above it: `alpha: false` on the WebGL
+ * context makes every frame fully opaque, so nothing underneath needs to be
+ * hidden for light — the canvas itself only exists once the reader is in dark.
+ */
+.topographic-mount {
+  position: absolute;
+  inset: 0;
+}
+
+.topographic-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 ::selection {
@@ -45,13 +93,37 @@ body {
   flex: 1;
 }
 
+/*
+ * The bar floats: it is a glass panel resting above the canvas rather than a
+ * full-width band ruled off from it. The wrapper only positions; the panel
+ * inside carries the surface, so the rounded shape stays inside the gutter
+ * and the page reads continuously behind it.
+ */
 .command-bar-wrap {
   position: sticky;
-  top: 0;
+  top: var(--space-3);
   z-index: 20;
-  background-color: var(--canvas-veil);
-  backdrop-filter: blur(18px) saturate(140%);
-  border-block-end: 1px solid var(--outline);
+  padding-inline: var(--page-gutter);
+  /* Space above the panel comes from here so the sticky stop clears it. */
+  padding-block-start: var(--space-3);
+}
+
+/*
+ * The strip the page passes through above the floating panel. Without it the
+ * canvas simply scrolls past the top edge and rows are sliced mid-line, which
+ * reads as a rendering fault rather than as depth. A blur that fades out —
+ * rather than a band of flat colour — keeps the light fields underneath
+ * visible and matches the panel it sits behind.
+ */
+.command-bar-wrap::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  height: calc(100% + var(--space-4));
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  mask-image: linear-gradient(to bottom, rgb(0 0 0) 55%, transparent);
 }
 
 .page-region {
@@ -63,16 +135,50 @@ body {
 }
 
 .command-bar {
+  position: relative;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  /*
+   * Always one row (D-023 superseded). Below the width where the full link
+   * list stops fitting, the secondary links hide and NavMenu's trigger takes
+   * their place, so there is never a second group of content to wrap onto a
+   * row of its own.
+   */
+  flex-wrap: nowrap;
   gap: var(--space-4) var(--space-6);
   min-height: var(--command-bar-height);
   padding-block: var(--space-2);
   width: 100%;
   max-width: var(--content-max-width);
   margin-inline: auto;
-  padding-inline: var(--page-gutter);
+  padding-inline: var(--space-4);
+
+  /* The glass panel itself. */
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-card);
+  background-color: var(--surface-frost);
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: var(--elevation-card);
+}
+
+/*
+ * The lit top edge that makes the panel read as glass rather than as a plain
+ * translucent box: a hairline that fades out before either corner, so it
+ * never collides with the rounded border it sits inside.
+ */
+.command-bar::before {
+  content: "";
+  position: absolute;
+  inset-inline: var(--space-8);
+  inset-block-start: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--surface-lift),
+    transparent
+  );
 }
 
 /*
@@ -100,10 +206,26 @@ body {
   background-color: var(--surface-strong);
 }
 
+/*
+ * The destination you are on. Colour alone would not carry it (DESIGN-RULES
+ * 12), so the pill and the aria-current attribute say it too.
+ */
+.command-bar-links a[aria-current="page"] {
+  color: var(--ink);
+  background-color: var(--surface-strong);
+  box-shadow: inset 0 0 0 1px var(--outline);
+}
+
 .command-bar-links {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  /*
+   * The list never wraps. Either every destination fits beside the tools, or
+   * the media query below hands all three to NavMenu — letting the list wrap
+   * in between is what made the bar's height depend on how wide its text
+   * happened to render (D-055).
+   */
+  flex-wrap: nowrap;
   gap: var(--space-5);
   list-style: none;
   margin-inline-start: auto;
@@ -120,42 +242,24 @@ body {
   text-decoration: none;
 }
 
+/*
+ * The mark itself — tile, gradient and bars — is drawn by BrandSymbol. What
+ * is left here is where it sits: its size, its tilt, and the glow ring, whose
+ * radius must match the tile the SVG paints.
+ */
 .brand-symbol {
-  position: relative;
   display: inline-grid;
   place-items: center;
   width: 30px;
   height: 30px;
   border-radius: 10px;
-  background: linear-gradient(145deg, var(--primary), var(--cyan));
   box-shadow: var(--glow-primary);
   transform: rotate(-8deg);
 }
 
-.brand-symbol::before,
-.brand-symbol::after,
-.brand-symbol-core {
-  content: "";
-  position: absolute;
-  border-radius: var(--radius-pill);
-  background-color: var(--on-primary);
-}
-
-.brand-symbol::before {
-  width: 4px;
-  height: 8px;
-  inset-inline-start: 7px;
-}
-
-.brand-symbol-core {
-  width: 4px;
-  height: 16px;
-}
-
-.brand-symbol::after {
-  width: 4px;
-  height: 11px;
-  inset-inline-end: 7px;
+.brand-symbol-mark {
+  width: 100%;
+  height: 100%;
 }
 
 .site-footer {
@@ -191,40 +295,29 @@ body {
   height: 34px;
 }
 
-/* Theme control and mode badge in the command bar. */
+/*
+ * Theme control: one 44px button, light or dark (D-085), the same shape as
+ * the menu trigger beside it and used at every command bar width.
+ */
 .theme-toggle {
-  border: 1px solid var(--outline);
-  border-radius: var(--radius-pill);
-  padding: 3px;
-  margin: 0;
   display: inline-flex;
-  gap: 2px;
-  background-color: var(--surface-frost);
-}
-
-.theme-option {
-  display: inline-grid;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-pill);
   padding: 0;
-  color: var(--ink-muted);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-frost);
+  color: var(--ink-soft);
   transition:
     color var(--motion-fast) var(--easing-standard),
-    background-color var(--motion-fast) var(--easing-standard),
-    transform var(--motion-fast) var(--easing-standard);
+    background-color var(--motion-fast) var(--easing-standard);
 }
 
-.theme-option:hover {
+.theme-toggle:hover {
   color: var(--ink);
-  transform: translateY(-1px);
-}
-
-.theme-option[aria-current="true"] {
-  background-color: var(--primary);
-  color: var(--ink);
-  font-weight: var(--weight-semibold);
+  background-color: var(--surface-strong);
 }
 
 .theme-icon {
@@ -235,6 +328,87 @@ body {
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/*
+ * Overflow trigger for Methodology and Source below 720px (NavMenu). Visible
+ * by default here; the min-width media query is the only place that hides it
+ * again, so a missing stylesheet fails toward showing the menu rather than
+ * losing the destinations it carries.
+ */
+.nav-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-frost);
+  color: var(--ink-soft);
+  transition:
+    color var(--motion-fast) var(--easing-standard),
+    background-color var(--motion-fast) var(--easing-standard);
+}
+
+.nav-menu-trigger:hover,
+.nav-menu-trigger[data-state="open"] {
+  color: var(--ink);
+  background-color: var(--surface-strong);
+}
+
+.nav-menu-icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Same glass as the panel it drops from. */
+.nav-menu-panel {
+  z-index: 30;
+  min-width: 176px;
+  padding: var(--space-2);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-card);
+  background-color: var(--surface-frost);
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: var(--elevation-raised);
+}
+
+.nav-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  list-style: none;
+}
+
+.nav-menu-list a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-control);
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-weight: var(--weight-medium);
+  transition:
+    color var(--motion-fast) var(--easing-standard),
+    background-color var(--motion-fast) var(--easing-standard);
+}
+
+.nav-menu-list a:hover {
+  color: var(--ink);
+  background-color: var(--surface-strong);
+}
+
+.nav-menu-list a[aria-current="page"] {
+  color: var(--ink);
+  background-color: var(--surface-strong);
 }
 
 .mode-indicator {
@@ -249,36 +423,33 @@ body {
 }
 
 /*
- * On a phone the bar is sticky, so every row it takes is permanently lost from
- * the viewport. Three rows cost 193px, roughly a quarter of the screen. Brand
- * and tools share the first row; the destinations take the second.
+ * On a phone the bar is sticky, so any row it takes is permanently lost from
+ * the viewport (D-023, D-055). Rather than let the bar wrap, the secondary
+ * destinations hide and NavMenu's trigger takes their place, so the bar stays
+ * exactly one row at every width and --sticky-offset no longer needs a
+ * width-dependent value to describe it.
  *
- * The range runs to 783px, the last width at which the three groups do not fit
- * on one line. Deciding it here rather than letting the text wrap keeps the
- * bar exactly two rows throughout, which is what --sticky-offset declares.
+ * Measured, not guessed: with every destination inline and the trigger
+ * forced hidden, the bar needs 738px and overflows at 737px. The two queries
+ * below hand off at exactly that width, so the transition never opens a gap
+ * where neither the links nor the trigger are showing, and never overflows
+ * horizontally either. The glass panel's own padding and border are part of
+ * that budget, which is why the width moved when the bar started floating.
  */
-@media (max-width: 783px) {
-  .command-bar {
-    /*
-     * At 390px the brand and tools measure 350px against 358px of room, so a
-     * 12px column gap pushed them onto separate rows by four pixels. Eight
-     * keeps them together with slack to spare.
-     */
-    gap: var(--space-2);
-    justify-content: space-between;
-  }
-
+@media (max-width: 737px) {
   .command-bar-links {
-    order: 2;
-    width: 100%;
-    margin-inline-start: 0;
-    justify-content: space-between;
-    gap: var(--space-2);
+    display: none;
   }
 
+  /* The hidden list was what held the tools against the far edge. */
   .command-bar-tools {
-    order: 1;
-    gap: var(--space-1);
+    margin-inline-start: auto;
+  }
+}
+
+@media (min-width: 738px) {
+  .nav-menu-trigger {
+    display: none;
   }
 }
 
@@ -308,36 +479,38 @@ body {
 }
 
 /*
- * Below 390px the wordmark and the tools need 354px against the 343px a 375px
- * phone leaves inside the gutter, so the bar took a third sticky row. The
- * symbol keeps the link recognisable and the accessible name still reads
- * "ProofPulse" for anyone who cannot see it.
+ * The bar carries the wordmark, the badge and two 44px buttons on a phone,
+ * which needs 334px — fourteen more than the 320px documented minimum. The
+ * gaps pay for it, so the wordmark survives every width instead of being
+ * dropped below 390px as it was before. Gaps only: every control keeps its
+ * own dimensions, and so does the bar, whose height is a declared token.
  */
 @media (max-width: 389px) {
-  /* Without the wordmark the link measures 30px, under the 44px minimum. */
-  .brand-mark {
-    min-width: 44px;
-    justify-content: center;
+  /* The panel gives up inner padding first, then a little of its margin. */
+  .command-bar-wrap {
+    padding-inline: var(--space-3);
   }
 
-  .brand-wordmark {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+  .command-bar {
+    gap: var(--space-1);
+    padding-inline: var(--space-2);
+  }
+
+  .command-bar-tools {
+    gap: var(--space-1);
   }
 }
 
 /*
- * At 320px, the documented minimum width, the three destinations measure 303px
- * against 288px. Trimming the pill padding fits them on one row; the 44px tap
- * target required by DESIGN-RULES 12 comes from min-height and is untouched.
+ * Theme switch (D-085): the browser's own cross-fade is replaced by
+ * ThemeToggle's expanding circle, driven from script because only script
+ * knows where the button was pressed. Both default animations are switched
+ * off here so the circle is the only motion, not a fade underneath it.
+ * `prefers-reduced-motion` is handled before any of this runs — the switch
+ * happens with no transition at all rather than a slower one.
  */
-@media (max-width: 359px) {
-  .command-bar-links a {
-    padding-inline: var(--space-2);
-  }
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }

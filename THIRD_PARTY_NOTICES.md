@@ -1,5 +1,28 @@
 # Third-party notices
 
+## ChaosUI
+
+ChaosUI is the product owner's own component library. No file from it is
+imported wholesale into this repository; each pattern below is re-authored
+against ProofPulse tokens, which decisions D-078 through D-083 record.
+
+- Glass Navbar — the floating, blurred panel with a lit top edge and an active
+  pill, re-authored as `src/app/layout.tsx` with
+  `src/components/navigation/` and the command bar rules in
+  `src/styles/layout.css`
+- Aurora — its layered radial light fields, re-authored as the canvas rules in
+  `src/styles/layout.css`, scroll-linked instead of self-animating (D-081)
+- TopographicLines — its fragment shader is carried close to verbatim in
+  `src/components/effects/TopographicBackground.tsx` (contour-line noise
+  field, pointer ripple), with ProofPulse tokens supplied as uniforms in place
+  of the component's own hardcoded palette, and the lifecycle it runs in
+  (resize, visibility pausing, reduced motion, pointer damping) rebuilt rather
+  than imported. Runs on [`ogl`](https://github.com/oframe/ogl)
+  (Unlicense — public domain), the same minimal WebGL library ChaosUI itself
+  depends on for this component. D-083 records why this one is a live WebGL
+  layer rather than a CSS approximation, and what keeps it inside
+  DESIGN-RULES 11's motion limits.
+
 ## React Bits Spotlight Card
 
 ProofPulse includes a local adaptation of the pointer-tracking interaction from

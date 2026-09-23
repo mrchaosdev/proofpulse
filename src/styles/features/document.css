@@ -13,11 +13,26 @@
   align-items: start;
 }
 
+/*
+ * A reading surface, not bare text on the canvas. Every other block of
+ * content in the product — the hero panel, an investigation card, the command
+ * bar — rests on a surface; this was the one exception, harmless while the
+ * canvas underneath was still, unreadable once TopographicBackground gave
+ * dark a moving picture to sit on. Text alone could not fix it: the shader's
+ * own accent line runs close to the ink colour's brightness where it crosses
+ * a paragraph, so no plain-text colour stays clear of it for the whole page.
+ */
 .doc-body {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
   max-width: 760px;
+  padding: var(--space-8);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-card);
+  background-color: var(--surface-frost);
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: var(--elevation-card);
 }
 
 .doc-body p,

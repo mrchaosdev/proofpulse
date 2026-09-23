@@ -73,13 +73,18 @@ export default function InvestigatePage() {
               <Link
                 href={`/investigate/${fixture.chain}/${fixture.tokenAddress}?timeframe=${fixture.timeframe}&mode=fixture`}
               >
-                Open the {fixture.tokenSymbol} capture from{" "}
-                {fixture.capturedAt.slice(0, 10)}
+                Open the {fixture.tokenSymbol} capture
               </Link>
             </Button>
           </p>
+          {/*
+            The capture date sits here rather than in the label: the button
+            cannot wrap, and the full sentence ran 293px wide against the
+            288px a 320px phone leaves inside the gutter.
+          */}
           <p className="text-meta">
-            {getChainProfile(fixture.chain).displayName} · spends no credits
+            {getChainProfile(fixture.chain).displayName} ·{" "}
+            {fixture.capturedAt.slice(0, 10)} · spends no credits
           </p>
         </aside>
       </div>

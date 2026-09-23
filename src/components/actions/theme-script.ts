@@ -18,4 +18,4 @@ export const THEME_STORAGE_KEY = "proofpulse-theme";
 
 export const THEME_BOOTSTRAP = `try{var t=localStorage.getItem(${JSON.stringify(
   THEME_STORAGE_KEY,
-)});if(t==="light"||t==="dark"||t==="system"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}`;
+)});if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}`;

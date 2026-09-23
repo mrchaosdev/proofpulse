@@ -55,8 +55,7 @@
 
 /*
  * Dark is driven by the document's data-theme attribute, not by a class, so
- * the `dark:` variant is redefined to match. Both branches matter: an explicit
- * choice, and System following a dark operating system.
+ * the `dark:` variant is redefined to match.
  *
  * Most components need no `dark:` utility at all, because every colour below
  * resolves through a token that already switches.
@@ -64,12 +63,6 @@
 @custom-variant dark {
   &:where([data-theme="dark"], [data-theme="dark"] *) {
     @slot;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    &:where([data-theme="system"], [data-theme="system"] *) {
-      @slot;
-    }
   }
 }
 

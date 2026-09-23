@@ -252,7 +252,7 @@
 ### D-023 — Command bar wraps below 480px
 
 - Date: `2026-09-15`
-- Status: accepted
+- Status: superseded by D-076, which removed the wrap entirely.
 - Decision: the top command bar wraps and its link list moves to its own row
   below `480px`.
 - Reason: a Playwright viewport test found the navigation pushing the page
@@ -627,7 +627,8 @@
 ### D-049 — Dark means dark, not "whatever the system says"
 
 - Date: `2026-09-16`
-- Status: accepted
+- Status: accepted. The third choice this introduced, `system`, is removed by
+  D-085; dark-means-dark and the default stated below are unaffected.
 - Decision: the product default is dark regardless of the operating system.
   Following the system is a third explicit choice, written as
   `data-theme="system"`.
@@ -640,7 +641,8 @@
 ### D-050 — Light is the product default with an owner-supplied palette
 
 - Date: `2026-09-16`
-- Status: accepted, supersedes D-047 and D-049 on default theme and colour
+- Status: accepted, supersedes D-047 and D-049 on default theme and colour.
+  "System remains available" below does not survive D-085, which removed it.
 - Decision: the default is light with canvas `#FAEEE7`, headline and
   illustration stroke `#33272A`, paragraph `#594A4E`, action and highlight
   `#FF8BA7`, white illustration main, `#FFC6C7` secondary and `#C3F0CA`
@@ -707,7 +709,9 @@
 ### D-055 — The sticky bar's height is a declared token, verified by test
 
 - Date: `2026-09-16`
-- Status: accepted
+- Status: accepted; amended by D-076, which made the bar one row at every
+  width, so the token is now a constant and the 783px query is gone. The test
+  it introduced still runs, and still guards the same failure.
 - Decision: `--sticky-offset` states the bar's measured height, `html` sets
   `scroll-padding-block-start` from it, and the bar's two-row layout is
   decided by a media query at 783px rather than by text wrapping. A test
@@ -1117,6 +1121,242 @@
   initial stream, so it can be read with certainty instead of caught in
   passing. The contract tested is unchanged: the shell names the task and no
   skeleton carries a digit.
+
+### D-076 — The command bar is one row at every width, behind an overflow menu
+
+- Date: `2026-09-23`
+- Status: accepted. Supersedes D-023; amends D-055.
+- Decision: the bar never wraps. From `738px` every destination sits inline as
+  before, beside the segmented theme control. At `737px` and below, the
+  destinations move into a popover behind a single trigger and the segmented
+  control gives way to one button that steps through the same three choices,
+  leaving the wordmark, the mode badge, that button and that trigger on one
+  row. The theme was briefly put inside the menu instead, and hiding it was
+  the first thing noticed: a control people reach for every session does not
+  belong behind a disclosure. `--command-bar-height` is `70px`,
+  `--sticky-offset` is `82px` — the gap above the floating panel plus the
+  panel — and the handoff width is measured against the rendered bar, so it
+  moved from `721px` to `738px` when D-078 gave the panel its own padding and
+  border. `--command-bar-height` is `68px` and the bar sets it
+  as a `min-height`, so `--sticky-offset` is a constant `69px` with no
+  width-dependent override.
+- Reason: the two-row bar cost `121px` of a phone's viewport permanently,
+  because it is sticky, and holding it at exactly two rows took four measured
+  breakpoints (`783`, `719`, `389`, `359`) whose values came from how wide the
+  current link text happens to render. Renaming one destination invalidated all
+  of them. Moving the overflow into a menu removes the wrap entirely: the row
+  cannot grow, so the height stops depending on content and the token that
+  declares it stops being a guess that needs a test to stay honest. The
+  handoff width is still measured, not guessed — with every link inline the bar
+  needs `721px` and overflows at `720px` — and the test now also asserts that
+  no width scrolls the page sideways. Two things improved on the way: the
+  wordmark survives `320px` instead of being dropped below `390px`, and the
+  pixel-trimming rules that fought for room at `359px` are gone.
+- Cost: the destinations are one tap further away on a phone, and the menu is
+  the first control in the product that needs client JavaScript to open. It
+  closes on Escape and returns focus to its trigger.
+
+### D-077 — The mark is an SVG, and the product finally has a favicon
+
+- Date: `2026-09-23`
+- Status: accepted
+- Decision: the three pulse bars are drawn by `BrandSymbol` as inline SVG, and
+  the same geometry ships as `src/app/icon.svg`, `public/brand/
+  proofpulse-mark.svg` and `public/brand/proofpulse-lockup.svg`. The tile under
+  them — gradient, radius, tilt, glow — stays in CSS.
+- Reason: the bars were three CSS pseudo-elements, which cannot be exported,
+  so the repository had no logo file and the app had no icon at all: every tab
+  and bookmark showed the browser default. Keeping the tile in CSS keeps the
+  colours in `tokens.css` and avoids a gradient `id` repeating wherever the
+  mark appears twice on a page.
+
+### D-078 — The command bar floats as a glass panel, and marks where you are
+
+- Date: `2026-09-23`
+- Status: accepted
+- Decision: the bar is a rounded, blurred panel resting inside the page gutter
+  with the canvas running behind it, lit by a hairline along its top edge,
+  instead of a full-width band ruled off from the page by a bottom border. The
+  destination you are on carries `aria-current="page"` and a pill behind it.
+  The overflow menu uses the same glass.
+- Reason: the pattern is ChaosUI's Glass Navbar, which the project owner asked
+  for. Only the structure is taken — floating panel, lit top edge, active
+  pill, blur — and it is rebuilt on this product's tokens rather than copied:
+  ChaosUI's navbar is black with white alpha, and DESIGN-RULES 7 keeps every
+  colour in `tokens.css` so the mark and the bar follow the theme instead of
+  pinning a palette. No animated shared indicator was taken with it; the pill
+  transitions in place, which needs no layout animation and nothing to
+  suppress under reduced motion.
+- Consequence: the bar had no active state at all before this, so the chrome
+  never said which route you were reading. Marking it needed `usePathname`,
+  which made the link list a client component.
+
+### D-079 — ChaosUI patterns are permitted, rebuilt rather than copied
+
+- Date: `2026-09-23`
+- Status: accepted. Amends DESIGN-RULES 1.
+- Decision: the prohibition "no component taken from the ChaoUi library, in
+  source or in appearance" is replaced. ChaosUI patterns may be used when they
+  are re-authored against this product's tokens; nothing is copied verbatim,
+  and every other originality rule still binds.
+- Reason: the rule was written to keep ProofPulse from resembling
+  `arc-payment`, which is built with that library — but as written it also
+  barred the product owner from reusing their own work, which was never the
+  intent. It was also already broken: D-078 took the Glass Navbar's structure.
+  A normative document that the code contradicts is worse than a narrower
+  rule, and `docs/` is what the README sends a reviewer to read.
+- What the rule still blocks, and this is most of the library: every grid,
+  dot-matrix, retro-grid, hex-mesh and circuit background falls under the
+  existing ban on technical grids and dot matrices, and rule 11's ban on
+  perpetual motion rules out particles, starfields, meteors, drifting aurora
+  and cursor effects. Two ideas were dropped on this reading rather than
+  shipped — an animated aurora, and counting the scores up from zero, which
+  rule 11 names explicitly as displaying quantities nobody measured.
+
+### D-080 — The canvas gets depth: three fields and a grain
+
+- Date: `2026-09-23`
+- Status: accepted
+- Decision: the ground is three layered radial fields — the existing two plus
+  one low on the page — under a fixed film of fine grain at `3.5%` in light
+  and `5%` in dark. All of it is static. The landing's three signals become
+  three panels instead of three lines of small print.
+- Reason: in dark the canvas read as flat near-black, and the argument the
+  product is built on — three questions that are never merged — was stated in
+  12px text under the paragraph, which is the weakest thing on the page. The
+  grain also removes the banding that wide low-contrast gradients show on an
+  8-bit display. The composition is ChaosUI's Aurora minus its drift, which
+  rule 11 does not allow (D-079).
+
+### D-081 — The light fields move with the reader, not on their own
+
+- Date: `2026-09-23`
+- Status: accepted. Extends D-080. Superseded for dark by D-083, which paints
+  over these fields once TopographicBackground mounts; they remain the whole
+  effect in light.
+- Decision: the three light fields are their own layers, and GSAP
+  ScrollTrigger ties them to scroll position with `scrub`, each travelling a
+  different distance — `-22%`, `+14%` and `-34%` of its own height over the
+  whole document.
+- Reason: at the first, smaller distances the movement could not be seen at
+  any position on the page — a soft gradient several screens wide has no edge
+  to measure travel against, so it read as still regardless of what the token
+  said. The distances were widened once that was checked against the rendered
+  page rather than assumed from the tween existing.
+- Safety: the layers are painted by CSS at their resting position, so a page
+  that never hydrates still has its canvas; under `prefers-reduced-motion` the
+  tween is never created, which a check confirmed leaves every layer at
+  `transform: none` after scrolling. Only transforms move, so scrolling
+  repaints nothing behind them.
+
+### D-082 — Circuit traces under the dark canvas (superseded)
+
+- Date: `2026-09-23`
+- Status: superseded by D-083, same day. Left in the log because the reasoning
+  it rejected — approximate the shader in CSS to avoid a WebGL dependency — is
+  the reasoning D-083 overturns, and a decision log that deletes its own
+  reversals is not a log.
+- Decision: the dark canvas carried ChaosUI's CircuitBoard figure as a tiled
+  SVG pattern, its colours from tokens, no dependency added.
+- Why it did not survive: the product owner's reaction to it, directly, was
+  that it looked poor next to ChaosUI's own rendering — and it was: an SVG
+  tracing the shader's *contours* is a static outline of what the shader
+  spends a render loop actually doing with light, noise and colour blending.
+  The two are not the same picture at different cost; they are different
+  pictures. D-083 carries the real thing.
+
+### D-083 — The dark canvas runs ChaosUI's TopographicLines shader, live
+
+- Date: `2026-09-23`
+- Status: accepted. Amends DESIGN-RULES 11. Supersedes D-082.
+- Decision: dark mounts `TopographicBackground`, a real WebGL canvas — `ogl`,
+  the library ChaosUI itself uses — running an adapted copy of
+  TopographicLines' fragment shader (contour lines over a drifting noise
+  field, pointer-reactive) with ProofPulse's own tokens (`--primary`, `--cyan`,
+  `--warning`, `--canvas`) supplied as uniforms instead of the shader's own
+  hardcoded palette. It sits over the three light fields, opaque, and only
+  exists in the DOM while the effective theme is dark.
+- Reason: D-082's CSS approximation was rejected on sight, twice, and the
+  second time in those terms. Two prior rounds of "keep the reading, drop the
+  dependency" — the static aurora composition, the SVG circuit board — each
+  produced something calmer than the reference and something the product owner
+  did not want calmer. What was being asked for was the actual component, and
+  a request that specific does not have a cheaper substitute that satisfies it.
+- What rule 11 actually protects, kept anyway: the ban on a perpetual loop
+  exists for reduced motion, for the tab someone leaves open, and for the
+  guarantee that a page can be finished and left still. All three are
+  enforced in code rather than left to this being a well-behaved guest:
+  `prefers-reduced-motion` freezes `elapsed` rather than skipping
+  initialisation, so a reduced-motion reader still gets the shader's frame,
+  just not its motion; the render loop pauses on `document.hidden` and via
+  `IntersectionObserver` when the canvas scrolls out of view; and nothing it
+  draws is load-bearing — every reader who never runs WebGL still gets the
+  three CSS fields underneath. What rule 11 no longer protects, for this one
+  layer only: the flat statement that a background may never move on its own.
+  It now may, here, on those conditions.
+- Cost, stated rather than hidden: this is the first ornamental dependency in
+  the product (`ogl`, ~15 kB after tree-shaking) and the first canvas whose
+  failure mode is silent — a browser without WebGL, or a context creation
+  failure, leaves dark exactly where light already is, the three static
+  fields, with nothing announcing the difference. That is an acceptable
+  regression for a decorative layer and would not be for anything the
+  evidence ledger depends on.
+
+### D-084 — The document page reads on a surface, not on the canvas
+
+- Date: `2026-09-23`
+- Status: accepted.
+- Decision: `.doc-body` — the methodology prose column, currently the only
+  page that uses it — is now a glass panel: padding, `--radius-card`,
+  `--surface-frost`, the same blur and elevation every other card in the
+  product uses. `--ink-soft` and `--ink-muted` are also raised in dark,
+  `#b8b7cb → #c7c6da` and `#9291a8 → #a3a2b8`.
+- Reason: reported directly — dark text was hard to read on `/methodology`.
+  It was: that page was the one place in the product where text sat straight
+  on the canvas rather than on a card, which was fine while the canvas was
+  still and became a real defect once D-083 gave dark a moving, brightly
+  coloured picture behind it. Brightening the text was the request and is
+  part of the fix, but on its own it could not have been the whole one — the
+  shader's own accent line reaches a brightness close to body text's where it
+  passes behind a paragraph, so no plain ink colour stays clear of it for a
+  full page of reading. The panel is what actually restores a stable
+  background to read against; every other page already has this by having
+  its content live inside cards.
+
+### D-085 — Two themes, and switching between them is a circle, not a cut
+
+- Date: `2026-09-23`
+- Status: accepted. Amends D-049 and D-050, which is where `system` entered.
+- Decision: the theme control is light and dark only — `system` is removed
+  from the stored value, the bootstrap script, the type, and every selector
+  that branched on it. One 44px button now covers the command bar at every
+  width; the three-button segmented control and the phone's separate cycling
+  button are gone with the third choice that made two different shapes
+  necessary. Pressing it expands a circle from the point pressed, via the
+  View Transitions API, revealing the other theme underneath.
+- Reason: requested directly — two themes, and a transition between them
+  rather than an instant cut. Losing System also let the wide and narrow bar
+  converge on one control instead of two, which the segmented control's own
+  width had been part of the command bar's breakpoint math since D-078.
+- Bug caught building it: `document.startViewTransition(callback)` runs its
+  update callback as a microtask, not synchronously. The first version set the
+  attribute inside that callback and dispatched the store's change event
+  immediately after, in the same synchronous call — so the event fired before
+  the attribute had actually changed, `useSyncExternalStore` compared
+  identical snapshots and skipped the re-render, and the button's label fell
+  one click behind: a second press would silently repeat the first theme
+  instead of reversing it. The fix is `commitTheme`, one function that sets
+  the attribute, persists it and dispatches the event in that order, called
+  from inside the transition's callback rather than after starting it — so the
+  three can never straddle the microtask boundary again. A test clicks the
+  control twice and asserts the theme actually reverses, which is what the bug
+  broke.
+- Motion budget: DESIGN-RULES 11 already permits motion for state change; nothing
+  here needed a new exception. The circle runs `520ms`, inside the `900ms`
+  orchestrated-entrance ceiling, and is skipped outright under
+  `prefers-reduced-motion` — not slowed, since there is no partial version of
+  "the whole page repaints" reduced motion would accept. Browsers without
+  `startViewTransition` apply the theme immediately, as it always did.
 
 ## Open competition questions
 

@@ -3,23 +3,27 @@
 /**
  * Theme control (04-information-architecture "Global navigation").
  *
- * Light is the product default. A stored explicit choice wins; System follows
- * the operating system. Icons keep the command bar compact while each control
- * retains a full accessible name and native tooltip.
+ * Light and dark only (D-085) — System was removed, so one button now covers
+ * both the wide command bar and the narrow one; there is no longer a segmented
+ * control to fit or a third icon to disambiguate.
  */
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { THEME_STORAGE_KEY as STORAGE_KEY } from "./theme-script";
 
-type Choice = "system" | "light" | "dark";
+type Choice = "light" | "dark";
 
 const CHANGE_EVENT = "proofpulse-theme-change";
 
-const OPTIONS: readonly { value: Choice; label: string }[] = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
-];
+const LABELS: Record<Choice, string> = {
+  light: "Light",
+  dark: "Dark",
+};
+
+const OTHER: Record<Choice, Choice> = {
+  light: "dark",
+  dark: "light",
+};
 
 function ThemeIcon({ choice }: { choice: Choice }) {
   if (choice === "light") {
@@ -31,18 +35,9 @@ function ThemeIcon({ choice }: { choice: Choice }) {
     );
   }
 
-  if (choice === "dark") {
-    return (
-      <svg className="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M20.2 15.1A8.2 8.2 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z" />
-      </svg>
-    );
-  }
-
   return (
     <svg className="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3" y="4" width="18" height="13" rx="2" />
-      <path d="M8 21h8M12 17v4" />
+      <path d="M20.2 15.1A8.2 8.2 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z" />
     </svg>
   );
 }
@@ -50,9 +45,7 @@ function ThemeIcon({ choice }: { choice: Choice }) {
 function readStored(): Choice {
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored === "light" || stored === "dark" || stored === "system"
-      ? stored
-      : "light";
+    return stored === "light" || stored === "dark" ? stored : "light";
   } catch {
     return "light";
   }
@@ -60,6 +53,25 @@ function readStored(): Choice {
 
 function applyToDocument(choice: Choice): void {
   document.documentElement.setAttribute("data-theme", choice);
+}
+
+/**
+ * Sets the attribute, persists it, and only then tells React. The three must
+ * stay in that order: `startViewTransition`'s update callback runs as a
+ * microtask rather than synchronously, so a caller that set the attribute and
+ * dispatched the event as two separate steps could dispatch before the
+ * attribute actually changed. `useSyncExternalStore` compares snapshots and
+ * sees no difference, skips the re-render, and the control's label falls one
+ * click behind — which is what happened before this was one function.
+ */
+function commitTheme(choice: Choice): void {
+  applyToDocument(choice);
+  try {
+    window.localStorage.setItem(STORAGE_KEY, choice);
+  } catch {
+    // Storage is a convenience; the active document theme still changes.
+  }
+  window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
 function subscribe(onChange: () => void): () => void {
@@ -73,17 +85,64 @@ function subscribe(onChange: () => void): () => void {
 
 function getSnapshot(): Choice {
   const attribute = document.documentElement.getAttribute("data-theme");
-  if (attribute === "light" || attribute === "dark" || attribute === "system") {
-    return attribute;
-  }
-  return "light";
+  return attribute === "dark" ? "dark" : "light";
 }
 
 function getServerSnapshot(): Choice {
   return "light";
 }
 
-export function ThemeToggle() {
+/**
+ * Expanding circle from the point the reader pressed, using the View
+ * Transitions API. This is state change (DESIGN-RULES 11 permits it) applied
+ * to the whole document rather than one element, so it is kept inside a
+ * single routine-transition-length animation and skipped entirely rather than
+ * slowed under reduced motion — there is no partial version of "the page
+ * repaints" that reduced motion would accept.
+ *
+ * Progressive enhancement: browsers without `startViewTransition` apply the
+ * theme immediately, the same as before this existed.
+ */
+function applyWithTransition(next: Choice, origin: { x: number; y: number }) {
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  if (reducedMotion || typeof document.startViewTransition !== "function") {
+    commitTheme(next);
+    return;
+  }
+
+  const radius = Math.hypot(
+    Math.max(origin.x, window.innerWidth - origin.x),
+    Math.max(origin.y, window.innerHeight - origin.y),
+  );
+
+  const transition = document.startViewTransition(() => {
+    commitTheme(next);
+  });
+
+  void transition.ready.then(() => {
+    document.documentElement.animate(
+      {
+        clipPath: [
+          `circle(0px at ${origin.x}px ${origin.y}px)`,
+          `circle(${radius}px at ${origin.x}px ${origin.y}px)`,
+        ],
+      },
+      {
+        duration: 520,
+        easing: "ease-in-out",
+        pseudoElement: "::view-transition-new(root)",
+      },
+    );
+  });
+}
+
+function useThemeChoice(): [
+  Choice,
+  (next: Choice, origin: { x: number; y: number }) => void,
+] {
   const choice = useSyncExternalStore(
     subscribe,
     getSnapshot,
@@ -92,38 +151,33 @@ export function ThemeToggle() {
 
   useEffect(() => {
     const stored = readStored();
-    if (stored !== getSnapshot()) {
-      applyToDocument(stored);
-      window.dispatchEvent(new Event(CHANGE_EVENT));
-    }
+    if (stored !== getSnapshot()) commitTheme(stored);
   }, []);
 
-  const handleChange = useCallback((next: Choice) => {
-    applyToDocument(next);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      // Storage is a convenience; the active document theme still changes.
-    }
-    window.dispatchEvent(new Event(CHANGE_EVENT));
-  }, []);
+  const change = useCallback(
+    (next: Choice, origin: { x: number; y: number }) => {
+      applyWithTransition(next, origin);
+    },
+    [],
+  );
+
+  return [choice, change];
+}
+
+/** One 44px button, light or dark, used at every command bar width. */
+export function ThemeToggle() {
+  const [choice, change] = useThemeChoice();
+  const next = OTHER[choice];
 
   return (
-    <fieldset className="theme-toggle">
-      <legend className="visually-hidden">Colour theme</legend>
-      {OPTIONS.map((option) => (
-        <button
-          type="button"
-          className="theme-option"
-          key={option.value}
-          aria-label={option.label}
-          aria-current={option.value === choice}
-          title={option.label}
-          onClick={() => handleChange(option.value)}
-        >
-          <ThemeIcon choice={option.value} />
-        </button>
-      ))}
-    </fieldset>
+    <button
+      type="button"
+      className="theme-toggle"
+      aria-label={`Colour theme: ${LABELS[choice]}. Switch to ${LABELS[next]}.`}
+      title={`Theme: ${LABELS[choice]}`}
+      onClick={(event) => change(next, { x: event.clientX, y: event.clientY })}
+    >
+      <ThemeIcon choice={choice} />
+    </button>
   );
 }

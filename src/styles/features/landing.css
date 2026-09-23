@@ -105,37 +105,51 @@
 }
 
 /*
- * A hairline that fades out, rather than three equal rules across the column.
- * As plain borders they read as the ruling of a table the hero does not have.
+ * The three questions the product refuses to merge are its whole argument, so
+ * they are stated as three surfaces rather than as three lines of small print
+ * under the paragraph. Each is a panel of the same family as the command bar
+ * and the investigation cards, lit along its top edge.
  */
 .hero-signals li {
+  position: relative;
   display: flex;
-  gap: var(--space-3);
-  align-items: flex-start;
-  padding-block-start: var(--space-3);
-  background-image: linear-gradient(
-    to right,
-    var(--outline-strong),
-    transparent
-  );
-  background-size: 100% 1px;
-  background-repeat: no-repeat;
-  background-position: top left;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-card);
+  background-color: var(--surface-frost);
+  box-shadow: var(--elevation-card);
   color: var(--ink-muted);
   font-size: var(--type-meta-size);
   line-height: var(--type-meta-height);
 }
 
+.hero-signals li::before {
+  content: "";
+  position: absolute;
+  inset-inline: var(--space-5);
+  inset-block-start: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--surface-lift),
+    transparent
+  );
+}
+
 .hero-signals strong {
   display: block;
   color: var(--ink);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-height);
+  font-size: var(--type-card-size);
+  line-height: var(--type-card-height);
 }
 
 .hero-signal-index {
   color: var(--primary-text);
   font-family: var(--font-identifier);
+  font-size: var(--type-meta-size);
 }
 
 .hero-panel-heading {

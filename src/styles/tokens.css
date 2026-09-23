@@ -1,7 +1,7 @@
 /**
  * Global design tokens. Light is the product default; dark is an explicit
- * companion or follows the operating system when the user selects System.
- * Raw colour literals live here and nowhere else in application CSS.
+ * companion (D-085). Raw colour literals live here and nowhere else in
+ * application CSS.
  */
 
 :root {
@@ -52,6 +52,8 @@
   /* Atmospheric fields and interactive light. */
   --field-primary: rgba(255, 139, 167, 0.24);
   --field-cyan: rgba(195, 240, 202, 0.56);
+  /* A third, deeper field low on the page, so the canvas has a bottom. */
+  --field-deep: rgba(255, 198, 199, 0.34);
   --canvas-veil: rgba(250, 238, 231, 0.86);
   --spotlight-primary: rgba(255, 139, 167, 0.24);
   --spotlight-cyan: rgba(195, 240, 202, 0.64);
@@ -107,13 +109,17 @@
   /* Layout. */
   --content-max-width: 1360px;
   --prose-max-width: 68ch;
-  --command-bar-height: 64px;
   /*
-   * The measured height of the sticky bar, which anything scrolled to must
-   * clear. The bar takes one row from 1024px and two below it, so the value
-   * is not derivable from --command-bar-height alone.
+   * The bar's height is declared, not left to its contents: it sets this as a
+   * min-height and nothing inside it is taller, so the bar measures the same
+   * at every width. DESIGN-RULES 6 asks for at least 64px.
    */
-  --sticky-offset: 69px;
+  --command-bar-height: 70px;
+  /*
+   * How far the floating bar reaches down the viewport when stuck: the gap
+   * above it plus its own height. Anything scrolled to must clear that.
+   */
+  --sticky-offset: 82px;
   --page-gutter: 32px;
 
   /* Motion — clarifies state change only. */
@@ -136,8 +142,8 @@
   --surface-lift: #222035;
   --surface-frost: rgba(23, 22, 31, 0.72);
   --ink: #fffffe;
-  --ink-soft: #b8b7cb;
-  --ink-muted: #9291a8;
+  --ink-soft: #c7c6da;
+  --ink-muted: #a3a2b8;
   --primary: #8a3fe8;
   --primary-hover: #994ff3;
   --primary-text: #b07cf6;
@@ -162,8 +168,9 @@
   --illustration-secondary: #4fc4cf;
   --illustration-tertiary: #3ddc97;
 
-  --field-primary: rgba(138, 63, 232, 0.22);
-  --field-cyan: rgba(79, 196, 207, 0.12);
+  --field-primary: rgba(138, 63, 232, 0.28);
+  --field-cyan: rgba(79, 196, 207, 0.16);
+  --field-deep: rgba(138, 63, 232, 0.16);
   --canvas-veil: rgba(15, 14, 23, 0.82);
   --spotlight-primary: rgba(138, 63, 232, 0.34);
   --spotlight-cyan: rgba(79, 196, 207, 0.2);
@@ -179,76 +186,9 @@
   --control-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root[data-theme="system"] {
-    color-scheme: dark;
-
-    --canvas: #0f0e17;
-    --canvas-tint: #17161f;
-    --surface: #17161f;
-    --surface-strong: #201e2b;
-    --surface-soft: #12111c;
-    --surface-lift: #222035;
-    --surface-frost: rgba(23, 22, 31, 0.72);
-    --ink: #fffffe;
-    --ink-soft: #b8b7cb;
-    --ink-muted: #9291a8;
-    --primary: #8a3fe8;
-    --primary-hover: #994ff3;
-    --primary-text: #b07cf6;
-    --primary-soft: #241a3d;
-    --on-primary: #fffffe;
-    --cyan: #4fc4cf;
-    --cyan-soft: #12313a;
-    --positive: #3ddc97;
-    --positive-soft: #10301f;
-    --negative: #ff5c7c;
-    --negative-soft: #3a1420;
-    --warning: #fbdd74;
-    --warning-soft: #332b14;
-    --outline: #2a2838;
-    --outline-strong: #45405c;
-    --lens-track: var(--outline-strong);
-    --focus: #4fc4cf;
-
-    --illustration-stroke: #fffffe;
-    --illustration-main: #17161f;
-    --illustration-highlight: #8a3fe8;
-    --illustration-secondary: #4fc4cf;
-    --illustration-tertiary: #3ddc97;
-
-    --field-primary: rgba(138, 63, 232, 0.22);
-    --field-cyan: rgba(79, 196, 207, 0.12);
-    --canvas-veil: rgba(15, 14, 23, 0.82);
-    --spotlight-primary: rgba(138, 63, 232, 0.34);
-    --spotlight-cyan: rgba(79, 196, 207, 0.2);
-    --gradient-accent: #c6a5ff;
-    --gradient-cyan: #78e2e7;
-
-    --elevation-card:
-      0 1px 0 rgba(255, 255, 254, 0.05) inset, 0 18px 48px rgba(0, 0, 0, 0.42);
-    --elevation-raised:
-      0 1px 0 rgba(255, 255, 254, 0.06) inset, 0 24px 60px rgba(0, 0, 0, 0.6);
-    --glow-primary: 0 0 0 1px rgba(138, 63, 232, 0.35);
-    --glow-cyan: 0 0 16px rgba(79, 196, 207, 0.7);
-    --control-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
-  }
-}
-
 @media (max-width: 1199px) {
   :root {
     --page-gutter: 24px;
-  }
-}
-
-/*
- * Measured, not guessed: the bar takes two rows up to 780px and one from
- * 784px. The threshold comes from how wide the links are, so a test asserts
- * this token still matches the rendered bar.
- */
-@media (max-width: 783px) {
-  :root {
-    --sticky-offset: 121px;
   }
 }
 

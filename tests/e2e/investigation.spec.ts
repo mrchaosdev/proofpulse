@@ -435,9 +435,11 @@ test.describe("evidence ledger and actor controls", () => {
   }) => {
     await page.goto(FIXTURE_URL);
 
-    await expect(page.getByRole("button", { name: "Light" })).toHaveAttribute(
-      "aria-current",
-      "true",
+    // A stable selector: the accessible name changes with the theme, so a
+    // locator bound to that text would go stale after the first click.
+    const toggle = page.locator(".theme-toggle");
+    await expect(toggle).toHaveAccessibleName(
+      "Colour theme: Light. Switch to Dark.",
     );
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect
@@ -448,9 +450,18 @@ test.describe("evidence ledger and actor controls", () => {
       )
       .toBe("light");
 
-    await page.getByRole("button", { name: "Dark" }).click();
+    await toggle.click();
 
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(toggle).toHaveAccessibleName(
+      "Colour theme: Dark. Switch to Light.",
+    );
+
+    // Toggling back and forth must not get stuck (D-085: startViewTransition's
+    // update callback runs as a microtask, so the store-change event used to
+    // fire a beat before the attribute actually changed).
+    await toggle.click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   });
 
   test("reports the data mode in the global navigation", async ({ page }) => {
@@ -581,13 +592,14 @@ test.describe("system states", () => {
 
 /*
  * --sticky-offset tells anchored content and the scope ribbon how much sticky
- * chrome to clear. Its value is the bar's measured height, and the width at
- * which the bar changes from two rows to one depends on how wide the nav links
- * render, so nothing in CSS keeps the two in step. Clicking a methodology
- * index link used to put the heading entirely behind the bar.
+ * chrome to clear. Its value is the bar's measured height. The bar is one row
+ * at every width, but that only holds while the overflow menu takes the
+ * destinations the row cannot fit, so the token is still asserted against the
+ * rendered bar rather than trusted. Clicking a methodology index link used to
+ * put the heading entirely behind the bar.
  */
 test.describe("sticky offset matches the rendered bar", () => {
-  for (const width of [320, 390, 768, 783, 784, 1024, 1440]) {
+  for (const width of [320, 333, 389, 390, 737, 738, 1024, 1440]) {
     test(`at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/methodology");
@@ -622,6 +634,85 @@ test.describe("sticky offset matches the rendered bar", () => {
           (currentBar?.y ?? 0) + (currentBar?.height ?? 0),
         );
       }
+    });
+  }
+});
+
+/*
+ * The command bar is one row at every width because the overflow menu takes
+ * the destinations the row cannot hold, not because the destinations were
+ * dropped. Measured: with every link inline the bar needs 738px, so the two
+ * presentations hand off there.
+ */
+test.describe("command bar destinations", () => {
+  const DESTINATIONS = ["Investigate", "Methodology", "Source"];
+
+  test("shows every destination inline at 738px", async ({ page }) => {
+    await page.setViewportSize({ width: 738, height: 900 });
+    await page.goto("/methodology");
+    await page.waitForFunction(() => document.fonts.status === "loaded");
+
+    await expect(page.getByRole("button", { name: "More" })).toBeHidden();
+    for (const label of DESTINATIONS) {
+      await expect(
+        page.locator(".command-bar-links").getByText(label),
+      ).toBeVisible();
+    }
+  });
+
+  test("moves every destination into the menu at 737px", async ({ page }) => {
+    await page.setViewportSize({ width: 737, height: 900 });
+    await page.goto("/methodology");
+    await page.waitForFunction(() => document.fonts.status === "loaded");
+
+    await expect(page.locator(".command-bar-links")).toBeHidden();
+    await page.getByRole("button", { name: "More" }).click();
+    await expect(page.locator(".nav-menu-panel")).toBeVisible();
+    expect(await page.locator(".nav-menu-panel a").allTextContents()).toEqual(
+      DESTINATIONS,
+    );
+  });
+
+  test("closes on Escape and returns focus to the trigger", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/methodology");
+
+    const trigger = page.getByRole("button", { name: "More" });
+    await trigger.click();
+    await expect(page.locator(".nav-menu-panel")).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(page.locator(".nav-menu-panel")).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+  });
+
+  /*
+   * The bar holds fixed-width controls that cannot shrink, so a destination
+   * left inline one breakpoint too long pushes the page sideways rather than
+   * wrapping. 320px is the documented minimum width.
+   */
+  for (const width of [320, 333, 389, 390, 737, 738, 1024]) {
+    test(`fits one row without horizontal scroll at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/methodology");
+      await page.waitForFunction(() => document.fonts.status === "loaded");
+
+      const overflow = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      );
+      expect(overflow, `the page scrolls sideways at ${width}px`).toBe(0);
+
+      const barHeight = await page
+        .locator(".command-bar-wrap")
+        .boundingBox()
+        .then((box) => Math.round(box?.height ?? 0));
+      expect(barHeight, `the bar is not one row at ${width}px`).toBe(82);
     });
   }
 });

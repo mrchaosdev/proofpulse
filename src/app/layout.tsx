@@ -1,10 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { BackToTop } from "@/components/actions/BackToTop";
+import { CanvasFields } from "@/components/effects/CanvasFields";
 import { RevealOnView } from "@/components/effects/RevealOnView";
 import { THEME_BOOTSTRAP } from "@/components/actions/theme-script";
 import { ThemeToggle } from "@/components/actions/ThemeToggle";
 import { ModeIndicator } from "@/components/feedback/ModeIndicator";
+import { BrandSymbol } from "@/components/navigation/BrandSymbol";
+import { CommandBarLinks } from "@/components/navigation/CommandBarLinks";
+import { NavMenu } from "@/components/navigation/NavMenu";
 import "@/styles/index.css";
 
 export const metadata: Metadata = {
@@ -40,39 +44,29 @@ export default function RootLayout({
           effect runs.
         */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
+        <CanvasFields />
         <div className="app-shell">
           <header className="command-bar-wrap">
             <nav className="command-bar" aria-label="Primary">
               <Link className="brand-mark" href="/">
-                <span className="brand-symbol" aria-hidden="true">
-                  <span className="brand-symbol-core" />
-                </span>
+                <BrandSymbol id="bar" />
                 <span className="brand-wordmark">ProofPulse</span>
               </Link>
-              <ul className="command-bar-links">
-                <li>
-                  <Link href="/investigate">Investigate</Link>
-                </li>
-                <li>
-                  <Link href="/methodology">Methodology</Link>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/mrchaosdev/proofpulse"
-                    rel="noreferrer noopener"
-                  >
-                    Source
-                  </a>
-                </li>
-              </ul>
+              {/*
+                Below the width where every destination no longer fits beside
+                the tools, this list hides and NavMenu carries the same three
+                destinations behind one trigger, rather than pushing the bar
+                onto a second sticky row (D-023 superseded).
+              */}
+              <CommandBarLinks />
               {/*
                 The mode badge and the theme control are not navigation
-                destinations, so they sit outside the list of links. Keeping
-                them in it also forced the bar onto three rows on a phone.
+                destinations, so they sit outside the list of links.
               */}
               <div className="command-bar-tools">
                 <ModeIndicator />
                 <ThemeToggle />
+                <NavMenu />
               </div>
             </nav>
           </header>
@@ -80,9 +74,7 @@ export default function RootLayout({
           <footer className="site-footer">
             <div className="footer-inner">
               <div className="footer-brand">
-                <span className="brand-symbol" aria-hidden="true">
-                  <span className="brand-symbol-core" />
-                </span>
+                <BrandSymbol id="footer" />
                 <div>
                   <strong>ProofPulse</strong>
                   <p className="text-meta">

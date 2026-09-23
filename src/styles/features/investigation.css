@@ -10,9 +10,12 @@
 
 .scope-ribbon {
   position: sticky;
-  /* Between 768 and 1023px the bar is two rows tall, so the old offset of
-     64px parked the ribbon behind it. */
-  top: calc(var(--sticky-offset) + var(--space-2));
+  /*
+   * The ribbon is the second floating panel down. It keeps the same gap
+   * below the command bar that the command bar keeps from the top of the
+   * viewport, so the two read as one stack rather than as a collision.
+   */
+  top: calc(var(--sticky-offset) + var(--space-3));
   z-index: 10;
   background-color: var(--surface-frost);
   backdrop-filter: blur(18px) saturate(140%);

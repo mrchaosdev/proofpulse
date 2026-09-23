@@ -21,15 +21,15 @@ export default function InvestigationLoading() {
       </p>
 
       <div className="investigation-grid" aria-hidden="true">
+        <section className="card grid-overview">
+          <span className="skeleton skeleton-title" />
+          <span className="skeleton skeleton-block" />
+        </section>
         <section className="card grid-lens">
           <span className="skeleton skeleton-title" />
           <span className="skeleton skeleton-lens" />
           <span className="skeleton skeleton-line" />
           <span className="skeleton skeleton-line" />
-        </section>
-        <section className="card grid-overview">
-          <span className="skeleton skeleton-title" />
-          <span className="skeleton skeleton-block" />
         </section>
         <section className="card grid-flows">
           <span className="skeleton skeleton-title" />

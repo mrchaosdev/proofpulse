@@ -179,6 +179,44 @@ describe("runInvestigation", () => {
     expect(bodies["/tgm/who-bought-sold"]).not.toHaveProperty("timeframe");
   });
 
+  it("sends a real seven-day scope to every live endpoint", async () => {
+    const bodies: Record<string, unknown> = {};
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: string, init?: RequestInit) => {
+        const path = new URL(url).pathname.replace("/api/v1", "");
+        bodies[path] = readBody(init);
+        const handler = defaultRoutes().get(path);
+        const { status, payload } = handler?.(bodies[path]) ?? {
+          status: 404,
+          payload: {},
+        };
+        return Promise.resolve(jsonResponse(status, payload));
+      }),
+    );
+
+    await runInvestigation(
+      {
+        chain: "ethereum",
+        tokenAddress: TOKEN_ADDRESS,
+        timeframe: "7d",
+        mode: "live",
+      },
+      dependencies(),
+    );
+
+    expect(bodies["/tgm/flow-intelligence"]).toMatchObject({
+      timeframe: "7d",
+    });
+    expect(bodies["/token-screener"]).toMatchObject({ timeframe: "7d" });
+    expect(bodies["/tgm/who-bought-sold"]).toMatchObject({
+      date: {
+        from: "2026-09-08T12:00:00.000Z",
+        to: "2026-09-15T12:00:00.000Z",
+      },
+    });
+  });
+
   it("produces scores from a fully successful investigation", async () => {
     const result = await runInvestigation(
       {

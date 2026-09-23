@@ -183,6 +183,22 @@ test.describe("input validation", () => {
     await expect(page.locator(".field-error")).toContainText("0x");
     await expect(page).toHaveURL(/\/investigate$/);
   });
+
+  test("does not offer uncaptured timeframes as fixture requests", async ({
+    page,
+  }) => {
+    await page.goto("/investigate");
+
+    await expect(
+      page.locator('[data-slot="toggle-group-item"][aria-label="1d"]'),
+    ).toBeEnabled();
+    await expect(
+      page.locator('[data-slot="toggle-group-item"][aria-label="7d"]'),
+    ).toBeDisabled();
+    await expect(
+      page.getByText("Fixture mode contains one 1d capture."),
+    ).toBeVisible();
+  });
 });
 
 test.describe("responsive and accessible behaviour", () => {
@@ -199,6 +215,35 @@ test.describe("responsive and accessible behaviour", () => {
       expect(overflow).toBeLessThanOrEqual(0);
     });
   }
+
+  test("keeps the laptop report in deliberate content rows", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await page.goto(FIXTURE_URL);
+
+    const positions = await page.evaluate(() => {
+      const top = (selector: string) =>
+        Math.round(
+          document.querySelector(selector)?.getBoundingClientRect().top ?? -1,
+        );
+      return {
+        lens: top(".grid-lens"),
+        overview: top(".grid-overview"),
+        flows: top(".grid-flows"),
+        score: top(".grid-score"),
+        brief: top(".grid-brief"),
+        buyers: top(".grid-buyers"),
+        sellers: top(".grid-sellers"),
+      };
+    });
+
+    expect(positions.lens).toBeGreaterThan(positions.overview);
+    expect(positions.flows).toBe(positions.lens);
+    expect(positions.score).toBeGreaterThan(positions.flows);
+    expect(positions.brief).toBe(positions.score);
+    expect(positions.buyers).toBe(positions.sellers);
+  });
 
   test("reaches the investigation form by keyboard alone", async ({ page }) => {
     await page.goto("/investigate");
@@ -439,29 +484,29 @@ test.describe("evidence ledger and actor controls", () => {
     // locator bound to that text would go stale after the first click.
     const toggle = page.locator(".theme-toggle");
     await expect(toggle).toHaveAccessibleName(
-      "Colour theme: Light. Switch to Dark.",
+      "Colour theme: Dark. Switch to Light.",
     );
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect
       .poll(() =>
         page.evaluate(
           () => getComputedStyle(document.documentElement).colorScheme,
         ),
       )
-      .toBe("light");
+      .toBe("dark");
 
     await toggle.click();
 
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(toggle).toHaveAccessibleName(
-      "Colour theme: Dark. Switch to Light.",
+      "Colour theme: Light. Switch to Dark.",
     );
 
     // Toggling back and forth must not get stuck (D-085: startViewTransition's
     // update callback runs as a microtask, so the store-change event used to
     // fire a beat before the attribute actually changed).
     await toggle.click();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
 
   test("reports the data mode in the global navigation", async ({ page }) => {
@@ -636,6 +681,42 @@ test.describe("sticky offset matches the rendered bar", () => {
       }
     });
   }
+});
+
+test.describe("methodology reading index", () => {
+  test("stays left of the document and follows the visible section", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto("/methodology");
+
+    const index = page.locator(".doc-index");
+    const body = page.locator(".doc-body");
+    const indexBox = await index.boundingBox();
+    const bodyBox = await body.boundingBox();
+
+    expect(indexBox?.x ?? Number.POSITIVE_INFINITY).toBeLessThan(
+      bodyBox?.x ?? 0,
+    );
+    await expect(index.locator('[aria-current="location"]')).toHaveAttribute(
+      "href",
+      "#meaning",
+    );
+
+    await index.locator('a[href="#confidence"]').click();
+    await expect(index.locator('[aria-current="location"]')).toHaveAttribute(
+      "href",
+      "#confidence",
+    );
+
+    await page.locator("#coordination").evaluate((heading) => {
+      heading.scrollIntoView({ block: "start" });
+    });
+    await expect(index.locator('[aria-current="location"]')).toHaveAttribute(
+      "href",
+      "#coordination",
+    );
+  });
 });
 
 /*
@@ -965,11 +1046,11 @@ test.describe("entrance motion", () => {
 /*
  * The theme a reader chose must be on screen from the first frame.
  *
- * The server renders data-theme="light", so without a bootstrap that runs
- * before paint, someone who chose dark watches the page flash white and then
- * turn over. A React effect cannot fix it: an effect runs after the first
- * paint by definition. An inline script at the top of the body can, and this
- * asserts that it does.
+ * The server renders the default dark theme, so without a bootstrap that runs
+ * before paint, someone who chose light watches the page flash dark and then
+ * turn over. A React effect cannot fix it: an effect runs after the first paint
+ * by definition. An inline script in the document head can, and this asserts
+ * that it does.
  */
 test.describe("chosen theme survives the first paint", () => {
   for (const choice of ["dark", "light"] as const) {

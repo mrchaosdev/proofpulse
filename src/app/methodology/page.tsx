@@ -26,6 +26,7 @@ import { SCORE_FORMULA_VERSION } from "@/domain/scoring/score";
 import { SEGMENTS } from "@/domain/investigation/investigation";
 import { CREDITS_PER_CALL } from "@/domain/investigation/credits";
 import { Button } from "@/components/ui/button";
+import { MethodologyIndex } from "@/components/methodology/MethodologyIndex";
 
 export const metadata: Metadata = {
   title: "Methodology",
@@ -51,6 +52,8 @@ export default function MethodologyPage() {
 
   return (
     <div className="page-region doc-layout">
+      <MethodologyIndex sections={SECTIONS} />
+
       <div className="doc-body">
         <h1>Methodology</h1>
         <p>
@@ -246,17 +249,6 @@ export default function MethodologyPage() {
           </Button>
         </div>
       </div>
-
-      <nav className="doc-index" aria-label="On this page">
-        <span className="doc-index-title">On this page</span>
-        <ul className="doc-index-list">
-          {SECTIONS.map((section) => (
-            <li key={section.id}>
-              <a href={`#${section.id}`}>{section.label}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
     </div>
   );
 }

@@ -33,10 +33,19 @@ export function InvestigationForm({
   initialChain = "ethereum",
   initialAddress = "",
   initialTimeframe = "1d",
+  availableTimeframes = TIMEFRAMES,
+  timeframeHelp,
 }: {
   initialChain?: Chain;
   initialAddress?: string;
   initialTimeframe?: Timeframe;
+  /**
+   * Fixture mode has one captured scope, so it must not offer timeframe
+   * choices that cannot cause a live request. Live mode leaves all four
+   * domain timeframes available.
+   */
+  availableTimeframes?: readonly Timeframe[];
+  timeframeHelp?: string;
 }) {
   const router = useRouter();
   const addressFieldId = useId();
@@ -127,11 +136,19 @@ export function InvestigationForm({
           className="w-full"
         >
           {TIMEFRAMES.map((option) => (
-            <ToggleGroupItem key={option} value={option} aria-label={option}>
+            <ToggleGroupItem
+              key={option}
+              value={option}
+              aria-label={option}
+              disabled={!availableTimeframes.includes(option)}
+            >
               {option}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
+        {timeframeHelp === undefined ? null : (
+          <span className="field-hint">{timeframeHelp}</span>
+        )}
       </fieldset>
 
       <div className="cluster">

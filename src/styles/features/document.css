@@ -8,9 +8,10 @@
 
 .doc-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
+  grid-template-columns: minmax(180px, 220px) minmax(0, 760px);
   gap: var(--space-12);
   align-items: start;
+  justify-content: center;
 }
 
 /*
@@ -40,12 +41,18 @@
   max-width: none;
 }
 
+.doc-body h2[id] {
+  /* Leave room for both the sticky command bar and the section reveal travel. */
+  scroll-margin-block-start: var(--space-6);
+}
+
 .doc-index {
   position: sticky;
   top: calc(var(--command-bar-height) + var(--space-6));
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  padding-block: var(--space-3);
 }
 
 .doc-index-title {
@@ -73,11 +80,25 @@
   text-decoration: none;
   font-size: var(--type-meta-size);
   line-height: var(--type-meta-height);
+  transition:
+    border-color var(--motion-fast) var(--easing-standard),
+    color var(--motion-fast) var(--easing-standard),
+    background-color var(--motion-fast) var(--easing-standard);
 }
 
-.doc-index-list a:hover {
+.doc-index-list a:hover,
+.doc-index-list a.is-active {
   border-inline-start-color: var(--primary-text);
   color: var(--ink);
+}
+
+.doc-index-list a.is-active {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--primary) 14%, transparent),
+    transparent 88%
+  );
+  font-weight: var(--weight-semibold);
 }
 
 .doc-actions {
@@ -96,5 +117,6 @@
 
   .doc-index {
     position: static;
+    grid-row: 1;
   }
 }

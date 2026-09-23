@@ -10,6 +10,7 @@ import { MemoryCacheStore } from "@/server/cache/cache-store";
 import { describeFixture } from "@/server/fixtures/fixture-loader";
 import { runInvestigation } from "@/server/investigations/investigation-service";
 import { Button } from "@/components/ui/button";
+import { getEffectiveMode } from "@/config/app-config";
 
 /**
  * Landing page. The example is a real captured investigation scored by the
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 export default async function LandingPage() {
   const chains = listChainProfiles();
   const fixture = describeFixture();
+  const fixtureOnly = getEffectiveMode() === "fixture";
   const example = await runInvestigation(
     {
       chain: fixture.chain,
@@ -80,7 +82,14 @@ export default async function LandingPage() {
             </div>
             <span className="hero-panel-badge">4 sources</span>
           </div>
-          <InvestigationForm />
+          <InvestigationForm
+            {...(fixtureOnly
+              ? {
+                  availableTimeframes: [fixture.timeframe],
+                  timeframeHelp: `Fixture mode contains one ${fixture.timeframe} capture. Configure NANSEN_API_KEY and APP_MODE=live to run 1h, 6h, or 7d.`,
+                }
+              : {})}
+          />
           <p className="hero-panel-note">
             Address validated before any paid request. Partial data remains
             visible and lowers confidence.

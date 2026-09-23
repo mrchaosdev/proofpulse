@@ -7,6 +7,7 @@ import { CREDITS_PER_CALL } from "@/domain/investigation/credits";
 import { REQUIRED_CAPABILITIES } from "@/domain/investigation/investigation";
 import { SpotlightCard } from "@/components/effects/SpotlightCard";
 import { Button } from "@/components/ui/button";
+import { getEffectiveMode } from "@/config/app-config";
 
 export const metadata: Metadata = {
   title: "Investigate",
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default function InvestigatePage() {
   const fixture = describeFixture();
   const coreCost = REQUIRED_CAPABILITIES.length * CREDITS_PER_CALL;
+  const fixtureOnly = getEffectiveMode() === "fixture";
 
   return (
     <div className="page-region investigate-entry">
@@ -39,7 +41,14 @@ export default function InvestigatePage() {
             </div>
             <span className="hero-panel-badge">4 credits</span>
           </div>
-          <InvestigationForm />
+          <InvestigationForm
+            {...(fixtureOnly
+              ? {
+                  availableTimeframes: [fixture.timeframe],
+                  timeframeHelp: `Fixture mode contains one ${fixture.timeframe} capture. Configure NANSEN_API_KEY and APP_MODE=live to run 1h, 6h, or 7d.`,
+                }
+              : {})}
+          />
         </SpotlightCard>
 
         <aside className="investigate-aside">

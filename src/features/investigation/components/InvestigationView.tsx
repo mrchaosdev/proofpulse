@@ -173,16 +173,6 @@ export function InvestigationView({
       </section>
 
       <div className="investigation-grid">
-        <section className="card grid-lens" aria-labelledby="lens-heading">
-          <h2 className="card-heading" id="lens-heading">
-            Signal lens
-          </h2>
-          <p className="card-question">
-            Three separate answers. They are never merged into one verdict.
-          </p>
-          <SignalLens scores={scores} />
-        </section>
-
         <section
           className="card grid-overview"
           aria-labelledby="sources-heading"
@@ -205,6 +195,16 @@ export function InvestigationView({
           )}
         </section>
 
+        <section className="card grid-lens" aria-labelledby="lens-heading">
+          <h2 className="card-heading" id="lens-heading">
+            Signal lens
+          </h2>
+          <p className="card-question">
+            Three separate answers. They are never merged into one verdict.
+          </p>
+          <SignalLens scores={scores} />
+        </section>
+
         <section className="card grid-flows" aria-labelledby="flows-heading">
           <h2 className="card-heading" id="flows-heading">
             Cohort flows
@@ -217,7 +217,7 @@ export function InvestigationView({
         </section>
 
         <section
-          className="card grid-half"
+          className="card grid-half grid-score"
           aria-labelledby="confidence-heading"
         >
           <h2 className="card-heading" id="confidence-heading">
@@ -253,7 +253,10 @@ export function InvestigationView({
           )}
         </section>
 
-        <section className="card grid-half" aria-labelledby="brief-heading">
+        <section
+          className="card grid-half grid-brief"
+          aria-labelledby="brief-heading"
+        >
           <h2 className="card-heading" id="brief-heading">
             Brief
           </h2>
@@ -264,7 +267,10 @@ export function InvestigationView({
           <BriefPanel outcome={briefOutcome} />
         </section>
 
-        <section className="card grid-half" aria-labelledby="buyers-heading">
+        <section
+          className="card grid-half grid-buyers"
+          aria-labelledby="buyers-heading"
+        >
           <h2 className="card-heading" id="buyers-heading">
             Top net buyers
           </h2>
@@ -283,7 +289,10 @@ export function InvestigationView({
           />
         </section>
 
-        <section className="card grid-half" aria-labelledby="sellers-heading">
+        <section
+          className="card grid-half grid-sellers"
+          aria-labelledby="sellers-heading"
+        >
           <h2 className="card-heading" id="sellers-heading">
             Top net sellers
           </h2>

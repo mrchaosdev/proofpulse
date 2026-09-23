@@ -9,7 +9,10 @@
  */
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
-import { THEME_STORAGE_KEY as STORAGE_KEY } from "./theme-script";
+import {
+  DEFAULT_THEME,
+  THEME_STORAGE_KEY as STORAGE_KEY,
+} from "./theme-script";
 
 type Choice = "light" | "dark";
 
@@ -45,9 +48,9 @@ function ThemeIcon({ choice }: { choice: Choice }) {
 function readStored(): Choice {
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored === "light" || stored === "dark" ? stored : "light";
+    return stored === "light" || stored === "dark" ? stored : DEFAULT_THEME;
   } catch {
-    return "light";
+    return DEFAULT_THEME;
   }
 }
 
@@ -85,11 +88,13 @@ function subscribe(onChange: () => void): () => void {
 
 function getSnapshot(): Choice {
   const attribute = document.documentElement.getAttribute("data-theme");
-  return attribute === "dark" ? "dark" : "light";
+  return attribute === "light" || attribute === "dark"
+    ? attribute
+    : DEFAULT_THEME;
 }
 
 function getServerSnapshot(): Choice {
-  return "light";
+  return DEFAULT_THEME;
 }
 
 /**
